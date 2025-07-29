@@ -1,3 +1,23 @@
 <resources>
     <string name="app_name">FlagMaster</string>
+    <string name="flags_button_correct">Correct</string>
+    <string name="flags_button_wrong">Wrong</string>
+    <string name="game_over">GAME OVER</string>
+    <string name="score">SCORE :</string>
+    <string name="challenge_scheduled_at">Challenge Scheduled At %1$s</string>
+    <string name="guess_the_country_from_the_flag">GUESS THE COUNTRY FROM THE FLAG ?</string>
+    <string name="will_start_in">WILL START IN</string>
+    <string name="flags_challenge">FLAGS CHALLENGE</string>
+    <string name="schedule">SCHEDULE</string>
+    <string name="minute">Minute</string>
+    <string name="second">Second</string>
+    <string name="hour">Hour</string>
+    <string name="save">Save</string>
+    <string name="hour_must_be_two_digits_00_23">Hour must be two digits (00-23).</string>
+    <string name="hour_is_invalid_must_be_between_00_and_23">Hour “%1$s” is invalid. Must be between 00 and 23.</string>
+    <string name="minute_must_be_two_digits_00_59">Minute must be two digits (00-59).</string>
+    <string name="minute_is_invalid_must_be_between_00_and_59">Minute “%1$s” is invalid. Must be between 00 and 59.</string>
+    <string name="second_must_be_two_digits_00_59">Second must be two digits (00-59).</string>
+    <string name="second_is_invalid_must_be_between_00_and_59">Second “%1$s” is invalid. Must be between 00 and 59.</string>
+    <string name="please_enter">Please enter %1$s.</string>
 </resources>
