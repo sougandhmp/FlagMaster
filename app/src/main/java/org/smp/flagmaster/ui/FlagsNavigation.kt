@@ -1,12 +1,10 @@
-package org.smp.flagmaster
+package org.smp.flagmaster.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import org.smp.flagmaster.ui.time_schedule.TimeScheduleRoute
-import org.smp.flagmaster.ui.time_schedule.timeScheduleScreen
 
 @Composable
 fun FlagsNavigation() {
@@ -16,8 +14,6 @@ fun FlagsNavigation() {
         startDestination = TimeScheduleRoute,
         modifier = Modifier.fillMaxSize()
     ) {
-        timeScheduleScreen(
-            onBack = { navController.popBackStack() }
-        )
+        timeScheduleScreen()
     }
 }
