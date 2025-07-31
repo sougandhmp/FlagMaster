@@ -69,3 +69,26 @@ If the user closes or kills the app mid-challenge:
 - Flag filenames use lowercase country code: `us.xml`, `in.xml`, `jp.xml`
 
 
+## 🎥 Demo
+![Flags Challenge Demo](screenshots/app_flow.mp4)
+![Flags Challenge_Persistence](screenshots/persistence_after_app_kill.mp4)
+
+## 📸 Screenshots
+
+### 🕓 Time Scheduling
+<img src="screenshots/time_schedule.png" width="400" alt=""/>
+
+### ⏳ Countdown Starts in 20s
+<img src="screenshots/scheduled_time.png" width="400" alt=""/>
+<img src="screenshots/count_down.png" width="400" alt=""/>
+
+
+### 🇺🇳 Flag Question with Options
+<img src="screenshots/challenge_screen_1.png" width="400" alt=""/>
+
+### ✅ Correct Answer Shown
+<img src="screenshots/challenge_screen_2.png" width="400" alt=""/>
+
+### 🏁 Game Over & Score Screen
+<img src="screenshots/game_over_score.png" width="400" alt=""/>
+
