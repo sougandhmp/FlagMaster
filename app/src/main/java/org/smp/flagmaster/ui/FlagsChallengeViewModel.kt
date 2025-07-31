@@ -26,7 +26,7 @@ import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
-class TimeScheduleViewModel @Inject constructor(
+class FlagsChallengeViewModel @Inject constructor(
     private val seedQuestionsUseCase: SeedQuestionsUseCase,
     private val getAllQuestionsUseCase: GetAllQuestionsUseCase,
     private val timeSchedulerErrorMapper: TimeSchedulerErrorMapper,
@@ -43,7 +43,7 @@ class TimeScheduleViewModel @Inject constructor(
 
     private var activeTimer: CountDownTimer? = null
 
-    companion object {
+    companion object Companion {
         private const val QUIZ_TIMER_MS = 30_000L
         private const val QUIZ_INTERVAL_MS = 10_000L
     }
@@ -92,15 +92,15 @@ class TimeScheduleViewModel @Inject constructor(
     }
 
 
-    fun onAction(action: ScheduleScreenAction) {
+    fun onAction(action: FlagsScreenAction) {
         when (action) {
-            is ScheduleScreenAction.OnDigitChange -> {
+            is FlagsScreenAction.OnDigitChange -> {
                 val updatedDigits =
                     _uiState.value.digits.toMutableList().also { it[action.index] = action.value }
                 _uiState.update { it.copy(digits = updatedDigits) }
             }
 
-            is ScheduleScreenAction.OnSave -> {
+            is FlagsScreenAction.OnSave -> {
                 val error = timeSchedulerErrorMapper(_uiState.value.digits)
                 if (error != null) {
                     _uiState.update { it.copy(errorMessage = error) }
@@ -110,7 +110,7 @@ class TimeScheduleViewModel @Inject constructor(
                 }
             }
 
-            is ScheduleScreenAction.OnOptionSelected -> {
+            is FlagsScreenAction.OnOptionSelected -> {
                 _uiState.update { it.copy(selectedOption = action.option) }
             }
         }
@@ -213,23 +213,24 @@ class TimeScheduleViewModel @Inject constructor(
             val question = _uiState.value.currentQuestion
             val selection = _uiState.value.selectedOption
 
-            if (question != null && selection != null) {
-                val isCorrect = question.answerId == selection.id
+            if (question != null) {
+                val isCorrect = question.answerId == selection?.id
                 val updatedAnswers = _uiState.value.answers.toMutableList().apply {
                     removeAll { it.questionId == question.answerId }
                     add(
                         QuizAnswer(
                             questionId = question.answerId,
-                            selectedOption = selection.id,
+                            selectedOption = selection?.id.orEmpty(),
                             isCorrect = isCorrect
                         )
                     )
                 }
+                val answerResult = if (isCorrect) AnswerResult.CORRECT else AnswerResult.WRONG
 
                 _uiState.update {
                     it.copy(
                         answers = updatedAnswers,
-                        answerResult = if (isCorrect) AnswerResult.CORRECT else AnswerResult.WRONG,
+                        answerResult = answerResult,
                         score = updatedAnswers.count { it.isCorrect }
                     )
                 }

@@ -18,24 +18,42 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
+/**
+ * A composable that displays a circular countdown timer with animated progress.
+ *
+ * Shows:
+ * - A circular progress indicator that fills over time.
+ * - A countdown text (in seconds) displayed in the center.
+ * - Automatically counts down from [timeInSeconds] to 0.
+ *
+ * @param timeInSeconds The total time in seconds for the countdown.
+ * @param modifier Optional [Modifier] for layout customization.
+ * @param onComplete A callback function triggered when the countdown finishes.
+ */
 @Composable
-fun CircularLoading(timeInSeconds: Int, onComplete: () -> Unit = {}) {
+fun CircularLoading(
+    timeInSeconds: Int,
+    modifier: Modifier = Modifier,
+    onComplete: () -> Unit = {}
+) {
     var secondsLeft by remember { mutableIntStateOf(timeInSeconds) }
 
-    LaunchedEffect(Unit) {
-        repeat(10) {
+    LaunchedEffect(timeInSeconds) {
+        repeat(timeInSeconds) {
             delay(1000)
             secondsLeft--
         }
         onComplete()
     }
 
+    val progress = 1f - (secondsLeft.toFloat() / timeInSeconds.coerceAtLeast(1))
+
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         CircularProgressIndicator(
-            progress = { 1f - secondsLeft / 10f },
+            progress = { progress },
             color = ProgressIndicatorDefaults.circularColor,
             strokeWidth = 2.dp,
             trackColor = ProgressIndicatorDefaults.circularIndeterminateTrackColor,

@@ -35,6 +35,18 @@ import org.smp.flagmaster.R
 import org.smp.flagmaster.ui.AnswerResult
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
 
+
+/**
+ * A composable representing the main quiz view.
+ * Displays a flag and a grid of country options for the user to choose from.
+ *
+ * @param flagCountryCode The country code to load the flag image from resources.
+ * @param options The list of country options displayed as answer choices.
+ * @param onOptionSelected Callback when an option is selected.
+ * @param selected The currently selected country (if any).
+ * @param result The result status (CORRECT or WRONG) after answering.
+ * @param answer The correct answer's ID string (for highlighting the correct option).
+ */
 @Composable
 fun ChallengeView(
     flagCountryCode: String = "in",
@@ -48,7 +60,7 @@ fun ChallengeView(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(24.dp)
+            .padding(16.dp)
     ) {
         Text(
             text = stringResource(R.string.guess_the_country_from_the_flag),
@@ -59,11 +71,10 @@ fun ChallengeView(
 
         CountryFlag(countryCode = flagCountryCode)
 
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(24.dp))
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2), // For a 2-column grid
+            columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -80,6 +91,13 @@ fun ChallengeView(
     }
 
 }
+
+/**
+ * Composable displays the flag image for a given country code.
+ * Falls back to a white flag emoji if the image is not found.
+ *
+ * @param countryCode The country code used to load the flag drawable.
+ */
 
 @Composable
 fun CountryFlag(countryCode: String) {
@@ -98,17 +116,26 @@ fun CountryFlag(countryCode: String) {
             contentScale = ContentScale.FillWidth
         )
     } else {
-        // Optional fallback
         Text("🏳️", fontSize = 32.sp)
     }
 }
 
+/**
+ * Displays a single option (country) as a button.
+ * Applies different colors and feedback text based on the selected and result state.
+ *
+ * @param country The country represented by this button.
+ * @param selected Whether this option was selected by the user.
+ * @param onClick Called when the button is clicked.
+ * @param answer The correct answer's ID, used to style the correct answer.
+ * @param answerResult The result status (CORRECT or WRONG) for the current question.
+ */
 @Composable
 fun OptionButton(
     country: Country,
     selected: Boolean,
     onClick: (Country) -> Unit,
-    answer: String? = null, // correct answer ID
+    answer: String? = null,
     answerResult: AnswerResult? = null
 ) {
     val isCorrect = country.id == answer
@@ -118,8 +145,8 @@ fun OptionButton(
 
     // Background color
     val containerColor = when {
-        showCorrect -> Color(0xFFDFF5DC) // light green
-        showWrong -> Color(0xFFFFE0E0)   // light red
+        showCorrect -> Color(0xFFDFF5DC)
+        showWrong -> Color(0xFFFFE0E0)
         selected -> Color(0xFFE0E0E0)
         else -> Color.Transparent
     }
@@ -145,7 +172,7 @@ fun OptionButton(
             border = BorderStroke(2.dp, borderColor),
             colors = ButtonDefaults.buttonColors(
                 containerColor = containerColor,
-                contentColor = Color.Black
+                contentColor = MaterialTheme.colorScheme.scrim
             )
         ) {
             Text(text = country.name)

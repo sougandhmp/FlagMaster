@@ -19,10 +19,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.smp.flagmaster.R
+import org.smp.flagmaster.ui.theme.FlagMasterTheme
 
+/**
+ * Displays the final screen after the quiz is completed.
+ *
+ * Shows a "GAME OVER" label and the user's score formatted as "SCORE : XX/YY".
+ *
+ * @param score The number of correct answers.
+ * @param total The total number of questions in the quiz.
+ */
 @Composable
 fun ChallengeCompleteView(score: Int, total: Int) {
-
     Column {
         Text(
             stringResource(R.string.game_over),
@@ -35,6 +43,15 @@ fun ChallengeCompleteView(score: Int, total: Int) {
 
 }
 
+/**
+ * Displays a "SCORE :" label followed by the user's score.
+ *
+ * Formats the score side by side using a horizontal [Row].
+ *
+ * @param score The number of correct answers.
+ * @param total The total number of questions in the quiz.
+ * @param modifier Optional [Modifier] for styling the container.
+ */
 @Composable
 fun ScoreView(
     score: Int,
@@ -51,14 +68,14 @@ fun ScoreView(
     ) {
         Text(
             text = stringResource(R.string.score),
-            color = Color(0xFFFF7043), // Soft orange as in your screenshot
+            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge.copy(fontSize = 32.sp)
         )
         Spacer(modifier = Modifier.width(18.dp))
         // Score value with underline
         Text(
             text = "$score/$total",
-            color = Color(0xFF444444), // Dark gray
+            color = MaterialTheme.colorScheme.outline,
             style = MaterialTheme.typography.displaySmall.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 48.sp,
@@ -71,11 +88,15 @@ fun ScoreView(
 @Composable
 @Preview
 private fun ScoreViewPreview() {
-    ScoreView(score = 7, total = 10)
+    FlagMasterTheme {
+        ScoreView(score = 7, total = 10)
+    }
 }
 
 @Composable
 @Preview
 private fun ChallengeCompleteViewPreview() {
-    ChallengeCompleteView(score = 7, total = 10)
+    FlagMasterTheme {
+        ChallengeCompleteView(score = 7, total = 10)
+    }
 }

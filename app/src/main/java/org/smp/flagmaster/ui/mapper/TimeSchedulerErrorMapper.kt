@@ -5,10 +5,22 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import org.smp.flagmaster.R
 import javax.inject.Inject
 
+/**
+ * Mapper for time scheduler errors.
+ *
+ * @param context Context for string resources
+ * @return Error message if any, null otherwise
+ */
 class TimeSchedulerErrorMapper @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {
 
+    /**
+     * Map time scheduler errors to error messages.
+     *
+     * @param digits List of digits representing the time
+     * @return Error message if any, null otherwise
+     */
     operator fun invoke(digits: List<String>): String? {
         val hourDigits = digits[0] + digits[1]
         val minuteDigits = digits[2] + digits[3]
