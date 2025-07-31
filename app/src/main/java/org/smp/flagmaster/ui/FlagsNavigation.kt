@@ -11,7 +11,7 @@ fun FlagsNavigation() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = TimeScheduleRoute,
+        startDestination = FlagsChallengeRoute,
         modifier = Modifier.fillMaxSize()
     ) {
         timeScheduleScreen()

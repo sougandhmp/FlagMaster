@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -18,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,11 +32,11 @@ import org.smp.flagmaster.ui.components.TimerScheduleView
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
 
 @Composable
-fun TimeScheduleRoute(
-    viewModel: TimeScheduleViewModel = hiltViewModel()
+fun FlagsChallengeRoute(
+    viewModel: FlagsChallengeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    TimeScheduleScreen(
+    FlagsChallengeScreen(
         uiState = uiState,
         onAction = viewModel::onAction,
     )
@@ -46,9 +44,9 @@ fun TimeScheduleRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimeScheduleScreen(
+fun FlagsChallengeScreen(
     uiState: ScheduleTimeUiState,
-    onAction: (ScheduleScreenAction) -> Unit = {},
+    onAction: (FlagsScreenAction) -> Unit = {},
 ) {
 
 
@@ -80,12 +78,6 @@ fun TimeScheduleScreen(
                     time = if (uiState.challengeState == ChallengeState.IN_PROGRESS) uiState.remainingTime else null,
                     pageCount = if (uiState.challengeState == ChallengeState.IN_PROGRESS) "${uiState.questionIndex + 1}/${uiState.questions.size}" else null
                 )
-                HorizontalDivider(
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    thickness = 1.dp,
-                    color = Color.Gray
-                )
-
                 when (uiState.challengeState) {
                     ChallengeState.NOT_SCHEDULED -> TimerScheduleView(uiState, onAction)
 
@@ -95,17 +87,18 @@ fun TimeScheduleScreen(
                     ChallengeState.COUNT_DOWN ->
                         CountDownView(remainingTime = uiState.remainingTime)
 
-                    ChallengeState.IN_PROGRESS ->
+                    ChallengeState.IN_PROGRESS -> {
                         ChallengeView(
                             flagCountryCode = uiState.currentQuestion?.countryCode ?: "in",
                             options = uiState.currentQuestion?.options.orEmpty(),
                             onOptionSelected = {
-                                onAction(ScheduleScreenAction.OnOptionSelected(it))
+                                onAction(FlagsScreenAction.OnOptionSelected(it))
                             },
                             selected = uiState.selectedOption,
                             result = uiState.answerResult,
                             answer = uiState.answer
                         )
+                    }
 
                     ChallengeState.COMPLETED -> ChallengeCompleteView(
                         score = uiState.score,
@@ -116,7 +109,10 @@ fun TimeScheduleScreen(
 
 
             if (uiState.showProgress && uiState.progressDuration > 0) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 16.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
                     Text("Next question will be available in ")
                     CircularLoading(timeInSeconds = uiState.progressDuration)
                 }
@@ -140,7 +136,7 @@ fun TimeScheduleScreen(
 @Preview
 fun TimeSchedulePreview() {
     FlagMasterTheme {
-        TimeScheduleScreen(
+        FlagsChallengeScreen(
             uiState = ScheduleTimeUiState(),
             onAction = {}
         )

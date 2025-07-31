@@ -5,10 +5,10 @@ import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object TimeScheduleRoute
+data object FlagsChallengeRoute
 
 fun NavGraphBuilder.timeScheduleScreen() {
-    composable<TimeScheduleRoute> {
-        TimeScheduleRoute()
+    composable<FlagsChallengeRoute> {
+        FlagsChallengeRoute()
     }
 }

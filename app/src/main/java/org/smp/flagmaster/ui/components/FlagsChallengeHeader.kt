@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -38,6 +39,7 @@ fun FlagsChallengeHeader(
         modifier = modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
+            .shadow(1.dp)
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -23,13 +23,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.smp.flagmaster.R
-import org.smp.flagmaster.ui.ScheduleScreenAction
+import org.smp.flagmaster.ui.FlagsScreenAction
 import org.smp.flagmaster.ui.ScheduleTimeUiState
 
 @Composable
 fun TimerScheduleView(
     uiState: ScheduleTimeUiState,
-    onAction: (ScheduleScreenAction) -> Unit = {},
+    onAction: (FlagsScreenAction) -> Unit = {},
 ) {
     val focusRequesters = List(6) { remember { FocusRequester() } }
     val digits = uiState.digits
@@ -57,7 +57,7 @@ fun TimerScheduleView(
                     value = digits[0],
                     onValueChange = { input ->
                         val filtered = input.takeLast(1).filter { it.isDigit() }
-                        onAction(ScheduleScreenAction.OnDigitChange(0, filtered))
+                        onAction(FlagsScreenAction.OnDigitChange(0, filtered))
                         if (filtered.isNotEmpty()) focusRequesters[1].requestFocus()
                     },
                     focusRequester = focusRequesters[0],
@@ -69,9 +69,9 @@ fun TimerScheduleView(
                     onValueChange = { input ->
                         val filtered = input.takeLast(1).filter { it.isDigit() }
                         if (filtered.isNotEmpty() && digits[0].isEmpty()) {
-                            onAction(ScheduleScreenAction.OnDigitChange(0, "0"))
+                            onAction(FlagsScreenAction.OnDigitChange(0, "0"))
                         }
-                        onAction(ScheduleScreenAction.OnDigitChange(1, filtered))
+                        onAction(FlagsScreenAction.OnDigitChange(1, filtered))
                         if (filtered.isNotEmpty()) focusRequesters[2].requestFocus()
                     },
                     focusRequester = focusRequesters[1],
@@ -91,7 +91,7 @@ fun TimerScheduleView(
                     value = digits[2],
                     onValueChange = { input ->
                         val filtered = input.takeLast(1).filter { it.isDigit() }
-                        onAction(ScheduleScreenAction.OnDigitChange(2, filtered))
+                        onAction(FlagsScreenAction.OnDigitChange(2, filtered))
                         if (filtered.isNotEmpty()) focusRequesters[3].requestFocus()
                     },
                     focusRequester = focusRequesters[2],
@@ -105,9 +105,9 @@ fun TimerScheduleView(
                     onValueChange = { input ->
                         val filtered = input.takeLast(1).filter { it.isDigit() }
                         if (filtered.isNotEmpty() && digits[2].isEmpty()) {
-                            onAction(ScheduleScreenAction.OnDigitChange(2, "0"))
+                            onAction(FlagsScreenAction.OnDigitChange(2, "0"))
                         }
-                        onAction(ScheduleScreenAction.OnDigitChange(3, filtered))
+                        onAction(FlagsScreenAction.OnDigitChange(3, filtered))
                         if (filtered.isNotEmpty()) focusRequesters[4].requestFocus()
                     },
                     focusRequester = focusRequesters[3],
@@ -127,7 +127,7 @@ fun TimerScheduleView(
                     value = digits[4],
                     onValueChange = { input ->
                         val filtered = input.takeLast(1).filter { it.isDigit() }
-                        onAction(ScheduleScreenAction.OnDigitChange(4, filtered))
+                        onAction(FlagsScreenAction.OnDigitChange(4, filtered))
                         if (filtered.isNotEmpty()) focusRequesters[5].requestFocus()
                     },
                     focusRequester = focusRequesters[4],
@@ -141,10 +141,10 @@ fun TimerScheduleView(
                     onValueChange = { input ->
                         val filtered = input.takeLast(1).filter { it.isDigit() }
                         if (filtered.isNotEmpty() && digits[4].isEmpty()) {
-                            onAction(ScheduleScreenAction.OnDigitChange(4, "0"))
+                            onAction(FlagsScreenAction.OnDigitChange(4, "0"))
                         }
                         onAction(
-                            ScheduleScreenAction.OnDigitChange(
+                            FlagsScreenAction.OnDigitChange(
                                 5,
                                 filtered
                             )
@@ -163,7 +163,7 @@ fun TimerScheduleView(
 
     // Save Button
     Button(
-        onClick = { onAction(ScheduleScreenAction.OnSave) },
+        onClick = { onAction(FlagsScreenAction.OnSave) },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF7043)),
         shape = RoundedCornerShape(12.dp)
     ) {
