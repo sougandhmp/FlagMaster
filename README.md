@@ -70,7 +70,9 @@ If the user closes or kills the app mid-challenge:
 
 
 ## 🎥 Demo
-|![Flags Challenge Demo](screenshots/app_flow.gif)|![Flags Challenge_Persistence](screenshots/persistence_after_app_kill.gif)|
+| Screen                                            | Screen 2                                                                   |
+|---------------------------------------------------|--------------------------------------------------------------------------- |
+| ![Flags Challenge Demo](screenshots/app_flow.gif) | ![Flags Challenge_Persistence](screenshots/persistence_after_app_kill.gif) |
 
 ## 📸 Screenshots
 
