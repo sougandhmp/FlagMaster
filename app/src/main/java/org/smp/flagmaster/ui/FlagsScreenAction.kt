@@ -9,4 +9,6 @@ sealed class FlagsScreenAction {
     class OnOptionSelected(val option: Country) : FlagsScreenAction()
 
     object OnSave : FlagsScreenAction()
+
+    object StartQuiz: FlagsScreenAction()
 }

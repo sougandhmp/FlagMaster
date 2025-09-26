@@ -46,7 +46,7 @@ fun CircularLoading(
         onComplete()
     }
 
-    val progress = 1f - (secondsLeft.toFloat() / timeInSeconds.coerceAtLeast(1))
+    val progress = secondsLeft.toFloat() / timeInSeconds.coerceAtLeast(1)
 
     Box(
         contentAlignment = Alignment.Center,

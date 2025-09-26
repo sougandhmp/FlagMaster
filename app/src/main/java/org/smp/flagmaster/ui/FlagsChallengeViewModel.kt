@@ -78,7 +78,7 @@ class FlagsChallengeViewModel @Inject constructor(
                             scheduledTime = calendar,
                             challengeState = ChallengeState.IN_PROGRESS,
                             answers = answers,
-                            score = answers.count { it.isCorrect },
+                            score = answers.count { answer -> answer.isCorrect },
                             questionIndex = index,
                             currentQuestion = uiState.value.questions.getOrNull(index),
                         )
@@ -113,6 +113,8 @@ class FlagsChallengeViewModel @Inject constructor(
             is FlagsScreenAction.OnOptionSelected -> {
                 _uiState.update { it.copy(selectedOption = action.option) }
             }
+
+            is FlagsScreenAction.StartQuiz -> startQuiz()
         }
     }
 
@@ -142,7 +144,6 @@ class FlagsChallengeViewModel @Inject constructor(
             _uiState.update { it.copy(challengeState = ChallengeState.COUNT_DOWN) }
             startCountdown(20_000L) {
                 startQuiz()
-                _uiState.update { it.copy(challengeState = ChallengeState.IN_PROGRESS) }
             }
         }
     }
@@ -208,6 +209,7 @@ class FlagsChallengeViewModel @Inject constructor(
     }
 
     private fun startQuiz() {
+        _uiState.update { it.copy(challengeState = ChallengeState.IN_PROGRESS) }
         val currentIndex = _uiState.value.questionIndex
         startCountdown(QUIZ_TIMER_MS) {
             val question = _uiState.value.currentQuestion
@@ -231,7 +233,7 @@ class FlagsChallengeViewModel @Inject constructor(
                     it.copy(
                         answers = updatedAnswers,
                         answerResult = answerResult,
-                        score = updatedAnswers.count { it.isCorrect }
+                        score = updatedAnswers.count { answer -> answer.isCorrect }
                     )
                 }
 

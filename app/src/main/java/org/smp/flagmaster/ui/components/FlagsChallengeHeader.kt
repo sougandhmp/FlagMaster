@@ -39,7 +39,6 @@ fun FlagsChallengeHeader(
         modifier = modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
-            .shadow(1.dp)
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -71,7 +70,6 @@ fun FlagsChallengeHeader(
             modifier = Modifier.weight(1f),
             fontSize = 20.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = Color(0xFFFF5722),
             textAlign = TextAlign.Center,
             style = TextStyle(
                 shadow = Shadow(

@@ -3,32 +3,36 @@ package org.smp.flagmaster.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.smp.flagmaster.ui.components.ChallengeCompleteView
+import org.smp.flagmaster.R
 import org.smp.flagmaster.ui.components.ChallengeScheduledView
-import org.smp.flagmaster.ui.components.ChallengeView
 import org.smp.flagmaster.ui.components.CircularLoading
 import org.smp.flagmaster.ui.components.CountDownView
-import org.smp.flagmaster.ui.components.FlagsChallengeHeader
-import org.smp.flagmaster.ui.components.TimerScheduleView
+import org.smp.flagmaster.ui.components.GameOverScreen
+import org.smp.flagmaster.ui.components.QuestionScreen
+import org.smp.flagmaster.ui.components.StartChallengeScreen
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
 
 @Composable
@@ -51,35 +55,39 @@ fun FlagsChallengeScreen(
 
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "") },
-                colors = TopAppBarDefaults.topAppBarColors().copy(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF667EEA),
+                        Color(0xFF764BA2)
+                    )
                 )
-            )
-        }
+            ),
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding)
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF667EEA),
+                            Color(0xFF764BA2)
+                        )
+                    )
+                )
+                .padding(innerPadding),
         ) {
             Column(
                 modifier = Modifier
-                    .padding(horizontal = 8.dp, vertical = 16.dp)
-                    .shadow(4.dp, RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                FlagsChallengeHeader(
-                    time = if (uiState.challengeState == ChallengeState.IN_PROGRESS) uiState.remainingTime else null,
-                    pageCount = if (uiState.challengeState == ChallengeState.IN_PROGRESS) "${uiState.questionIndex + 1}/${uiState.questions.size}" else null
-                )
                 when (uiState.challengeState) {
-                    ChallengeState.NOT_SCHEDULED -> TimerScheduleView(uiState, onAction)
+                    ChallengeState.NOT_SCHEDULED -> StartChallengeScreen(
+                        startChallenge = { onAction(FlagsScreenAction.StartQuiz) }
+                    )
 
                     ChallengeState.SCHEDULED ->
                         ChallengeScheduledView(scheduledTime = uiState.scheduledTime)
@@ -88,21 +96,33 @@ fun FlagsChallengeScreen(
                         CountDownView(remainingTime = uiState.remainingTime)
 
                     ChallengeState.IN_PROGRESS -> {
-                        ChallengeView(
-                            flagCountryCode = uiState.currentQuestion?.countryCode ?: "in",
-                            options = uiState.currentQuestion?.options.orEmpty(),
-                            onOptionSelected = {
+                        QuestionScreen(
+                            question = uiState.currentQuestion!!,
+                            questionNumber = uiState.progressDuration,
+                            totalQuestions = uiState.questions.size,
+                            selectedAnswer = uiState.selectedOption?.name,
+                            showResult = uiState.answerResult != null,
+                            onAnswerSelected = {
                                 onAction(FlagsScreenAction.OnOptionSelected(it))
                             },
-                            selected = uiState.selectedOption,
-                            result = uiState.answerResult,
-                            answer = uiState.answer
+                            onNextQuestion = {
+                            }
                         )
+//                        ChallengeView(
+//                            flagCountryCode = uiState.currentQuestion?.countryCode ?: "in",
+//                            options = uiState.currentQuestion?.options.orEmpty(),
+//                            onOptionSelected = {
+//                                onAction(FlagsScreenAction.OnOptionSelected(it))
+//                            },
+//                            selected = uiState.selectedOption,
+//                            result = uiState.answerResult,
+//                            answer = uiState.answer
+//                        )
                     }
 
-                    ChallengeState.COMPLETED -> ChallengeCompleteView(
+                    ChallengeState.COMPLETED -> GameOverScreen(
                         score = uiState.score,
-                        total = uiState.questions.size
+                        totalQuestions = uiState.questions.size
                     )
                 }
             }
