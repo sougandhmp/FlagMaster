@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,7 +49,7 @@ fun TimerScheduleView(
     ) {
         // --- Hours Pair ---
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(stringResource(R.string.hour), fontSize = 16.sp, color = Color.Gray)
+            Text(stringResource(R.string.hour), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row {
                 SingleDigitBoxWithFocus(
                     value = digits[0],
@@ -85,7 +83,7 @@ fun TimerScheduleView(
 
         // --- Minutes Pair ---
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(stringResource(R.string.minute), fontSize = 16.sp, color = Color.Gray)
+            Text(stringResource(R.string.minute), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row {
                 SingleDigitBoxWithFocus(
                     value = digits[2],
@@ -121,7 +119,7 @@ fun TimerScheduleView(
 
         // --- Seconds Pair ---
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(stringResource(R.string.second), fontSize = 16.sp, color = Color.Gray)
+            Text(stringResource(R.string.second), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row {
                 SingleDigitBoxWithFocus(
                     value = digits[4],
@@ -164,9 +162,8 @@ fun TimerScheduleView(
     // Save Button
     Button(
         onClick = { onAction(FlagsScreenAction.OnSave) },
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF7043)),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Text(text = stringResource(R.string.save), color = Color.White, fontSize = 18.sp)
+        Text(text = stringResource(R.string.save), fontSize = 18.sp)
     }
 }

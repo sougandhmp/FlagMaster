@@ -1,15 +1,23 @@
 package org.smp.flagmaster.ui.components
 
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -20,50 +28,70 @@ import androidx.compose.ui.unit.dp
 import org.smp.flagmaster.R
 
 /**
- * Displays a message header and a large countdown timer text.
+ * Displays an animated ring countdown shown 20 seconds before quiz start.
  *
- * Typically used before the quiz starts:
- * e.g., "Will start in" → "00:20"
- *
- * @param remainingTime The time remaining in MM:SS format.
+ * @param remainingTime The time remaining in "MM:SS" format.
  */
 @Composable
 fun CountDownView(remainingTime: String) {
+    val progressFraction = remember(remainingTime) {
+        val parts = remainingTime.split(":").mapNotNull { it.toIntOrNull() }
+        val totalSecs = (parts.getOrElse(0) { 0 } * 60 + parts.getOrElse(1) { 0 }).toFloat()
+        (totalSecs / 20f).coerceIn(0f, 1f)
+    }
+    val animatedProgress by animateFloatAsState(
+        targetValue = progressFraction,
+        animationSpec = tween(durationMillis = 800),
+        label = "countdownProgress"
+    )
+
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 24.dp, horizontal = 16.dp)
-            .background(
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(12.dp)
-            )
-            .padding(vertical = 32.dp, horizontal = 24.dp),
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = stringResource(R.string.will_start_in),
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            ),
-            textAlign = TextAlign.Center
-        )
+        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 40.dp, horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.will_start_in),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
 
-        Spacer(modifier = Modifier.height(16.dp))
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(160.dp)) {
+                    CircularProgressIndicator(
+                        progress = { animatedProgress },
+                        modifier = Modifier.size(160.dp),
+                        strokeWidth = 8.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.primaryContainer,
+                    )
+                    Text(
+                        text = remainingTime,
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
 
-        Text(
-            text = remainingTime,
-            style = MaterialTheme.typography.displayLarge.copy(
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            ),
-            textAlign = TextAlign.Center
-        )
+                Spacer(Modifier.height(4.dp))
+            }
+        }
     }
 }
 
 @Preview
 @Composable
 fun CountDownViewPreview() {
-    CountDownView(remainingTime = "00:20")
+    CountDownView(remainingTime = "00:18")
 }

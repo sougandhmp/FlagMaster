@@ -10,5 +10,9 @@ sealed class FlagsScreenAction {
 
     object OnSave : FlagsScreenAction()
 
-    object StartQuiz: FlagsScreenAction()
+    object StartQuiz : FlagsScreenAction()
+
+    object OnScheduleChallenge : FlagsScreenAction()
+
+    object ClearError : FlagsScreenAction()
 }

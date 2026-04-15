@@ -21,4 +21,19 @@
     <string name="second_must_be_two_digits_00_59">Second must be two digits (00–59).</string>
     <string name="second_is_invalid_must_be_between_00_and_59">Second “%1$s” is invalid. Must be between 00 and 59.</string>
     <string name="please_enter">Please enter %1$s.</string>
+    <string name="next_question_available_in">Next question will be available in</string>
+    <string name="back">Back</string>
+    <string name="score_label">SCORE</string>
+    <string name="play_again">🎮 PLAY AGAIN</string>
+    <string name="stats">📊 STATS</string>
+    <string name="share_action">📱 SHARE</string>
+    <string name="home">🏠 HOME</string>
+    <string name="question_progress">Question %1$d of %2$d</string>
+    <string name="which_country_flag">Which country does this flag belong to?</string>
+    <string name="next_question">Next Question</string>
+    <string name="see_results">See Results</string>
+    <string name="start_now">Start Now</string>
+    <string name="schedule_challenge">Schedule</string>
+    <string name="start_challenge_description">When would you like to begin? You can start the quiz now or schedule it for later.</string>
+    <string name="world_globe_description">World illustration</string>
 </resources>

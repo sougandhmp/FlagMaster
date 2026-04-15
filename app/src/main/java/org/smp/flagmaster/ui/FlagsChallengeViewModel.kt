@@ -45,12 +45,16 @@ class FlagsChallengeViewModel @Inject constructor(
 
     companion object Companion {
         private const val QUIZ_TIMER_MS = 30_000L
-        private const val QUIZ_INTERVAL_MS = 10_000L
+        private const val QUIZ_INTERVAL_MS = 10_000L         // used for resume-time calculation only
+        private const val FEEDBACK_DELAY_SELECTION_MS = 1_000L
+        private const val FEEDBACK_DELAY_TIMEOUT_MS = 2_000L
     }
 
     init {
-        seedQuestions()
-        getAllQuestions()
+        viewModelScope.launch {
+            seedQuestions()
+            getAllQuestions()
+        }
         observeSavedQuizAndTime()
     }
 
@@ -106,15 +110,28 @@ class FlagsChallengeViewModel @Inject constructor(
                     _uiState.update { it.copy(errorMessage = error) }
                 } else {
                     val challengeTime = getChallengeTime()
+                    _uiState.update { it.copy(showScheduler = false) }
                     scheduleChallenge(challengeTime)
                 }
             }
 
             is FlagsScreenAction.OnOptionSelected -> {
-                _uiState.update { it.copy(selectedOption = action.option) }
+                // Ignore taps once an answer has already been evaluated
+                if (_uiState.value.answerResult == null) {
+                    _uiState.update { it.copy(selectedOption = action.option) }
+                    evaluateAndAdvance(FEEDBACK_DELAY_SELECTION_MS)
+                }
             }
 
             is FlagsScreenAction.StartQuiz -> startQuiz()
+
+            is FlagsScreenAction.OnScheduleChallenge -> {
+                _uiState.update { it.copy(showScheduler = true) }
+            }
+
+            is FlagsScreenAction.ClearError -> {
+                _uiState.update { it.copy(errorMessage = null) }
+            }
         }
     }
 
@@ -191,63 +208,77 @@ class FlagsChallengeViewModel @Inject constructor(
             calendar.get(Calendar.SECOND)
         )
 
-    private fun getAllQuestions() {
-        viewModelScope.launch {
-            runCatching { getAllQuestionsUseCase() }
-                .onSuccess { questions ->
-                    _uiState.update {
-                        it.copy(
-                            questions = questions,
-                            currentQuestion = questions[it.questionIndex],
-                            answer = questions[it.questionIndex].answerId
-                        )
-                    }
-                }.onFailure {
-                    Timber.e(it, "Error fetching questions")
+    private suspend fun getAllQuestions() {
+        runCatching { getAllQuestionsUseCase() }
+            .onSuccess { questions ->
+                _uiState.update {
+                    it.copy(
+                        questions = questions,
+                        currentQuestion = questions.getOrNull(it.questionIndex),
+                        answer = questions.getOrNull(it.questionIndex)?.answerId.orEmpty()
+                    )
                 }
-        }
+            }.onFailure {
+                Timber.e(it, "Error fetching questions")
+            }
     }
 
     private fun startQuiz() {
         _uiState.update { it.copy(challengeState = ChallengeState.IN_PROGRESS) }
         val currentIndex = _uiState.value.questionIndex
         startCountdown(QUIZ_TIMER_MS) {
-            val question = _uiState.value.currentQuestion
-            val selection = _uiState.value.selectedOption
-
-            if (question != null) {
-                val isCorrect = question.answerId == selection?.id
-                val updatedAnswers = _uiState.value.answers.toMutableList().apply {
-                    removeAll { it.questionId == question.answerId }
-                    add(
-                        QuizAnswer(
-                            questionId = question.answerId,
-                            selectedOption = selection?.id.orEmpty(),
-                            isCorrect = isCorrect
-                        )
-                    )
-                }
-                val answerResult = if (isCorrect) AnswerResult.CORRECT else AnswerResult.WRONG
-
-                _uiState.update {
-                    it.copy(
-                        answers = updatedAnswers,
-                        answerResult = answerResult,
-                        score = updatedAnswers.count { answer -> answer.isCorrect }
-                    )
-                }
-
-                viewModelScope.launch {
-                    runCatching {
-                        saveQuizAnswersUseCase(updatedAnswers)
-                    }.onSuccess {
-                        Timber.d("Answers saved $updatedAnswers")
-                    }.onFailure {
-                        Timber.e(it, "Failed to save answers")
-                    }
-                }
+            // Timer expired — only evaluate if the user hasn't already picked an answer
+            if (_uiState.value.answerResult == null) {
+                evaluateAndAdvance(FEEDBACK_DELAY_TIMEOUT_MS)
             }
+        }
+    }
 
+    /**
+     * Evaluates the current answer (or marks it wrong if nothing was selected),
+     * then advances to the next question after [feedbackDelayMs].
+     *
+     * Called immediately when the user picks an option (1 s delay) or when the
+     * 30-second timer expires without a selection (2 s delay).
+     */
+    private fun evaluateAndAdvance(feedbackDelayMs: Long) {
+        val question = _uiState.value.currentQuestion ?: return
+        val selection = _uiState.value.selectedOption
+        val currentIndex = _uiState.value.questionIndex
+
+        activeTimer?.cancel()
+
+        val isCorrect = question.answerId == selection?.id
+        val updatedAnswers = _uiState.value.answers.toMutableList().apply {
+            removeAll { it.questionId == question.questionId }
+            add(
+                QuizAnswer(
+                    questionId = question.questionId,
+                    selectedOption = selection?.id.orEmpty(),
+                    isCorrect = isCorrect
+                )
+            )
+        }
+
+        val newStreak = if (isCorrect) _uiState.value.streak + 1 else 0
+
+        _uiState.update {
+            it.copy(
+                answers = updatedAnswers,
+                answerResult = if (isCorrect) AnswerResult.CORRECT else AnswerResult.WRONG,
+                score = updatedAnswers.count { answer -> answer.isCorrect },
+                streak = newStreak
+            )
+        }
+
+        viewModelScope.launch {
+            runCatching { saveQuizAnswersUseCase(updatedAnswers) }
+                .onSuccess { Timber.d("Answers saved $updatedAnswers") }
+                .onFailure { Timber.e(it, "Failed to save answers") }
+        }
+
+        viewModelScope.launch {
+            delay(feedbackDelayMs)
             moveToNextQuestionOrFinish(
                 isLast = currentIndex == _uiState.value.questions.lastIndex,
                 currentIndex = currentIndex
@@ -257,23 +288,19 @@ class FlagsChallengeViewModel @Inject constructor(
 
     private fun moveToNextQuestionOrFinish(isLast: Boolean, currentIndex: Int) {
         if (!isLast) {
-            _uiState.update { it.copy(showProgress = true) }
-            viewModelScope.launch {
-                delay(QUIZ_INTERVAL_MS)
-                val nextIndex = currentIndex + 1
-                val nextQuestion = _uiState.value.questions[nextIndex]
-                _uiState.update {
-                    it.copy(
-                        showProgress = false,
-                        questionIndex = nextIndex,
-                        currentQuestion = nextQuestion,
-                        answer = nextQuestion.answerId,
-                        selectedOption = null,
-                        answerResult = null
-                    )
-                }
-                startQuiz()
+            val nextIndex = currentIndex + 1
+            val nextQuestion = _uiState.value.questions[nextIndex]
+            _uiState.update {
+                it.copy(
+                    questionIndex = nextIndex,
+                    currentQuestion = nextQuestion,
+                    answer = nextQuestion.answerId,
+                    selectedOption = null,
+                    answerResult = null,
+                    showProgress = false
+                )
             }
+            startQuiz()
         } else {
             clearAnswers()
             _uiState.update {
@@ -282,7 +309,8 @@ class FlagsChallengeViewModel @Inject constructor(
                     questionIndex = 0,
                     currentQuestion = null,
                     selectedOption = null,
-                    answerResult = null
+                    answerResult = null,
+                    streak = 0
                 )
             }
         }
@@ -295,12 +323,10 @@ class FlagsChallengeViewModel @Inject constructor(
         }
     }
 
-    private fun seedQuestions() {
-        viewModelScope.launch {
-            runCatching { seedQuestionsUseCase() }
-                .onSuccess { Timber.d("Questions seeded") }
-                .onFailure { Timber.e(it, "Seeding failed") }
-        }
+    private suspend fun seedQuestions() {
+        runCatching { seedQuestionsUseCase() }
+            .onSuccess { Timber.d("Questions seeded") }
+            .onFailure { Timber.e(it, "Seeding failed") }
     }
 
     override fun onCleared() {

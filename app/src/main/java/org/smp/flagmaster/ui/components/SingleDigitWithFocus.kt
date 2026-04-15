@@ -1,11 +1,12 @@
 package org.smp.flagmaster.ui.components
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,7 +15,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -37,7 +37,7 @@ fun SingleDigitBoxWithFocus(
 ) {
     var lastValue by remember { mutableStateOf(value) }
 
-    TextField(
+    OutlinedTextField(
         value = value,
         onValueChange = { input ->
             val filtered = input.takeLast(1).filter { it.isDigit() }
@@ -52,40 +52,37 @@ fun SingleDigitBoxWithFocus(
             textAlign = TextAlign.Center
         ),
         singleLine = true,
-        modifier = Modifier
-            .size(56.dp)
-            .focusRequester(focusRequester)
-            .onPreviewKeyEvent{ keyEvent ->
-                if (
-                    keyEvent.type == KeyEventType.KeyDown &&
-                    keyEvent.key == Key.Backspace
-                ) {
-                    // When the box is empty and backspace is pressed, move focus to previous
-                    if (value.isEmpty()) {
-                        onBackspace()
-                        true // consume the event
-                    } else {
-                        false // let default handling occur
-                    }
-                } else {
-                    false // not backspace, do not consume
-                }
-            },
-        colors = TextFieldDefaults.colors().copy(
+        shape = RoundedCornerShape(8.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
             focusedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
             unfocusedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
             focusedTextColor = MaterialTheme.colorScheme.onTertiaryContainer,
             unfocusedTextColor = MaterialTheme.colorScheme.onTertiaryContainer,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
         ),
+        modifier = Modifier
+            .size(56.dp)
+            .focusRequester(focusRequester)
+            .onPreviewKeyEvent { keyEvent ->
+                if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Backspace) {
+                    if (value.isEmpty()) {
+                        onBackspace()
+                        true
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
+            },
         keyboardOptions = KeyboardOptions.Default.copy(
             keyboardType = KeyboardType.Number,
             imeAction = ImeAction.Next
         ),
         keyboardActions = KeyboardActions(
             onNext = {},
-            onPrevious = {onBackspace()}
+            onPrevious = { onBackspace() }
         )
     )
 }
@@ -93,5 +90,10 @@ fun SingleDigitBoxWithFocus(
 @Composable
 @Preview
 private fun SingleDigitBoxWithFocusPreview() {
-    SingleDigitBoxWithFocus(value = "1", onValueChange = {}, focusRequester = FocusRequester(), onBackspace = {})
+    SingleDigitBoxWithFocus(
+        value = "1",
+        onValueChange = {},
+        focusRequester = FocusRequester(),
+        onBackspace = {}
+    )
 }

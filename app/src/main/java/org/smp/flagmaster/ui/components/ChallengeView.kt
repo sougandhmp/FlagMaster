@@ -1,5 +1,7 @@
 package org.smp.flagmaster.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -7,7 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,12 +26,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -153,18 +158,18 @@ fun OptionButton(
 
     // Background color
     val containerColor = when {
-        showCorrect -> Color(0xFFDFF5DC)
-        showWrong -> Color(0xFFFFE0E0)
-        selected -> Color(0xFFE0E0E0)
+        showCorrect -> MaterialTheme.colorScheme.secondaryContainer
+        showWrong -> MaterialTheme.colorScheme.errorContainer
+        selected -> MaterialTheme.colorScheme.primaryContainer
         else -> Color.Transparent
     }
 
     // Border color
     val borderColor = when {
-        showCorrect -> Color(0xFF4CAF50)
-        showWrong -> Color(0xFFE53935)
-        selected -> Color(0xFF2196F3)
-        else -> Color.LightGray
+        showCorrect -> MaterialTheme.colorScheme.secondary
+        showWrong -> MaterialTheme.colorScheme.error
+        selected -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.outline
     }
 
     Column(
@@ -191,7 +196,7 @@ fun OptionButton(
             showCorrect -> {
                 Text(
                     stringResource(R.string.flags_button_correct),
-                    color = Color(0xFF4CAF50),
+                    color = MaterialTheme.colorScheme.secondary,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -202,7 +207,7 @@ fun OptionButton(
             showWrong -> {
                 Text(
                     stringResource(R.string.flags_button_wrong),
-                    color = Color(0xFFE53935),
+                    color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -225,31 +230,46 @@ fun AnswerOption(
     showResult: Boolean,
     onClick: () -> Unit
 ) {
+    val haptic = LocalHapticFeedback.current
+
     val backgroundColor = when {
-        showResult && isCorrect -> Color(0xFF4CAF50)
-        showResult && isSelected && !isCorrect -> Color(0xFFE57373)
+        showResult && isCorrect -> MaterialTheme.colorScheme.secondaryContainer
+        showResult && isSelected && !isCorrect -> MaterialTheme.colorScheme.errorContainer
         isSelected && !showResult -> MaterialTheme.colorScheme.primaryContainer
         else -> MaterialTheme.colorScheme.surface
     }
 
     val textColor = when {
-        showResult && (isCorrect || (isSelected && !isCorrect)) -> Color.White
+        showResult && isCorrect -> MaterialTheme.colorScheme.onSecondaryContainer
+        showResult && isSelected && !isCorrect -> MaterialTheme.colorScheme.onErrorContainer
         isSelected && !showResult -> MaterialTheme.colorScheme.onPrimaryContainer
         else -> MaterialTheme.colorScheme.onSurface
     }
 
     val borderColor = when {
-        showResult && isCorrect -> Color(0xFF4CAF50)
-        showResult && isSelected && !isCorrect -> Color(0xFFE57373)
+        showResult && isCorrect -> MaterialTheme.colorScheme.secondary
+        showResult && isSelected && !isCorrect -> MaterialTheme.colorScheme.error
         isSelected && !showResult -> MaterialTheme.colorScheme.primary
         else -> MaterialTheme.colorScheme.outline
     }
+
+    val scale by animateFloatAsState(
+        targetValue = if (isSelected) 1.03f else 1f,
+        animationSpec = spring(dampingRatio = 0.4f, stiffness = 400f),
+        label = "optionScale"
+    )
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .clickable { onClick() }
+            .scale(scale)
+            .clickable {
+                if (!showResult) {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onClick()
+                }
+            }
             .border(2.dp, borderColor, RoundedCornerShape(12.dp)),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)

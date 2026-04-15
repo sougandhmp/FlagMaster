@@ -15,12 +15,14 @@ data class ScheduleTimeUiState(
     val questionIndex: Int = 0,
     val currentQuestion: Question? = null,
     val selectedOption: Country? = null,
-    val answer: String?=null,
+    val answer: String? = null,
     val answerResult: AnswerResult? = null,
     val showProgress: Boolean = false,
     val progressDuration: Int = 10,
     val score: Int = 0,
     val answers: List<QuizAnswer> = emptyList(),
+    val showScheduler: Boolean = false,
+    val streak: Int = 0,
 )
 
 enum class AnswerResult{
