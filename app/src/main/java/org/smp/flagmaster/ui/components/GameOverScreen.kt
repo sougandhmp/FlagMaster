@@ -63,7 +63,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import org.smp.flagmaster.R
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -397,7 +396,11 @@ private fun ActionButtons(
                     brush = SolidColor(Color.White.copy(alpha = 0.7f))
                 )
             ) {
-                Text(text = stringResource(R.string.stats), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Text(
+                    text = stringResource(R.string.stats),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
 
             OutlinedButton(
@@ -411,7 +414,11 @@ private fun ActionButtons(
                     brush = SolidColor(Color.White.copy(alpha = 0.7f))
                 )
             ) {
-                Text(text = stringResource(R.string.share_action), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Text(
+                    text = stringResource(R.string.share_action),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
 
             OutlinedButton(
@@ -425,7 +432,11 @@ private fun ActionButtons(
                     brush = SolidColor(Color.White.copy(alpha = 0.7f))
                 )
             ) {
-                Text(text = stringResource(R.string.home), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Text(
+                    text = stringResource(R.string.home),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
     }
