@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <!-- Suppress spell-check false positives on Base64-encoded certificate data -->
+    <issue id="Typos">
+        <ignore path="src/main/res/values/font_certs.xml" />
+    </issue>
+</lint>

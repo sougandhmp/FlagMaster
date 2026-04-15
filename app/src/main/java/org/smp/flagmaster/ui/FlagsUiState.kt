@@ -36,14 +36,3 @@ enum class ChallengeState {
     IN_PROGRESS,
     COMPLETED
 }
-
-sealed class QuizState {
-    object NotScheduled : QuizState()
-    object Expired : QuizState()
-    data class InProgress(
-        val scheduledTime: String,
-        val answers: List<QuizAnswer>,
-        val score: Int,
-        val questionIndex: Int
-    ) : QuizState()
-}

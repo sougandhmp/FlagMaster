@@ -1,27 +1,65 @@
 package org.smp.flagmaster.ui.components
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,12 +67,11 @@ import org.smp.flagmaster.R
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.cos
-import kotlin.math.sin
+import org.smp.flagmaster.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun     GameOverScreen(
+fun GameOverScreen(
     score: Int = 0,
     totalQuestions: Int = 15,
     onPlayAgain: () -> Unit = {},
@@ -43,7 +80,7 @@ fun     GameOverScreen(
     onBackPressed: () -> Unit = {},
     onHome: () -> Unit = {}
 ) {
-    val context = LocalContext.current
+    LocalContext.current
     val percentage = remember { (score.toFloat() / totalQuestions * 100).toInt() }
 
     // Animation states
@@ -402,7 +439,7 @@ private fun FloatingFlags() {
 
     Box(modifier = Modifier.fillMaxSize()) {
         flags.forEachIndexed { index, flag ->
-            val animationDelay = index * 2000
+            index * 2000
             val duration = 15000 + (index * 1000)
 
             val yAnimation by infiniteTransition.animateFloat(
@@ -462,7 +499,8 @@ fun GameOverRoute(
         onViewStats = onNavigateToStats,
         onShare = {
             val percentage = (score.toFloat() / totalQuestions * 100).toInt()
-            val shareText = "🎯 I scored $score/$totalQuestions ($percentage%) in Flags Challenge! Can you beat my score? 🌍"
+            val shareText =
+                "🎯 I scored $score/$totalQuestions ($percentage%) in Flags Challenge! Can you beat my score? 🌍"
 
             val shareIntent = android.content.Intent().apply {
                 action = android.content.Intent.ACTION_SEND
@@ -470,7 +508,12 @@ fun GameOverRoute(
                 type = "text/plain"
             }
 
-            context.startActivity(android.content.Intent.createChooser(shareIntent, "Share your score"))
+            context.startActivity(
+                android.content.Intent.createChooser(
+                    shareIntent,
+                    "Share your score"
+                )
+            )
         },
         onBackPressed = onNavigateBack,
         onHome = onNavigateToHome
