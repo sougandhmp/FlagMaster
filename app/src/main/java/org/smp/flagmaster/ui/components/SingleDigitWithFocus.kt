@@ -93,7 +93,7 @@ private fun SingleDigitBoxWithFocusPreview() {
     SingleDigitBoxWithFocus(
         value = "1",
         onValueChange = {},
-        focusRequester = remember { FocusRequester() },
+        focusRequester = FocusRequester(),
         onBackspace = {}
     )
 }
