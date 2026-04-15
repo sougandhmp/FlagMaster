@@ -1,38 +1,76 @@
 package org.smp.flagmaster.ui.components
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.cos
-import kotlin.math.sin
+import org.smp.flagmaster.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun     GameOverScreen(
+fun GameOverScreen(
     score: Int = 0,
     totalQuestions: Int = 15,
     onPlayAgain: () -> Unit = {},
@@ -41,7 +79,7 @@ fun     GameOverScreen(
     onBackPressed: () -> Unit = {},
     onHome: () -> Unit = {}
 ) {
-    val context = LocalContext.current
+    LocalContext.current
     val percentage = remember { (score.toFloat() / totalQuestions * 100).toInt() }
 
     // Animation states
@@ -149,7 +187,7 @@ private fun GameOverHeader(
     TopAppBar(
         title = {
             Text(
-                text = "Flags Challenge",
+                text = stringResource(R.string.flags_challenge),
                 color = Color.White,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Medium
@@ -164,7 +202,7 @@ private fun GameOverHeader(
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = Color.White
                 )
             }
@@ -188,7 +226,7 @@ private fun GameOverCard(
             .padding(horizontal = 8.dp),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White.copy(alpha = 0.95f)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
     ) {
@@ -201,10 +239,10 @@ private fun GameOverCard(
         ) {
             // Game Over Title
             Text(
-                text = "GAME OVER",
+                text = stringResource(R.string.game_over),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Black,
-                color = Color(0xFFFF5722),
+                color = MaterialTheme.colorScheme.error,
                 textAlign = TextAlign.Center
             )
 
@@ -214,17 +252,17 @@ private fun GameOverCard(
                 modifier = Modifier.size(120.dp)
             ) {
                 CircularProgressIndicator(
-                    progress = percentage / 100f,
+                    progress = { percentage / 100f },
                     modifier = Modifier.size(120.dp),
                     strokeWidth = 8.dp,
-                    color = Color(0xFFFFC107),
-                    trackColor = Color(0xFFE0E0E0)
+                    color = MaterialTheme.colorScheme.tertiary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
                 Text(
                     text = "$percentage%",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFFFFC107)
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             }
 
@@ -234,10 +272,10 @@ private fun GameOverCard(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "SCORE",
+                    text = stringResource(R.string.score_label),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     letterSpacing = 1.sp
                 )
 
@@ -248,13 +286,13 @@ private fun GameOverCard(
                         text = "$score",
                         fontSize = 48.sp,
                         fontWeight = FontWeight.Black,
-                        color = Color(0xFF2196F3)
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = "/$totalQuestions",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFF2196F3).copy(alpha = 0.7f),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
@@ -268,15 +306,29 @@ private fun PerformanceMessageCard(
     percentage: Int,
     modifier: Modifier = Modifier
 ) {
-    val (message, color) = remember(percentage) {
+    val message = remember(percentage) {
         when {
-            percentage == 100 -> "🎖️ PERFECT! You're a true flag master!" to Color(0xFFFFD700)
-            percentage >= 80 -> "🏆 Excellent! You really know your flags!" to Color(0xFF4CAF50)
-            percentage >= 60 -> "🎯 Great job! You're becoming a flag expert!" to Color(0xFF2196F3)
-            percentage >= 40 -> "💪 Keep practicing! You're improving!" to Color(0xFFFF9800)
-            percentage > 0 -> "🌟 Don't give up! Every expert was once a beginner!" to Color(0xFFF44336)
-            else -> "📚 Study more flags and try again! You can do it!" to Color(0xFFF44336)
+            percentage == 100 -> "🎖️ PERFECT! You're a true flag master!"
+            percentage >= 80 -> "🏆 Excellent! You really know your flags!"
+            percentage >= 60 -> "🎯 Great job! You're becoming a flag expert!"
+            percentage >= 40 -> "💪 Keep practicing! You're improving!"
+            percentage > 0 -> "🌟 Don't give up! Every expert was once a beginner!"
+            else -> "📚 Study more flags and try again! You can do it!"
         }
+    }
+    val containerColor = when {
+        percentage == 100 -> MaterialTheme.colorScheme.tertiary
+        percentage >= 80 -> MaterialTheme.colorScheme.secondary
+        percentage >= 60 -> MaterialTheme.colorScheme.primary
+        percentage >= 40 -> MaterialTheme.colorScheme.tertiaryContainer
+        else -> MaterialTheme.colorScheme.errorContainer
+    }
+    val textColor = when {
+        percentage == 100 -> MaterialTheme.colorScheme.onTertiary
+        percentage >= 80 -> MaterialTheme.colorScheme.onSecondary
+        percentage >= 60 -> MaterialTheme.colorScheme.onPrimary
+        percentage >= 40 -> MaterialTheme.colorScheme.onTertiaryContainer
+        else -> MaterialTheme.colorScheme.onErrorContainer
     }
 
     Card(
@@ -284,7 +336,7 @@ private fun PerformanceMessageCard(
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = color),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Text(
@@ -292,7 +344,7 @@ private fun PerformanceMessageCard(
             modifier = Modifier.padding(20.dp),
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
-            color = Color.White,
+            color = textColor,
             textAlign = TextAlign.Center
         )
     }
@@ -319,16 +371,12 @@ private fun ActionButtons(
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(28.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF4CAF50)
-            ),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
         ) {
             Text(
-                text = "🎮 PLAY AGAIN",
+                text = stringResource(R.string.play_again),
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.White
+                fontWeight = FontWeight.Medium
             )
         }
 
@@ -343,15 +391,13 @@ private fun ActionButtons(
                     .weight(1f)
                     .height(48.dp),
                 shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color.White
-                ),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
                 border = ButtonDefaults.outlinedButtonBorder.copy(
-                    brush = SolidColor(Color.White)
+                    brush = SolidColor(Color.White.copy(alpha = 0.7f))
                 )
             ) {
                 Text(
-                    text = "📊 STATS",
+                    text = stringResource(R.string.stats),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -363,15 +409,13 @@ private fun ActionButtons(
                     .weight(1f)
                     .height(48.dp),
                 shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color.White
-                ),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
                 border = ButtonDefaults.outlinedButtonBorder.copy(
-                    brush = SolidColor(Color.White)
+                    brush = SolidColor(Color.White.copy(alpha = 0.7f))
                 )
             ) {
                 Text(
-                    text = "📱 SHARE",
+                    text = stringResource(R.string.share_action),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -383,15 +427,13 @@ private fun ActionButtons(
                     .weight(1f)
                     .height(48.dp),
                 shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color.White
-                ),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
                 border = ButtonDefaults.outlinedButtonBorder.copy(
-                    brush = SolidColor(Color.White)
+                    brush = SolidColor(Color.White.copy(alpha = 0.7f))
                 )
             ) {
                 Text(
-                    text = "🏠 HOME",
+                    text = stringResource(R.string.home),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -408,7 +450,7 @@ private fun FloatingFlags() {
 
     Box(modifier = Modifier.fillMaxSize()) {
         flags.forEachIndexed { index, flag ->
-            val animationDelay = index * 2000
+            index * 2000
             val duration = 15000 + (index * 1000)
 
             val yAnimation by infiniteTransition.animateFloat(
@@ -468,7 +510,8 @@ fun GameOverRoute(
         onViewStats = onNavigateToStats,
         onShare = {
             val percentage = (score.toFloat() / totalQuestions * 100).toInt()
-            val shareText = "🎯 I scored $score/$totalQuestions ($percentage%) in Flags Challenge! Can you beat my score? 🌍"
+            val shareText =
+                "🎯 I scored $score/$totalQuestions ($percentage%) in Flags Challenge! Can you beat my score? 🌍"
 
             val shareIntent = android.content.Intent().apply {
                 action = android.content.Intent.ACTION_SEND
@@ -476,7 +519,12 @@ fun GameOverRoute(
                 type = "text/plain"
             }
 
-            context.startActivity(android.content.Intent.createChooser(shareIntent, "Share your score"))
+            context.startActivity(
+                android.content.Intent.createChooser(
+                    shareIntent,
+                    "Share your score"
+                )
+            )
         },
         onBackPressed = onNavigateBack,
         onHome = onNavigateToHome
@@ -503,13 +551,17 @@ fun AnimatedCircularProgressIndicator(
     strokeWidth: Float = 8f,
     modifier: Modifier = Modifier
 ) {
+    val trackColor = MaterialTheme.colorScheme.surfaceVariant
+    val progressColor = MaterialTheme.colorScheme.tertiary
     Canvas(
         modifier = modifier.size((radius * 2 + strokeWidth).dp)
     ) {
         drawCircularProgress(
             percentage = percentage,
             radius = radius.dp.toPx(),
-            strokeWidth = strokeWidth.dp.toPx()
+            strokeWidth = strokeWidth.dp.toPx(),
+            trackColor = trackColor,
+            progressColor = progressColor,
         )
     }
 }
@@ -517,13 +569,15 @@ fun AnimatedCircularProgressIndicator(
 private fun DrawScope.drawCircularProgress(
     percentage: Float,
     radius: Float,
-    strokeWidth: Float
+    strokeWidth: Float,
+    trackColor: Color,
+    progressColor: Color,
 ) {
     val center = size.width / 2f
 
     // Background circle
     drawCircle(
-        color = Color(0xFFE0E0E0),
+        color = trackColor,
         radius = radius,
         center = androidx.compose.ui.geometry.Offset(center, center),
         style = Stroke(strokeWidth)
@@ -532,7 +586,7 @@ private fun DrawScope.drawCircularProgress(
     // Progress arc
     val sweepAngle = (percentage / 100f) * 360f
     drawArc(
-        color = Color(0xFFFFC107),
+        color = progressColor,
         startAngle = -90f,
         sweepAngle = sweepAngle,
         useCenter = false,

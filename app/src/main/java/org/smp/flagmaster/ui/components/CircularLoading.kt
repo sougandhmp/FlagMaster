@@ -1,7 +1,7 @@
 package org.smp.flagmaster.ui.components
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
@@ -50,7 +50,7 @@ fun CircularLoading(
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.size(40.dp)
     ) {
         CircularProgressIndicator(
             progress = { progress },
