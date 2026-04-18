@@ -148,7 +148,7 @@ fun QuestionScreen(
                 AnswerOption(
                     text = option.name,
                     isSelected = selectedAnswer == option.name,
-                    isCorrect = option.id == question.answerId,
+                    isCorrect = option.code == question.answerId,
                     showResult = showResult,
                     onClick = { if (!showResult) onAnswerSelected(option) }
                 )

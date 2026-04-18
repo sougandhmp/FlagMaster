@@ -48,7 +48,7 @@ Three Gradle modules following Clean Architecture:
 
 ## Flag Assets
 
-Flag drawables are XML vector files in `app/src/main/res/drawable/`, named by ISO 3166-1 alpha-2 country code (e.g., `us.xml`, `gb.xml`). They are loaded at runtime via `getIdentifier()` using the country code from the domain model.
+255 flag SVGs live in `app/src/main/assets/flags/`, named by lowercase ISO 3166-1 alpha-2 country code (e.g., `us.svg`, `gb.svg`). They are loaded at runtime by Coil via `file:///android_asset/flags/<code>.svg` using a `SvgDecoder` registered in `FlagsApplication`.
 
 ## Tech Stack Highlights
 

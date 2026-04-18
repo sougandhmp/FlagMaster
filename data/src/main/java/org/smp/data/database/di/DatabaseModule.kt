@@ -13,6 +13,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
+
     @Provides
     @Singleton
     fun providesFlagsDatabase(
@@ -21,5 +22,5 @@ object DatabaseModule {
         context,
         FlagsDatabase::class.java,
         "flags-database",
-    ).addMigrations(FlagsDatabase.MIGRATION_1_2).build()
+    ).build()
 }

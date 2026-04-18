@@ -7,6 +7,6 @@ class SeedQuestionsUseCase @Inject constructor(
     private val flagsRepository: FlagsRepository
 ) {
     suspend operator fun invoke() {
-        flagsRepository.seedQuestionsFromAsset()
+        flagsRepository.seedQuestions()
     }
 }

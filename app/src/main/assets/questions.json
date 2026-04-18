@@ -1,168 +1,363 @@
 {
   "questions": [
     {
-      "answer_id": 160,
+      "answer_id": "NZ",
       "countries": [
-        { "country_name": "Bosnia and Herzegovina", "id": 29 },
-        { "country_name": "Mauritania", "id": 142 },
-        { "country_name": "Chile", "id": 45 },
-        { "country_name": "New Zealand", "id": 160 }
+        {
+          "country_name": "Bosnia and Herzegovina",
+          "country_code": "BA"
+        },
+        {
+          "country_name": "Mauritania",
+          "country_code": "MR"
+        },
+        {
+          "country_name": "Chile",
+          "country_code": "CL"
+        },
+        {
+          "country_name": "New Zealand",
+          "country_code": "NZ"
+        }
       ],
       "country_code": "NZ",
+      "difficulty": "NORMAL",
       "fact": "New Zealand was the first country in the world to grant women the right to vote, in 1893."
     },
     {
-      "answer_id": 13,
+      "answer_id": "AW",
       "countries": [
-        { "country_name": "Aruba", "id": 13 },
-        { "country_name": "Serbia", "id": 184 },
-        { "country_name": "Montenegro", "id": 150 },
-        { "country_name": "Moldova", "id": 147 }
+        {
+          "country_name": "Aruba",
+          "country_code": "AW"
+        },
+        {
+          "country_name": "Serbia",
+          "country_code": "RS"
+        },
+        {
+          "country_name": "Montenegro",
+          "country_code": "ME"
+        },
+        {
+          "country_name": "Moldova",
+          "country_code": "MD"
+        }
       ],
       "country_code": "AW",
+      "difficulty": "NORMAL",
       "fact": "Aruba lies outside the hurricane belt and enjoys over 300 sunny days per year, making it one of the driest islands in the Caribbean."
     },
     {
-      "answer_id": 66,
+      "answer_id": "EC",
       "countries": [
-        { "country_name": "Kenya", "id": 117 },
-        { "country_name": "Montenegro", "id": 150 },
-        { "country_name": "Ecuador", "id": 66 },
-        { "country_name": "Bhutan", "id": 26 }
+        {
+          "country_name": "Kenya",
+          "country_code": "KE"
+        },
+        {
+          "country_name": "Montenegro",
+          "country_code": "ME"
+        },
+        {
+          "country_name": "Ecuador",
+          "country_code": "EC"
+        },
+        {
+          "country_name": "Bhutan",
+          "country_code": "BT"
+        }
       ],
       "country_code": "EC",
-      "fact": "Ecuador is the only country named after a geographical feature — the equator (\"ecuador\" in Spanish) runs directly through it."
+      "difficulty": "NORMAL",
+      "fact": "Ecuador is the only country named after a geographical feature \u2014 the equator (\"ecuador\" in Spanish) runs directly through it."
     },
     {
-      "answer_id": 174,
+      "answer_id": "PY",
       "countries": [
-        { "country_name": "Niue", "id": 164 },
-        { "country_name": "Paraguay", "id": 174 },
-        { "country_name": "Tuvalu", "id": 232 },
-        { "country_name": "Indonesia", "id": 105 }
+        {
+          "country_name": "Niue",
+          "country_code": "NU"
+        },
+        {
+          "country_name": "Paraguay",
+          "country_code": "PY"
+        },
+        {
+          "country_name": "Tuvalu",
+          "country_code": "TV"
+        },
+        {
+          "country_name": "Indonesia",
+          "country_code": "ID"
+        }
       ],
       "country_code": "PY",
+      "difficulty": "NORMAL",
       "fact": "Paraguay is one of only two landlocked countries in South America. Its flag is unique as the only national flag with different emblems on each side."
     },
     {
-      "answer_id": 122,
+      "answer_id": "KG",
       "countries": [
-        { "country_name": "Kyrgyzstan", "id": 122 },
-        { "country_name": "Zimbabwe", "id": 250 },
-        { "country_name": "Saint Lucia", "id": 190 },
-        { "country_name": "Ireland", "id": 108 }
+        {
+          "country_name": "Kyrgyzstan",
+          "country_code": "KG"
+        },
+        {
+          "country_name": "Zimbabwe",
+          "country_code": "ZW"
+        },
+        {
+          "country_name": "Saint Lucia",
+          "country_code": "LC"
+        },
+        {
+          "country_name": "Ireland",
+          "country_code": "IE"
+        }
       ],
       "country_code": "KG",
-      "fact": "Kyrgyzstan is home to the Arslanbob walnut forest — the largest natural walnut forest in the world, covering over 11,000 hectares."
+      "difficulty": "NORMAL",
+      "fact": "Kyrgyzstan is home to the Arslanbob walnut forest \u2014 the largest natural walnut forest in the world, covering over 11,000 hectares."
     },
     {
-      "answer_id": 192,
+      "answer_id": "PM",
       "countries": [
-        { "country_name": "Saint Pierre and Miquelon", "id": 192 },
-        { "country_name": "Namibia", "id": 155 },
-        { "country_name": "Greece", "id": 87 },
-        { "country_name": "Anguilla", "id": 8 }
+        {
+          "country_name": "Saint Pierre and Miquelon",
+          "country_code": "PM"
+        },
+        {
+          "country_name": "Namibia",
+          "country_code": "NA"
+        },
+        {
+          "country_name": "Greece",
+          "country_code": "GR"
+        },
+        {
+          "country_name": "Anguilla",
+          "country_code": "AI"
+        }
       ],
       "country_code": "PM",
-      "fact": "Saint Pierre and Miquelon is a French territory located just 25 km off the coast of Newfoundland, Canada — a piece of France in North America."
+      "difficulty": "NORMAL",
+      "fact": "Saint Pierre and Miquelon is a French territory located just 25 km off the coast of Newfoundland, Canada \u2014 a piece of France in North America."
     },
     {
-      "answer_id": 113,
+      "answer_id": "JP",
       "countries": [
-        { "country_name": "Belarus", "id": 21 },
-        { "country_name": "Falkland Islands", "id": 73 },
-        { "country_name": "Japan", "id": 113 },
-        { "country_name": "Iraq", "id": 107 }
+        {
+          "country_name": "Belarus",
+          "country_code": "BY"
+        },
+        {
+          "country_name": "Falkland Islands",
+          "country_code": "FK"
+        },
+        {
+          "country_name": "Japan",
+          "country_code": "JP"
+        },
+        {
+          "country_name": "Iraq",
+          "country_code": "IQ"
+        }
       ],
       "country_code": "JP",
+      "difficulty": "NORMAL",
       "fact": "Japan consists of over 6,800 islands, yet only about 430 are inhabited. Mount Fuji, its highest peak, is an active stratovolcano."
     },
     {
-      "answer_id": 230,
+      "answer_id": "TM",
       "countries": [
-        { "country_name": "Barbados", "id": 20 },
-        { "country_name": "Italy", "id": 111 },
-        { "country_name": "Turkmenistan", "id": 230 },
-        { "country_name": "Cocos Island", "id": 48 }
+        {
+          "country_name": "Barbados",
+          "country_code": "BB"
+        },
+        {
+          "country_name": "Italy",
+          "country_code": "IT"
+        },
+        {
+          "country_name": "Turkmenistan",
+          "country_code": "TM"
+        },
+        {
+          "country_name": "Cocos Island",
+          "country_code": "CC"
+        }
       ],
       "country_code": "TM",
+      "difficulty": "NORMAL",
       "fact": "Turkmenistan holds the world's fourth-largest reserves of natural gas, and its capital Ashgabat holds a Guinness record for the most white marble buildings."
     },
     {
-      "answer_id": 81,
+      "answer_id": "GA",
       "countries": [
-        { "country_name": "Maldives", "id": 137 },
-        { "country_name": "Aruba", "id": 13 },
-        { "country_name": "Monaco", "id": 148 },
-        { "country_name": "Gabon", "id": 81 }
+        {
+          "country_name": "Maldives",
+          "country_code": "MV"
+        },
+        {
+          "country_name": "Aruba",
+          "country_code": "AW"
+        },
+        {
+          "country_name": "Monaco",
+          "country_code": "MC"
+        },
+        {
+          "country_name": "Gabon",
+          "country_code": "GA"
+        }
       ],
       "country_code": "GA",
+      "difficulty": "NORMAL",
       "fact": "Gabon is one of Africa's most forested countries and is home to roughly 80% of the continent's western lowland gorilla population."
     },
     {
-      "answer_id": 141,
+      "answer_id": "MQ",
       "countries": [
-        { "country_name": "Martinique", "id": 141 },
-        { "country_name": "Montenegro", "id": 150 },
-        { "country_name": "Barbados", "id": 20 },
-        { "country_name": "Monaco", "id": 148 }
+        {
+          "country_name": "Martinique",
+          "country_code": "MQ"
+        },
+        {
+          "country_name": "Montenegro",
+          "country_code": "ME"
+        },
+        {
+          "country_name": "Barbados",
+          "country_code": "BB"
+        },
+        {
+          "country_name": "Monaco",
+          "country_code": "MC"
+        }
       ],
       "country_code": "MQ",
-      "fact": "Martinique is an overseas region of France in the Caribbean. It uses the Euro and its residents are full French — and EU — citizens."
+      "difficulty": "NORMAL",
+      "fact": "Martinique is an overseas region of France in the Caribbean. It uses the Euro and its residents are full French \u2014 and EU \u2014 citizens."
     },
     {
-      "answer_id": 23,
+      "answer_id": "BZ",
       "countries": [
-        { "country_name": "Germany", "id": 84 },
-        { "country_name": "Dominica", "id": 63 },
-        { "country_name": "Belize", "id": 23 },
-        { "country_name": "Tuvalu", "id": 232 }
+        {
+          "country_name": "Germany",
+          "country_code": "DE"
+        },
+        {
+          "country_name": "Dominica",
+          "country_code": "DM"
+        },
+        {
+          "country_name": "Belize",
+          "country_code": "BZ"
+        },
+        {
+          "country_name": "Tuvalu",
+          "country_code": "TV"
+        }
       ],
       "country_code": "BZ",
+      "difficulty": "NORMAL",
       "fact": "Belize is home to the Belize Barrier Reef, the second-largest coral reef system in the world and a UNESCO World Heritage Site."
     },
     {
-      "answer_id": 60,
+      "answer_id": "CZ",
       "countries": [
-        { "country_name": "Falkland Islands", "id": 73 },
-        { "country_name": "Czech Republic", "id": 60 },
-        { "country_name": "Mauritania", "id": 142 },
-        { "country_name": "British Indian Ocean Territory", "id": 33 }
+        {
+          "country_name": "Falkland Islands",
+          "country_code": "FK"
+        },
+        {
+          "country_name": "Czech Republic",
+          "country_code": "CZ"
+        },
+        {
+          "country_name": "Mauritania",
+          "country_code": "MR"
+        },
+        {
+          "country_name": "British Indian Ocean Territory",
+          "country_code": "IO"
+        }
       ],
       "country_code": "CZ",
+      "difficulty": "NORMAL",
       "fact": "The Czech Republic (Czechia) leads the world in per-capita beer consumption, averaging over 180 litres per person per year."
     },
     {
-      "answer_id": 235,
+      "answer_id": "AE",
       "countries": [
-        { "country_name": "United Arab Emirates", "id": 235 },
-        { "country_name": "United Arab Emirates", "id": 235 },
-        { "country_name": "Macedonia", "id": 133 },
-        { "country_name": "Guernsey", "id": 93 }
+        {
+          "country_name": "United Arab Emirates",
+          "country_code": "AE"
+        },
+        {
+          "country_name": "United Arab Emirates",
+          "country_code": "AE"
+        },
+        {
+          "country_name": "Macedonia",
+          "country_code": "MK"
+        },
+        {
+          "country_name": "Guernsey",
+          "country_code": "GG"
+        }
       ],
       "country_code": "AE",
-      "fact": "The UAE is home to the Burj Khalifa in Dubai — at 828 metres, it is the tallest building in the world."
+      "difficulty": "NORMAL",
+      "fact": "The UAE is home to the Burj Khalifa in Dubai \u2014 at 828 metres, it is the tallest building in the world."
     },
     {
-      "answer_id": 114,
+      "answer_id": "JE",
       "countries": [
-        { "country_name": "Turks and Caicos Islands", "id": 231 },
-        { "country_name": "Myanmar", "id": 154 },
-        { "country_name": "Jersey", "id": 114 },
-        { "country_name": "Ethiopia", "id": 72 }
+        {
+          "country_name": "Turks and Caicos Islands",
+          "country_code": "TC"
+        },
+        {
+          "country_name": "Myanmar",
+          "country_code": "MM"
+        },
+        {
+          "country_name": "Jersey",
+          "country_code": "JE"
+        },
+        {
+          "country_name": "Ethiopia",
+          "country_code": "ET"
+        }
       ],
       "country_code": "JE",
+      "difficulty": "NORMAL",
       "fact": "Jersey is a Crown Dependency of the British Crown, not part of the UK. It has its own parliament, tax laws, and issues its own currency."
     },
     {
-      "answer_id": 126,
+      "answer_id": "LS",
       "countries": [
-        { "country_name": "Malawi", "id": 135 },
-        { "country_name": "Trinidad and Tobago", "id": 227 },
-        { "country_name": "Nepal", "id": 157 },
-        { "country_name": "Lesotho", "id": 126 }
+        {
+          "country_name": "Malawi",
+          "country_code": "MW"
+        },
+        {
+          "country_name": "Trinidad and Tobago",
+          "country_code": "TT"
+        },
+        {
+          "country_name": "Nepal",
+          "country_code": "NP"
+        },
+        {
+          "country_name": "Lesotho",
+          "country_code": "LS"
+        }
       ],
       "country_code": "LS",
+      "difficulty": "NORMAL",
       "fact": "Lesotho is the only country in the world that lies entirely above 1,000 metres altitude. It is completely surrounded by South Africa."
     }
   ]

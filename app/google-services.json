@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "238662839076",
+    "firebase_url": "https://mychatappfirebase-abf5b.firebaseio.com",
+    "project_id": "mychatappfirebase-abf5b",
+    "storage_bucket": "mychatappfirebase-abf5b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:238662839076:android:120a3c7fe9ce67aa23a1b1",
+        "android_client_info": {
+          "package_name": "org.smp.flagmaster"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "238662839076-naf9fluidhg3gcjmo4hooqr8lck4524o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAX4mggTqrGKtUhKPdBC6dLHTCwVhVGsUg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "238662839076-naf9fluidhg3gcjmo4hooqr8lck4524o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

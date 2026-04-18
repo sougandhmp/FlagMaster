@@ -12,9 +12,5 @@ import org.smp.data.database.dao.QuestionDao
 internal object DaoModule {
 
     @Provides
-    fun provideQuestionsDao(
-        database: FlagsDatabase,
-    ): QuestionDao = database.questionDao()
-
-
+    fun provideQuestionsDao(database: FlagsDatabase): QuestionDao = database.questionDao()
 }

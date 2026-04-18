@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -40,7 +39,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,7 +48,8 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.painterResource
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -102,7 +101,7 @@ fun ChallengeView(
                 AnswerOption(
                     text = item.name,
                     isSelected = selected == item,
-                    isCorrect = item.id == answer,
+                    isCorrect = item.code == answer,
                     showResult = result != null,
                 ) {
                     onOptionSelected(item)
@@ -119,20 +118,14 @@ fun ChallengeView(
 @Composable
 fun CountryFlag(countryCode: String) {
     val context = LocalContext.current
-    val drawableId = remember(countryCode) {
-        context.resources.getIdentifier(
-            countryCode.lowercase(), "drawable", context.packageName
-        )
-    }
-
-    if (drawableId != 0) {
-        Image(
-            painter = painterResource(id = drawableId),
-            contentDescription = "Flag of ${countryCode.uppercase()}",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-    }
+    AsyncImage(
+        model = ImageRequest.Builder(context)
+            .data("file:///android_asset/flags/${countryCode.lowercase()}.svg")
+            .build(),
+        contentDescription = "Flag of ${countryCode.uppercase()}",
+        modifier = Modifier.fillMaxSize(),
+        contentScale = ContentScale.Crop,
+    )
 }
 
 /**
@@ -258,7 +251,7 @@ fun OptionButton(
     answer: String? = null,
     answerResult: AnswerResult? = null
 ) {
-    val isCorrect = country.id == answer
+    val isCorrect = country.code == answer
     val isWrongSelection = selected && !isCorrect && answerResult != null
     val showCorrect = isCorrect && answerResult != null
 
@@ -313,9 +306,9 @@ fun OptionButton(
 private fun ChallengePreview() {
     FlagMasterTheme {
         ChallengeView(
-            options = listOf(Country("in", "India"), Country("us", "United States")),
+            options = listOf(Country("India", "in"), Country("United States", "us")),
             onOptionSelected = {},
-            selected = Country("in", "India"),
+            selected = Country("India", "in"),
             result = AnswerResult.CORRECT
         )
     }

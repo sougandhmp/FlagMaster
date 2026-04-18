@@ -110,26 +110,70 @@ On every launch the app reconciles current time against the saved challenge time
 
 ---
 
+## 🔄 Data Sync
+
+Question data is served from three sources in priority order:
+
+```
+Firebase RTDB  ──(online)──►  Room cache  ──►  App (live questions)
+                                  │
+               ──(offline)────────┘
+                                  │
+               ──(no cache)───────┴──►  Bundled assets (questions.json)
+```
+
+### Sources
+
+| Source | Class | When used |
+|---|---|---|
+| Firebase Realtime Database | `FirebaseDataSource` | Network available; fetches `/questions` node |
+| Room (cache) | `FlagsRepositoryImpl` | Firebase unreachable but DB has rows |
+| Bundled assets | `AssetDataSource` | No network and empty DB (first install / no cache) |
+
+### Background sync
+
+`FirebaseBackgroundSyncManager` schedules WorkManager tasks:
+
+| Method | Type | Constraint | Policy |
+|---|---|---|---|
+| `schedulePeriodic()` | Periodic, every 24 h | Network connected | `KEEP` existing |
+| `scheduleImmediateSync()` | One-time | Network connected | `REPLACE` existing |
+| `pausePeriodicSync()` | — | — | Cancels periodic work |
+
+The `FirebaseSyncWorker` is a `@HiltWorker` / `CoroutineWorker` that calls `repository.seedQuestions()` and retries automatically on failure (exponential backoff).
+
+### Network awareness
+
+`NetworkStateManager` (injected via `SyncModule`) checks `ConnectivityManager` for `NET_CAPABILITY_INTERNET` + `NET_CAPABILITY_VALIDATED` before any Firebase call, avoiding unnecessary requests on captive-portal or metered connections.
+
+---
+
 ## 🗂 Project Structure
 
 ```
 app/src/main/java/org/smp/flagmaster/
 ├── ui/
 │   ├── FlagsChallengeViewModel.kt   # All game logic & state
-│   ├── FlagsScreen.kt               # Root composable + state routing
+│   ├── FlagsNavigation.kt           # NavHost + route definitions
 │   ├── FlagsUiState.kt              # State, enums, sealed classes
 │   ├── FlagsScreenAction.kt         # User action sealed class
 │   ├── mapper/
 │   │   ├── TimeSchedulerErrorMapper.kt
 │   │   └── ChallengeTimeMapper.kt       # Digit list → Calendar (UI layer, injectable)
 │   └── components/
+│       ├── StartChallengeScreen.kt  # Entry screen / time scheduler
 │       ├── TimerScheduleView.kt     # HH:MM:SS digit input
 │       ├── ChallengeScheduledView.kt
 │       ├── CountDownView.kt
 │       ├── QuestionScreen.kt        # Timer bar, streak chip, answer options
 │       ├── ChallengeView.kt         # Flag + answer grid with haptic feedback
+│       ├── ChallengeCompleteView.kt # Mid-challenge completion view
 │       ├── GameOverScreen.kt        # Animated results screen
+│       ├── StatsScreen.kt           # Per-question answer review
 │       └── ...
+app/src/main/assets/
+├── questions.json                   # Seed data loaded on first launch
+└── flags/                           # 255 SVG flag files (ISO 3166-1 alpha-2)
 
 domain/src/main/java/org/smp/domain/
 ├── model/          # Question, Country, QuizAnswer
@@ -137,10 +181,12 @@ domain/src/main/java/org/smp/domain/
 └── usecase/        # One class per operation (answers/, challenge/, questions/)
 
 data/src/main/java/org/smp/data/
-├── database/       # Room DB, DAOs, entities
-├── datastore/      # DataStore read/write
+├── database/           # Room DB, DAOs, entities
+├── datastore/          # DataStore read/write
 ├── asset_data_source/  # questions.json loader
-└── repository/     # FlagsRepositoryImpl
+├── firebase/           # FirebaseDataSource (RTDB)
+├── sync/               # FirebaseBackgroundSyncManager, NetworkStateManagerImpl
+└── repository/         # FlagsRepositoryImpl (orchestrates all sources)
 ```
 
 ---
@@ -166,10 +212,14 @@ data/src/main/java/org/smp/data/
 
 ## 🖼 Flag Assets
 
-Flag drawables live in `app/src/main/res/drawable/` and are named by lowercase ISO 3166-1 alpha-2 country code:
+255 flag SVGs live in `app/src/main/assets/flags/`, named by lowercase ISO 3166-1 alpha-2 country code:
 
 ```
-us.xml   gb.xml   fr.xml   jp.xml   de.xml   in.xml   ...
+ad.svg   ae.svg   af.svg   ...   us.svg   gb.svg   fr.svg   ...
 ```
 
-The `CountryFlag` composable resolves them at runtime via `getIdentifier(countryCode, "drawable", packageName)`.
+They are loaded at runtime by Coil using a `SvgDecoder` configured in `FlagsApplication`:
+
+```kotlin
+.data("file:///android_asset/flags/${countryCode.lowercase()}.svg")
+```

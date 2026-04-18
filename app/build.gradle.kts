@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -72,6 +73,11 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+    implementation(libs.coil.svg)
+
+    // WorkManager for background sync
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.hilt.ext.work)
 
     testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.junit.jupiter.params)

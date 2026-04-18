@@ -7,16 +7,22 @@ import org.smp.domain.model.QuizAnswer
 interface FlagsRepository {
 
     /**
-     * Seed the database with questions from the assets
-     * If the database is already seeded, this method will not do anything
+     * Seed the local database with questions (fetched from Firebase, falls back to bundled assets).
+     * No-op if the database is already seeded.
      */
-    suspend fun seedQuestionsFromAsset()
+    suspend fun seedQuestions()
 
     /**
-     * Get all the questions from the database
+     * Get all the questions from the database (one-shot).
      * @return List<Question>
      */
     suspend fun getAllQuestions(): List<Question>
+
+    /**
+     * Observe questions from the local Room cache.
+     * Emits immediately with cached data, then re-emits whenever the cache is refreshed.
+     */
+    fun observeAllQuestions(): Flow<List<Question>>
 
     /**
      * Save the quiz answers to the datastore

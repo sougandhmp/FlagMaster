@@ -5,23 +5,23 @@ import androidx.room.Relation
 import org.smp.domain.model.Country
 import org.smp.domain.model.Question
 
-data class AnswerWithCountries(
-    @Embedded val answer: AnswerEntity,
+data class QuestionWithOptions(
+    @Embedded val question: QuestionEntity,
     @Relation(
-        parentColumn = "answerId",
-        entityColumn = "answerOwnerId"
+        parentColumn = "answerId",      // QuestionEntity column name
+        entityColumn = "questionId"  // CountryEntity column name
     )
-    val countries: List<CountryEntity>
+    val options: List<CountryEntity>
 )
 
-fun AnswerWithCountries.toQuestion(): Question = Question(
-    answerId = answer.answerId.toString(),
-    countryCode = answer.countryCode,
-    options = countries.map { it.toCountry() },
-    fact = answer.fact,
+fun QuestionWithOptions.toQuestion(): Question = Question(
+    answerId = question.answerId,
+    countryCode = question.countryCode,
+    options = options.take(4).map { it.toCountry() },
+    fact = question.fact,
 )
 
 private fun CountryEntity.toCountry(): Country = Country(
     name = countryName,
-    id = id.toString()
+    code = code
 )

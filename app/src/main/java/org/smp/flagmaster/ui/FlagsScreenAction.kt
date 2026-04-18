@@ -19,6 +19,8 @@ sealed class FlagsScreenAction {
 
     data class OnDifficultySelected(val mode: DifficultyMode) : FlagsScreenAction()
 
+    data class OnQuestionCountSelected(val count: Int) : FlagsScreenAction()
+
     object PlayAgain : FlagsScreenAction()
     object GoHome : FlagsScreenAction()
     object ShowStats : FlagsScreenAction()

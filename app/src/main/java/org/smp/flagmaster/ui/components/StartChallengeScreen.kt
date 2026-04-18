@@ -122,6 +122,29 @@ fun StartChallengeScreen(
             }
         }
 
+        Spacer(Modifier.height(24.dp))
+
+        // Question count selector
+        Text(
+            text = stringResource(R.string.questions),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        )
+        val questionCounts = listOf(5, 10, 15, 20)
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            questionCounts.forEachIndexed { index, count ->
+                SegmentedButton(
+                    selected = uiState.questionCount == count,
+                    onClick = { onAction(FlagsScreenAction.OnQuestionCountSelected(count)) },
+                    shape = SegmentedButtonDefaults.itemShape(index, questionCounts.size),
+                    label = { Text("$count", fontWeight = FontWeight.SemiBold) }
+                )
+            }
+        }
+
         Spacer(Modifier.height(28.dp))
 
         // Start Now — primary CTA, full width, prominent

@@ -1,8 +1,5 @@
 package org.smp.flagmaster.ui.components
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -21,7 +18,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,26 +35,8 @@ fun FlagsChallengeHeader(
     questionNumber: Int = 1,
     totalQuestions: Int = 15,
     remainingTime: String = "",
-    timerTotalSeconds: Int = 30,
     score: Int = 0,
 ) {
-    // ── Timer fraction (for future use / color) ──────────────────────────────
-    val timerFraction = remember(remainingTime) {
-        val parts = remainingTime.split(":")
-        if (parts.size == 2) {
-            val mins = parts[0].toIntOrNull() ?: 0
-            val secs = parts[1].toIntOrNull() ?: 0
-            val total = mins * 60 + secs
-            (total.toFloat() / timerTotalSeconds.toFloat()).coerceIn(0f, 1f)
-        } else 1f
-    }
-
-    val animatedFraction by animateFloatAsState(
-        targetValue = timerFraction,
-        animationSpec = tween(800, easing = FastOutSlowInEasing),
-        label = "timerFraction"
-    )
-
     // Display only seconds when < 1 min, otherwise MM:SS
     val timerLabel = remember(remainingTime) {
         val parts = remainingTime.split(":")
@@ -69,13 +47,11 @@ fun FlagsChallengeHeader(
         } else remainingTime
     }
 
-    // Timer badge color: green → yellow → red as time runs out
-    val timerBadgeAlpha = animatedFraction
     val timerContainerColor = MaterialTheme.colorScheme.primary
 
     CenterAlignedTopAppBar(
         modifier = modifier,
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+        colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent,
         ),
 
@@ -147,7 +123,6 @@ private fun FlagsChallengeHeaderPreview() {
         questionNumber = 15,
         totalQuestions = 15,
         remainingTime = "00:00",
-        timerTotalSeconds = 30,
         score = 2,
     )
 }

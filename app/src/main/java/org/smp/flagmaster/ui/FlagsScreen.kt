@@ -92,7 +92,6 @@ fun FlagsChallengeScreen(
                         questionNumber = uiState.questionIndex + 1,
                         totalQuestions = uiState.questions.size.coerceAtLeast(1),
                         remainingTime = uiState.remainingTime,
-                        timerTotalSeconds = (uiState.difficultyMode.timerMs / 1000).toInt(),
                         score = uiState.score,
                     )
                 }

@@ -10,14 +10,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.smp.domain.model.Question
 import org.smp.domain.model.QuizAnswer
 import org.smp.domain.usecase.answers.ObserveQuizAnswersUseCase
 import org.smp.domain.usecase.answers.SaveQuizAnswersUseCase
 import org.smp.domain.usecase.challenge.ClearQuizAnswersAndTimeUseCase
 import org.smp.domain.usecase.challenge.ObserveChallengeTimeUseCase
 import org.smp.domain.usecase.challenge.SaveChallengeTimeUseCase
-import org.smp.domain.usecase.questions.GetAllQuestionsUseCase
-import org.smp.domain.usecase.questions.SeedQuestionsUseCase
+import org.smp.domain.usecase.questions.ObserveQuestionsUseCase
 import org.smp.flagmaster.ui.mapper.ChallengeTimeMapper
 import org.smp.flagmaster.ui.mapper.TimeSchedulerErrorMapper
 import timber.log.Timber
@@ -27,8 +27,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FlagsChallengeViewModel @Inject constructor(
-    private val seedQuestionsUseCase: SeedQuestionsUseCase,
-    private val getAllQuestionsUseCase: GetAllQuestionsUseCase,
+    private val observeQuestionsUseCase: ObserveQuestionsUseCase,
     private val challengeTimeMapper: ChallengeTimeMapper,
     private val timeSchedulerErrorMapper: TimeSchedulerErrorMapper,
     private val observeChallengeTimeUseCase: ObserveChallengeTimeUseCase,
@@ -41,9 +40,8 @@ class FlagsChallengeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ScheduleTimeUiState())
     val uiState = _uiState.asStateFlow()
 
-    // Holds the active countdown or quiz timer coroutine so it can be cancelled cleanly.
-    // viewModelScope cancels all children automatically on ViewModel.onCleared().
     private var timerJob: Job? = null
+    private var allQuestions: List<Question> = emptyList()
 
     companion object {
         private const val QUIZ_TIMER_MS = 30_000L
@@ -52,13 +50,30 @@ class FlagsChallengeViewModel @Inject constructor(
         private const val FEEDBACK_DELAY_TIMEOUT_MS = 2_000L
     }
 
-    // Questions are loaded first so that when the DataStore observation fires its first
-    // emission, _uiState.value.questions is already populated (fixes startup race condition).
     init {
+        observeQuestions()
+        observeSavedQuizAndTime()
+    }
+
+    private fun observeQuestions() {
         viewModelScope.launch {
-            seedQuestions()
-            getAllQuestions()
-            observeSavedQuizAndTime()
+            observeQuestionsUseCase()
+                .collect { questions ->
+                    if (questions.isNotEmpty()) {
+                        allQuestions = questions
+                        applyQuestionSelection(_uiState.value.questionCount)
+                    }
+                }
+        }
+    }
+
+    private fun applyQuestionSelection(count: Int) {
+        val selected = allQuestions.shuffled().take(count)
+        _uiState.update {
+            it.copy(
+                questions = selected,
+                currentQuestion = selected.getOrNull(it.questionIndex),
+            )
         }
     }
 
@@ -140,6 +155,11 @@ class FlagsChallengeViewModel @Inject constructor(
                 _uiState.update { it.copy(difficultyMode = action.mode) }
             }
 
+            is FlagsScreenAction.OnQuestionCountSelected -> {
+                _uiState.update { it.copy(questionCount = action.count) }
+                applyQuestionSelection(action.count)
+            }
+
             is FlagsScreenAction.PlayAgain -> resetForNewGame()
             is FlagsScreenAction.GoHome -> resetForNewGame()
             is FlagsScreenAction.ShowStats -> _uiState.update { it.copy(showStats = true) }
@@ -218,20 +238,6 @@ class FlagsChallengeViewModel @Inject constructor(
             calendar.get(Calendar.SECOND)
         )
 
-    private suspend fun getAllQuestions() {
-        runCatching { getAllQuestionsUseCase() }
-            .onSuccess { questions ->
-                _uiState.update {
-                    it.copy(
-                        questions = questions,
-                        currentQuestion = questions.getOrNull(it.questionIndex),
-                    )
-                }
-            }.onFailure {
-                Timber.e(it, "Error fetching questions")
-            }
-    }
-
     private fun startQuiz() {
         _uiState.update { it.copy(challengeState = ChallengeState.IN_PROGRESS) }
         timerJob?.cancel()
@@ -258,13 +264,13 @@ class FlagsChallengeViewModel @Inject constructor(
 
         timerJob?.cancel()
 
-        val isCorrect = question.answerId == selection?.id
+        val isCorrect = question.answerId == selection?.code
         val updatedAnswers = _uiState.value.answers.toMutableList().apply {
             removeAll { it.questionId == question.questionId }
             add(
                 QuizAnswer(
                     questionId = question.questionId,
-                    selectedOption = selection?.id.orEmpty(),
+                    selectedOption = selection?.code.orEmpty(),
                     isCorrect = isCorrect
                 )
             )
@@ -328,12 +334,15 @@ class FlagsChallengeViewModel @Inject constructor(
     private fun resetForNewGame() {
         timerJob?.cancel()
         clearAnswers()
+        val count = _uiState.value.questionCount
         _uiState.update { current ->
             ScheduleTimeUiState(
                 questions = current.questions,
                 difficultyMode = current.difficultyMode,
+                questionCount = count,
             )
         }
+        applyQuestionSelection(count)
     }
 
     private fun clearAnswers() {
@@ -343,9 +352,4 @@ class FlagsChallengeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun seedQuestions() {
-        runCatching { seedQuestionsUseCase() }
-            .onSuccess { Timber.d("Questions seeded") }
-            .onFailure { Timber.e(it, "Seeding failed") }
-    }
 }

@@ -88,9 +88,9 @@ fun StatsScreen(
 
             itemsIndexed(questions) { index, question ->
                 val answer = answerMap[question.questionId]
-                val correctOption = question.options.firstOrNull { it.id == question.answerId }
+                val correctOption = question.options.firstOrNull { it.code == question.answerId }
                 val selectedOption =
-                    question.options.firstOrNull { it.id == answer?.selectedOption }
+                    question.options.firstOrNull { it.code == answer?.selectedOption }
                 val isCorrect = answer?.isCorrect == true
                 val wasAnswered = answer != null && answer.selectedOption.isNotEmpty()
 
