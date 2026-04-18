@@ -17,7 +17,8 @@ data class AnswerWithCountries(
 fun AnswerWithCountries.toQuestion(): Question = Question(
     answerId = answer.answerId.toString(),
     countryCode = answer.countryCode,
-    options = countries.map { it.toCountry() }
+    options = countries.map { it.toCountry() },
+    fact = answer.fact,
 )
 
 private fun CountryEntity.toCountry(): Country = Country(

@@ -12,22 +12,17 @@ val provider = GoogleFont.Provider(
     certificates = R.array.com_google_android_gms_fonts_certs
 )
 
-val bodyFontFamily = FontFamily(
-    Font(
-        googleFont = GoogleFont("Roboto Mono"),
-        fontProvider = provider,
-    )
-)
-
+// Nunito — rounded, friendly, great for game UIs
 val displayFontFamily = FontFamily(
-    Font(
-        googleFont = GoogleFont("Roboto Mono"),
-        fontProvider = provider,
-    )
+    Font(googleFont = GoogleFont("Nunito"), fontProvider = provider)
 )
 
-// Default Material 3 typography values
-val baseline = Typography()
+// Inter — clean, highly legible for body copy
+val bodyFontFamily = FontFamily(
+    Font(googleFont = GoogleFont("Inter"), fontProvider = provider)
+)
+
+private val baseline = Typography()
 
 val AppTypography = Typography(
     displayLarge = baseline.displayLarge.copy(fontFamily = displayFontFamily),

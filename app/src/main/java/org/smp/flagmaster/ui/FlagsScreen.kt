@@ -5,12 +5,14 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,8 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,10 +48,8 @@ import org.smp.flagmaster.ui.components.FlagsChallengeHeader
 import org.smp.flagmaster.ui.components.GameOverScreen
 import org.smp.flagmaster.ui.components.QuestionScreen
 import org.smp.flagmaster.ui.components.StartChallengeScreen
+import org.smp.flagmaster.ui.components.StatsScreen
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
-
-private val GradientStart = Color(0xFF667EEA)
-private val GradientEnd = Color(0xFF764BA2)
 
 @Composable
 fun FlagsChallengeRoute(viewModel: FlagsChallengeViewModel = hiltViewModel()) {
@@ -73,15 +72,7 @@ fun FlagsChallengeScreen(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(colors = listOf(GradientStart, GradientEnd))
-            )
-    ) {
-        Scaffold(
-            containerColor = Color.Transparent,
+    Scaffold(
             snackbarHost = {
                 SnackbarHost(snackbarHostState) { data ->
                     Snackbar(
@@ -103,8 +94,20 @@ fun FlagsChallengeScreen(
             AnimatedContent(
                 targetState = uiState.challengeState,
                 transitionSpec = {
-                    (fadeIn(tween(300)) + slideInVertically { it / 6 }) togetherWith
-                            fadeOut(tween(200))
+                    when (targetState) {
+                        ChallengeState.COUNT_DOWN ->
+                            scaleIn(initialScale = 0.85f, animationSpec = tween(350)) + fadeIn(tween(350)) togetherWith
+                                scaleOut(targetScale = 1.05f, animationSpec = tween(200)) + fadeOut(tween(200))
+                        ChallengeState.IN_PROGRESS ->
+                            slideInHorizontally(tween(350)) { it / 2 } + fadeIn(tween(350)) togetherWith
+                                slideOutHorizontally(tween(200)) { -it / 2 } + fadeOut(tween(200))
+                        ChallengeState.COMPLETED ->
+                            slideInVertically(tween(400)) { it / 3 } + fadeIn(tween(400)) togetherWith
+                                slideOutVertically(tween(250)) { -it / 3 } + fadeOut(tween(250))
+                        else ->
+                            fadeIn(tween(300)) + slideInVertically(tween(300)) { it / 6 } togetherWith
+                                fadeOut(tween(200))
+                    }
                 },
                 modifier = Modifier
                     .fillMaxSize()
@@ -133,8 +136,8 @@ fun FlagsChallengeScreen(
                                 selectedAnswer = uiState.selectedOption?.name,
                                 showResult = uiState.answerResult != null,
                                 remainingTime = uiState.remainingTime,
-                                answerResult = uiState.answerResult,
                                 streak = uiState.streak,
+                                timerTotalSeconds = (uiState.difficultyMode.timerMs / 1000).toInt(),
                                 onAnswerSelected = {
                                     onAction(FlagsScreenAction.OnOptionSelected(it))
                                 },
@@ -150,20 +153,48 @@ fun FlagsChallengeScreen(
                         }
                     }
 
-                    ChallengeState.COMPLETED -> GameOverScreen(
-                        score = uiState.score,
-                        totalQuestions = uiState.questions.size.coerceAtLeast(1)
-                    )
+                    ChallengeState.COMPLETED -> {
+                        val context = LocalContext.current
+                        val total = uiState.questions.size.coerceAtLeast(1)
+                        if (uiState.showStats) {
+                            StatsScreen(
+                                questions = uiState.questions,
+                                answers = uiState.answers,
+                                score = uiState.score,
+                                onBack = { onAction(FlagsScreenAction.HideStats) }
+                            )
+                        } else {
+                            GameOverScreen(
+                                score = uiState.score,
+                                totalQuestions = total,
+                                onPlayAgain = { onAction(FlagsScreenAction.PlayAgain) },
+                                onViewStats = { onAction(FlagsScreenAction.ShowStats) },
+                                onShare = {
+                                    val pct = (uiState.score.toFloat() / total * 100).toInt()
+                                    val text = "I scored ${uiState.score}/$total ($pct%) in Flags Challenge! Can you beat me? 🌍"
+                                    val intent = android.content.Intent().apply {
+                                        action = android.content.Intent.ACTION_SEND
+                                        putExtra(android.content.Intent.EXTRA_TEXT, text)
+                                        type = "text/plain"
+                                    }
+                                    context.startActivity(
+                                        android.content.Intent.createChooser(intent, "Share your score")
+                                    )
+                                },
+                                onHome = { onAction(FlagsScreenAction.GoHome) },
+                                onBackPressed = { onAction(FlagsScreenAction.GoHome) },
+                            )
+                        }
+                    }
                 }
             }
         }
-    }
 }
 
 @Composable
 private fun IntervalBar(timeInSeconds: Int) {
     Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.92f),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
         tonalElevation = 2.dp
     ) {
         Row(

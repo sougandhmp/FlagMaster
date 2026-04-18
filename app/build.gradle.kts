@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.core)
     implementation(libs.androidx.compose.ui.text.google.fonts)
+    implementation(libs.androidx.core.splashscreen)
     ksp(libs.hilt.compiler)
     ksp(libs.hilt.ext.compiler)
 

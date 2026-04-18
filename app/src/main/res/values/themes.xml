@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Base app theme (applied after splash is dismissed) -->
     <style name="Theme.FlagMaster" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- Splash screen theme — activity uses this; postSplashScreenTheme switches to Theme.FlagMaster -->
+    <style name="Theme.FlagMaster.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_icon</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/ic_launcher_background</item>
+        <item name="postSplashScreenTheme">@style/Theme.FlagMaster</item>
+    </style>
+
 </resources>

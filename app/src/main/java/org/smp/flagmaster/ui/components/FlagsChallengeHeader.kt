@@ -30,16 +30,18 @@ fun FlagsChallengeHeader(
 ) {
     CenterAlignedTopAppBar(
         modifier = modifier,
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Color.Transparent,
-            titleContentColor = Color.White,
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            scrolledContainerColor = Color.Unspecified,
+            navigationIconContentColor = Color.Unspecified,
+            titleContentColor = Color.Unspecified,
+            actionIconContentColor = Color.Unspecified
         ),
         title = {
             Text(
                 text = stringResource(R.string.flags_challenge),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
             )
         },
         navigationIcon = {

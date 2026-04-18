@@ -1,17 +1,10 @@
 package org.smp.flagmaster.ui.components
 
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,17 +13,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -51,22 +42,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.smp.flagmaster.R
+import org.smp.flagmaster.ui.theme.FlagMasterTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,270 +63,245 @@ fun GameOverScreen(
     onBackPressed: () -> Unit = {},
     onHome: () -> Unit = {}
 ) {
-    LocalContext.current
     val percentage = remember { (score.toFloat() / totalQuestions * 100).toInt() }
 
-    // Animation states
     var startAnimations by remember { mutableStateOf(false) }
 
-    // Card entrance animation
     val cardScale by animateFloatAsState(
-        targetValue = if (startAnimations) 1f else 0.8f,
-        animationSpec = tween(600, easing = FastOutSlowInEasing),
+        targetValue = if (startAnimations) 1f else 0.9f,
+        animationSpec = tween(500, easing = FastOutSlowInEasing),
         label = "cardScale"
     )
-
     val cardAlpha by animateFloatAsState(
         targetValue = if (startAnimations) 1f else 0f,
-        animationSpec = tween(600),
+        animationSpec = tween(500),
         label = "cardAlpha"
     )
-
-    // Score counter animation
     val animatedScore by animateIntAsState(
         targetValue = if (startAnimations) score else 0,
-        animationSpec = tween(1500, easing = LinearOutSlowInEasing),
+        animationSpec = tween(1200, easing = LinearOutSlowInEasing),
         label = "score"
     )
-
-    // Progress animation
     val animatedProgress by animateFloatAsState(
-        targetValue = if (startAnimations) percentage.toFloat() else 0f,
-        animationSpec = tween(2000, easing = LinearOutSlowInEasing),
+        targetValue = if (startAnimations) percentage / 100f else 0f,
+        animationSpec = tween(1500, easing = LinearOutSlowInEasing),
         label = "progress"
     )
 
-    LaunchedEffect(Unit) {
-        startAnimations = true
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF667EEA),
-                        Color(0xFF764BA2)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.flags_challenge),
+                        fontWeight = FontWeight.Bold,
                     )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackPressed) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
                 )
             )
-    ) {
-        // Floating flag emojis background
-        FloatingFlags()
-
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // Header
-            GameOverHeader(onBackPressed = onBackPressed)
-
-            // Main content
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // Main game over card
-                GameOverCard(
-                    score = animatedScore,
-                    totalQuestions = totalQuestions,
-                    percentage = animatedProgress.toInt(),
-                    modifier = Modifier
-                        .scale(cardScale)
-                        .alpha(cardAlpha)
-                )
-
-                // Performance message card
-                PerformanceMessageCard(
-                    percentage = percentage,
-                    modifier = Modifier.alpha(cardAlpha)
-                )
-
-                // Action buttons
-                ActionButtons(
-                    onPlayAgain = onPlayAgain,
-                    onViewStats = onViewStats,
-                    onShare = onShare,
-                    onHome = onHome,
-                    modifier = Modifier.alpha(cardAlpha)
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-            }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun GameOverHeader(
-    onBackPressed: () -> Unit
-) {
-    TopAppBar(
-        title = {
-            Text(
-                text = stringResource(R.string.flags_challenge),
-                color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium
-            )
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = onBackPressed,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.2f))
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = stringResource(R.string.back),
-                    tint = Color.White
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent
-        )
-    )
-}
-
-@Composable
-private fun GameOverCard(
-    score: Int,
-    totalQuestions: Int,
-    percentage: Int,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
-    ) {
+    ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp),
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Game Over Title
-            Text(
-                text = stringResource(R.string.game_over),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center
-            )
-
-            // Circular Progress with Percentage
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.size(120.dp)
+            // Score card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .scale(cardScale)
+                    .alpha(cardAlpha),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
-                CircularProgressIndicator(
-                    progress = { percentage / 100f },
-                    modifier = Modifier.size(120.dp),
-                    strokeWidth = 8.dp,
-                    color = MaterialTheme.colorScheme.tertiary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-                Text(
-                    text = "$percentage%",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.tertiary
-                )
-            }
-
-            // Score Section
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.score_label),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    letterSpacing = 1.sp
-                )
-
-                Row(
-                    verticalAlignment = Alignment.Bottom
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     Text(
-                        text = "$score",
-                        fontSize = 48.sp,
+                        text = stringResource(R.string.game_over),
+                        style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Black,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center
                     )
-                    Text(
-                        text = "/$totalQuestions",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
+
+                    val grade = when {
+                        percentage == 100 -> "S"
+                        percentage >= 80 -> "A"
+                        percentage >= 60 -> "B"
+                        percentage >= 40 -> "C"
+                        else -> "F"
+                    }
+                    val gradeColor = when (grade) {
+                        "S", "A" -> MaterialTheme.colorScheme.secondary
+                        "B", "C" -> MaterialTheme.colorScheme.primary
+                        else -> MaterialTheme.colorScheme.error
+                    }
+
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(130.dp)) {
+                        CircularProgressIndicator(
+                            progress = { animatedProgress },
+                            modifier = Modifier.size(130.dp),
+                            strokeWidth = 10.dp,
+                            color = gradeColor,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = grade,
+                                fontSize = 34.sp,
+                                fontWeight = FontWeight.Black,
+                                color = gradeColor
+                            )
+                            Text(
+                                text = "${(animatedProgress * 100).toInt()}%",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.score_label),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            letterSpacing = 1.sp
+                        )
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text(
+                                text = "$animatedScore",
+                                fontSize = 52.sp,
+                                fontWeight = FontWeight.Black,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "/$totalQuestions",
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(bottom = 10.dp)
+                            )
+                        }
+                    }
                 }
             }
+
+            // Performance message
+            PerformanceMessageCard(
+                percentage = percentage,
+                modifier = Modifier.alpha(cardAlpha)
+            )
+
+            // Action buttons
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .alpha(cardAlpha),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Button(
+                    onClick = onPlayAgain,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(14.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.play_again),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onViewStats,
+                        modifier = Modifier.weight(1f).height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                    ) {
+                        Text(text = stringResource(R.string.stats), fontWeight = FontWeight.Medium)
+                    }
+                    OutlinedButton(
+                        onClick = onShare,
+                        modifier = Modifier.weight(1f).height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                    ) {
+                        Text(text = stringResource(R.string.share_action), fontWeight = FontWeight.Medium)
+                    }
+                    OutlinedButton(
+                        onClick = onHome,
+                        modifier = Modifier.weight(1f).height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                    ) {
+                        Text(text = stringResource(R.string.home), fontWeight = FontWeight.Medium)
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
         }
     }
 }
 
 @Composable
-private fun PerformanceMessageCard(
-    percentage: Int,
-    modifier: Modifier = Modifier
-) {
-    val message = remember(percentage) {
-        when {
-            percentage == 100 -> "🎖️ PERFECT! You're a true flag master!"
-            percentage >= 80 -> "🏆 Excellent! You really know your flags!"
-            percentage >= 60 -> "🎯 Great job! You're becoming a flag expert!"
-            percentage >= 40 -> "💪 Keep practicing! You're improving!"
-            percentage > 0 -> "🌟 Don't give up! Every expert was once a beginner!"
-            else -> "📚 Study more flags and try again! You can do it!"
-        }
+private fun PerformanceMessageCard(percentage: Int, modifier: Modifier = Modifier) {
+    val message = when {
+        percentage == 100 -> "Perfect! You're a true flag master!"
+        percentage >= 80 -> "Excellent! You really know your flags!"
+        percentage >= 60 -> "Great job! You're becoming a flag expert!"
+        percentage >= 40 -> "Keep practising! You're improving!"
+        percentage > 0 -> "Don't give up! Every expert was once a beginner!"
+        else -> "Study more flags and try again!"
     }
     val containerColor = when {
-        percentage == 100 -> MaterialTheme.colorScheme.tertiary
-        percentage >= 80 -> MaterialTheme.colorScheme.secondary
-        percentage >= 60 -> MaterialTheme.colorScheme.primary
-        percentage >= 40 -> MaterialTheme.colorScheme.tertiaryContainer
+        percentage >= 80 -> MaterialTheme.colorScheme.secondaryContainer
+        percentage >= 40 -> MaterialTheme.colorScheme.primaryContainer
         else -> MaterialTheme.colorScheme.errorContainer
     }
     val textColor = when {
-        percentage == 100 -> MaterialTheme.colorScheme.onTertiary
-        percentage >= 80 -> MaterialTheme.colorScheme.onSecondary
-        percentage >= 60 -> MaterialTheme.colorScheme.onPrimary
-        percentage >= 40 -> MaterialTheme.colorScheme.onTertiaryContainer
+        percentage >= 80 -> MaterialTheme.colorScheme.onSecondaryContainer
+        percentage >= 40 -> MaterialTheme.colorScheme.onPrimaryContainer
         else -> MaterialTheme.colorScheme.onErrorContainer
     }
 
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Text(
             text = message,
-            modifier = Modifier.padding(20.dp),
-            fontSize = 16.sp,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+            style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
             color = textColor,
             textAlign = TextAlign.Center
@@ -350,251 +309,10 @@ private fun PerformanceMessageCard(
     }
 }
 
-@Composable
-private fun ActionButtons(
-    onPlayAgain: () -> Unit,
-    onViewStats: () -> Unit,
-    onShare: () -> Unit,
-    onHome: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        // Primary button - Play Again
-        Button(
-            onClick = onPlayAgain,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(28.dp),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.play_again),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
-
-        // Secondary buttons row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            OutlinedButton(
-                onClick = onViewStats,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                border = ButtonDefaults.outlinedButtonBorder.copy(
-                    brush = SolidColor(Color.White.copy(alpha = 0.7f))
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.stats),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            OutlinedButton(
-                onClick = onShare,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                border = ButtonDefaults.outlinedButtonBorder.copy(
-                    brush = SolidColor(Color.White.copy(alpha = 0.7f))
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.share_action),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            OutlinedButton(
-                onClick = onHome,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                border = ButtonDefaults.outlinedButtonBorder.copy(
-                    brush = SolidColor(Color.White.copy(alpha = 0.7f))
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.home),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun FloatingFlags() {
-    val infiniteTransition = rememberInfiniteTransition(label = "flags")
-
-    val flags = remember { listOf("🇺🇸", "🇬🇧", "🇫🇷", "🇯🇵", "🇩🇪", "🇨🇦", "🇦🇺", "🇮🇳") }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        flags.forEachIndexed { index, flag ->
-            index * 2000
-            val duration = 15000 + (index * 1000)
-
-            val yAnimation by infiniteTransition.animateFloat(
-                initialValue = 1200f,
-                targetValue = -200f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(duration, easing = LinearEasing),
-                    repeatMode = RepeatMode.Restart
-                ),
-                label = "flagY$index"
-            )
-
-            val xOffset = (index * 80) % 300
-            val rotationAnimation by infiniteTransition.animateFloat(
-                initialValue = 0f,
-                targetValue = 360f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(duration, easing = LinearEasing),
-                    repeatMode = RepeatMode.Restart
-                ),
-                label = "flagRotation$index"
-            )
-
-            Text(
-                text = flag,
-                fontSize = 24.sp,
-                modifier = Modifier
-                    .offset(
-                        x = (xOffset + 50).dp,
-                        y = yAnimation.dp
-                    )
-                    .graphicsLayer {
-                        rotationZ = rotationAnimation
-                        alpha = 0.6f
-                    }
-            )
-        }
-    }
-}
-
-// Usage in Activity or Navigation
-@Composable
-fun GameOverRoute(
-    score: Int,
-    totalQuestions: Int,
-    onNavigateBack: () -> Unit,
-    onNavigateToGame: () -> Unit,
-    onNavigateToStats: () -> Unit,
-    onNavigateToHome: () -> Unit
-) {
-    val context = LocalContext.current
-
-    GameOverScreen(
-        score = score,
-        totalQuestions = totalQuestions,
-        onPlayAgain = onNavigateToGame,
-        onViewStats = onNavigateToStats,
-        onShare = {
-            val percentage = (score.toFloat() / totalQuestions * 100).toInt()
-            val shareText =
-                "🎯 I scored $score/$totalQuestions ($percentage%) in Flags Challenge! Can you beat my score? 🌍"
-
-            val shareIntent = android.content.Intent().apply {
-                action = android.content.Intent.ACTION_SEND
-                putExtra(android.content.Intent.EXTRA_TEXT, shareText)
-                type = "text/plain"
-            }
-
-            context.startActivity(
-                android.content.Intent.createChooser(
-                    shareIntent,
-                    "Share your score"
-                )
-            )
-        },
-        onBackPressed = onNavigateBack,
-        onHome = onNavigateToHome
-    )
-}
-
-// Preview
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
 private fun GameOverScreenPreview() {
-    MaterialTheme {
-        GameOverScreen(
-            score = 8,
-            totalQuestions = 15
-        )
+    FlagMasterTheme {
+        GameOverScreen(score = 11, totalQuestions = 15)
     }
-}
-
-// Alternative implementation with custom circular progress
-@Composable
-fun AnimatedCircularProgressIndicator(
-    percentage: Float,
-    radius: Float = 50f,
-    strokeWidth: Float = 8f,
-    modifier: Modifier = Modifier
-) {
-    val trackColor = MaterialTheme.colorScheme.surfaceVariant
-    val progressColor = MaterialTheme.colorScheme.tertiary
-    Canvas(
-        modifier = modifier.size((radius * 2 + strokeWidth).dp)
-    ) {
-        drawCircularProgress(
-            percentage = percentage,
-            radius = radius.dp.toPx(),
-            strokeWidth = strokeWidth.dp.toPx(),
-            trackColor = trackColor,
-            progressColor = progressColor,
-        )
-    }
-}
-
-private fun DrawScope.drawCircularProgress(
-    percentage: Float,
-    radius: Float,
-    strokeWidth: Float,
-    trackColor: Color,
-    progressColor: Color,
-) {
-    val center = size.width / 2f
-
-    // Background circle
-    drawCircle(
-        color = trackColor,
-        radius = radius,
-        center = androidx.compose.ui.geometry.Offset(center, center),
-        style = Stroke(strokeWidth)
-    )
-
-    // Progress arc
-    val sweepAngle = (percentage / 100f) * 360f
-    drawArc(
-        color = progressColor,
-        startAngle = -90f,
-        sweepAngle = sweepAngle,
-        useCenter = false,
-        topLeft = androidx.compose.ui.geometry.Offset(
-            center - radius,
-            center - radius
-        ),
-        size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2),
-        style = Stroke(strokeWidth, cap = StrokeCap.Round)
-    )
 }

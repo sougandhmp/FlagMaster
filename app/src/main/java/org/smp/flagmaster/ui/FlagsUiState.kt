@@ -1,6 +1,7 @@
 package org.smp.flagmaster.ui
 
 import org.smp.domain.model.Country
+import org.smp.domain.model.DifficultyMode
 import org.smp.domain.model.Question
 import org.smp.domain.model.QuizAnswer
 
@@ -21,6 +22,8 @@ data class ScheduleTimeUiState(
     val answers: List<QuizAnswer> = emptyList(),
     val showScheduler: Boolean = false,
     val streak: Int = 0,
+    val difficultyMode: DifficultyMode = DifficultyMode.NORMAL,
+    val showStats: Boolean = false,
 )
 
 enum class AnswerResult{

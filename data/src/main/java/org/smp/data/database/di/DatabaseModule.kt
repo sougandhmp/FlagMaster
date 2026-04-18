@@ -21,5 +21,5 @@ object DatabaseModule {
         context,
         FlagsDatabase::class.java,
         "flags-database",
-    ).build()
+    ).addMigrations(FlagsDatabase.MIGRATION_1_2).build()
 }

@@ -14,16 +14,27 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,10 +44,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import org.smp.domain.model.DifficultyMode
 import org.smp.flagmaster.R
 import org.smp.flagmaster.ui.FlagsScreenAction
 import org.smp.flagmaster.ui.ScheduleTimeUiState
+import org.smp.flagmaster.ui.theme.FlagMasterTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StartChallengeScreen(
     uiState: ScheduleTimeUiState,
@@ -46,24 +61,25 @@ fun StartChallengeScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
+            .padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Logo + title
+        // App icon + title
         Image(
             painter = painterResource(id = R.drawable.ic_world_globe),
             contentDescription = stringResource(R.string.world_globe_description),
             modifier = Modifier
-                .sizeIn(maxWidth = 160.dp, maxHeight = 160.dp)
-                .padding(bottom = 8.dp)
+                .sizeIn(maxWidth = 120.dp, maxHeight = 120.dp)
+                .padding(bottom = 16.dp)
         )
 
         Text(
             text = stringResource(R.string.flags_challenge),
             style = MaterialTheme.typography.displaySmall,
             fontWeight = FontWeight.ExtraBold,
-            color = MaterialTheme.colorScheme.inverseSurface,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
         )
 
         Spacer(Modifier.height(8.dp))
@@ -71,51 +87,128 @@ fun StartChallengeScreen(
         Text(
             text = stringResource(R.string.start_challenge_description),
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.inverseOnSurface,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 8.dp)
         )
 
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(36.dp))
 
-        // Action card
-        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Button(
-                        onClick = { onAction(FlagsScreenAction.StartQuiz) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(stringResource(R.string.start_now), fontWeight = FontWeight.SemiBold)
+        // Difficulty selector
+        Text(
+            text = "Difficulty",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        )
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            DifficultyMode.entries.forEachIndexed { index, mode ->
+                SegmentedButton(
+                    selected = uiState.difficultyMode == mode,
+                    onClick = { onAction(FlagsScreenAction.OnDifficultySelected(mode)) },
+                    shape = SegmentedButtonDefaults.itemShape(index, DifficultyMode.entries.size),
+                    label = {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(mode.label, fontWeight = FontWeight.SemiBold)
+                            Text(
+                                "${mode.timerMs / 1000}s / question",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
-                    OutlinedButton(
-                        onClick = { onAction(FlagsScreenAction.OnScheduleChallenge) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
+                )
+            }
+        }
+
+        Spacer(Modifier.height(28.dp))
+
+        // Start Now — primary CTA, full width, prominent
+        Button(
+            onClick = { onAction(FlagsScreenAction.StartQuiz) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(16.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = null,
+                modifier = Modifier.size(22.dp)
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.start_now),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        // Schedule — secondary, outlined, full width
+        OutlinedButton(
+            onClick = { onAction(FlagsScreenAction.OnScheduleChallenge) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Default.CalendarMonth,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.schedule_challenge),
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        // Scheduler expander
+        AnimatedVisibility(
+            visible = uiState.showScheduler,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                tonalElevation = 1.dp
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp)
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.CalendarMonth,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
                         Text(
-                            stringResource(R.string.schedule_challenge),
-                            fontWeight = FontWeight.SemiBold
+                            text = "Set a time",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
-                }
-
-                AnimatedVisibility(
-                    visible = uiState.showScheduler,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-                        TimerScheduleView(uiState = uiState, onAction = onAction)
-                    }
+                    HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp))
+                    TimerScheduleView(uiState = uiState, onAction = onAction)
                 }
             }
         }
@@ -123,10 +216,12 @@ fun StartChallengeScreen(
 }
 
 @Composable
-@Preview
+@Preview(showBackground = true)
 private fun StartChallengeScreenPreview() {
-    StartChallengeScreen(
-        uiState = ScheduleTimeUiState(),
-        onAction = {}
-    )
+    FlagMasterTheme {
+        StartChallengeScreen(
+            uiState = ScheduleTimeUiState(),
+            onAction = {}
+        )
+    }
 }

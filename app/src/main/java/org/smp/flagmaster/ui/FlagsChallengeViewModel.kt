@@ -135,6 +135,15 @@ class FlagsChallengeViewModel @Inject constructor(
             is FlagsScreenAction.ClearError -> {
                 _uiState.update { it.copy(errorMessage = null) }
             }
+
+            is FlagsScreenAction.OnDifficultySelected -> {
+                _uiState.update { it.copy(difficultyMode = action.mode) }
+            }
+
+            is FlagsScreenAction.PlayAgain -> resetForNewGame()
+            is FlagsScreenAction.GoHome -> resetForNewGame()
+            is FlagsScreenAction.ShowStats -> _uiState.update { it.copy(showStats = true) }
+            is FlagsScreenAction.HideStats -> _uiState.update { it.copy(showStats = false) }
         }
     }
 
@@ -167,7 +176,7 @@ class FlagsChallengeViewModel @Inject constructor(
             runCountdown(20_000L)
             // Inline quiz start to avoid self-cancellation of the running timerJob.
             _uiState.update { it.copy(challengeState = ChallengeState.IN_PROGRESS) }
-            runCountdown(QUIZ_TIMER_MS)
+            runCountdown(_uiState.value.difficultyMode.timerMs)
             if (_uiState.value.answerResult == null) {
                 evaluateAndAdvance(FEEDBACK_DELAY_TIMEOUT_MS)
             }
@@ -227,7 +236,7 @@ class FlagsChallengeViewModel @Inject constructor(
         _uiState.update { it.copy(challengeState = ChallengeState.IN_PROGRESS) }
         timerJob?.cancel()
         timerJob = viewModelScope.launch {
-            runCountdown(QUIZ_TIMER_MS)
+            runCountdown(_uiState.value.difficultyMode.timerMs)
             // Timer expired — only evaluate if the user hasn't already picked an answer
             if (_uiState.value.answerResult == null) {
                 evaluateAndAdvance(FEEDBACK_DELAY_TIMEOUT_MS)
@@ -313,6 +322,17 @@ class FlagsChallengeViewModel @Inject constructor(
                     streak = 0
                 )
             }
+        }
+    }
+
+    private fun resetForNewGame() {
+        timerJob?.cancel()
+        clearAnswers()
+        _uiState.update { current ->
+            ScheduleTimeUiState(
+                questions = current.questions,
+                difficultyMode = current.difficultyMode,
+            )
         }
     }
 

@@ -4,6 +4,7 @@ data class Question(
     val answerId: String,
     val countryCode: String,
     val options: List<Country>,
+    val fact: String = "",
 ) {
     // answerId doubles as the unique question identifier (each question is about one country)
     val questionId: String get() = answerId

@@ -1,7 +1,12 @@
 package org.smp.flagmaster.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -9,19 +14,25 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -234,22 +245,22 @@ fun AnswerOption(
 
     val backgroundColor = when {
         showResult && isCorrect -> MaterialTheme.colorScheme.secondaryContainer
-        showResult && isSelected && !isCorrect -> MaterialTheme.colorScheme.errorContainer
-        isSelected && !showResult -> MaterialTheme.colorScheme.primaryContainer
+        showResult && isSelected -> MaterialTheme.colorScheme.errorContainer
+        isSelected -> MaterialTheme.colorScheme.primaryContainer
         else -> MaterialTheme.colorScheme.surface
     }
 
     val textColor = when {
         showResult && isCorrect -> MaterialTheme.colorScheme.onSecondaryContainer
-        showResult && isSelected && !isCorrect -> MaterialTheme.colorScheme.onErrorContainer
-        isSelected && !showResult -> MaterialTheme.colorScheme.onPrimaryContainer
+        showResult && isSelected -> MaterialTheme.colorScheme.onErrorContainer
+        isSelected -> MaterialTheme.colorScheme.onPrimaryContainer
         else -> MaterialTheme.colorScheme.onSurface
     }
 
     val borderColor = when {
         showResult && isCorrect -> MaterialTheme.colorScheme.secondary
-        showResult && isSelected && !isCorrect -> MaterialTheme.colorScheme.error
-        isSelected && !showResult -> MaterialTheme.colorScheme.primary
+        showResult && isSelected -> MaterialTheme.colorScheme.error
+        isSelected -> MaterialTheme.colorScheme.primary
         else -> MaterialTheme.colorScheme.outline
     }
 
@@ -278,12 +289,35 @@ fun AnswerOption(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = text,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = textColor
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = text,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = textColor
+                )
+                // Checkmark / X slides in when the result is revealed
+                AnimatedVisibility(
+                    visible = showResult && (isCorrect || isSelected),
+                    enter = fadeIn() + scaleIn(initialScale = 0.5f),
+                    exit = fadeOut() + scaleOut(targetScale = 0.5f),
+                ) {
+                    val icon = if (isCorrect) Icons.Default.Check else Icons.Default.Close
+                    val iconTint = if (isCorrect) MaterialTheme.colorScheme.secondary
+                                   else MaterialTheme.colorScheme.error
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = iconTint,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(18.dp)
+                    )
+                }
+            }
         }
     }
 }

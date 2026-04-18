@@ -1,6 +1,7 @@
 package org.smp.flagmaster.ui
 
 import org.smp.domain.model.Country
+import org.smp.domain.model.DifficultyMode
 
 sealed class FlagsScreenAction {
 
@@ -15,4 +16,11 @@ sealed class FlagsScreenAction {
     object OnScheduleChallenge : FlagsScreenAction()
 
     object ClearError : FlagsScreenAction()
+
+    data class OnDifficultySelected(val mode: DifficultyMode) : FlagsScreenAction()
+
+    object PlayAgain : FlagsScreenAction()
+    object GoHome : FlagsScreenAction()
+    object ShowStats : FlagsScreenAction()
+    object HideStats : FlagsScreenAction()
 }

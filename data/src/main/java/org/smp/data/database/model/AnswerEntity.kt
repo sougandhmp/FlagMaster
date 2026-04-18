@@ -1,14 +1,13 @@
 package org.smp.data.database.model
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "answers")
 data class AnswerEntity(
     @PrimaryKey val answerId: Int,
-    val countryCode: String
+    val countryCode: String,
+    val fact: String = "",
 )
 
 @Entity(tableName = "countries")

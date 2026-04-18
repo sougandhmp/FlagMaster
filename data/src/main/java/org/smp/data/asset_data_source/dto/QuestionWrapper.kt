@@ -11,7 +11,8 @@ data class QuestionWrapper(
 data class QuestionDto(
     @SerializedName("answer_id") val answerId: Int,
     @SerializedName("country_code") val countryCode: String,
-    @SerializedName("countries") val countries: List<CountryDto>
+    @SerializedName("countries") val countries: List<CountryDto>,
+    @SerializedName("fact") val fact: String = "",
 )
 
 data class CountryDto(
@@ -22,6 +23,7 @@ data class CountryDto(
 fun QuestionDto.toQuestionEntity(): AnswerEntity = AnswerEntity(
     answerId = answerId,
     countryCode = countryCode,
+    fact = fact,
 )
 
 fun QuestionDto.toCountryEntities() : List<CountryEntity> = countries.map {

@@ -69,6 +69,7 @@ FlagMaster/
 - **Sealed actions** — `FlagsScreenAction` for type-safe UI events
 - **Suspend use cases** — each domain operation is a single-responsibility suspend class
 - **IO-dispatched repository** — all DB and asset I/O runs on `Dispatchers.IO` via `withContext`
+- **Coroutine-based timer** — countdowns use a `suspend fun runCountdown()` + coroutine `Job` instead of `CountDownTimer`, keeping the ViewModel Android-framework-free and unit-testable
 
 ---
 
@@ -85,6 +86,7 @@ FlagMaster/
 | Image loading | Coil | 3.4.0 |
 | Serialization | Gson | 2.13.2 |
 | Logging | Timber | 5.0.1 |
+| Testing | JUnit Jupiter | 6.0.3 |
 | Build | AGP 9.1.1 · Gradle 9.4.1 · Kotlin 2.3.20 · KSP 2.3.6 | — |
 | Min SDK | Android 7.0 (API 24) | — |
 | Target SDK | Android 15 (API 36) | — |
@@ -118,7 +120,8 @@ app/src/main/java/org/smp/flagmaster/
 │   ├── FlagsUiState.kt              # State, enums, sealed classes
 │   ├── FlagsScreenAction.kt         # User action sealed class
 │   ├── mapper/
-│   │   └── TimeSchedulerErrorMapper.kt
+│   │   ├── TimeSchedulerErrorMapper.kt
+│   │   └── ChallengeTimeMapper.kt       # Digit list → Calendar (UI layer, injectable)
 │   └── components/
 │       ├── TimerScheduleView.kt     # HH:MM:SS digit input
 │       ├── ChallengeScheduledView.kt
@@ -131,7 +134,7 @@ app/src/main/java/org/smp/flagmaster/
 domain/src/main/java/org/smp/domain/
 ├── model/          # Question, Country, QuizAnswer
 ├── repository/     # FlagsRepository interface
-└── usecase/        # One class per operation
+└── usecase/        # One class per operation (answers/, challenge/, questions/)
 
 data/src/main/java/org/smp/data/
 ├── database/       # Room DB, DAOs, entities
