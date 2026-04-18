@@ -223,10 +223,8 @@ class FlagsChallengeViewModel @Inject constructor(
     }
 
     private fun formatTimeFromMillis(millis: Long): String {
-        val totalSeconds = millis / 1000
-        val minutes = (totalSeconds / 60).toInt()
-        val seconds = (totalSeconds % 60).toInt()
-        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+        val totalSeconds = (millis / 1000).toInt().coerceAtLeast(0)
+        return totalSeconds.toString()
     }
 
     private fun getTimeString(calendar: Calendar): String =
@@ -276,14 +274,11 @@ class FlagsChallengeViewModel @Inject constructor(
             )
         }
 
-        val newStreak = if (isCorrect) _uiState.value.streak + 1 else 0
-
         _uiState.update {
             it.copy(
                 answers = updatedAnswers,
                 answerResult = if (isCorrect) AnswerResult.CORRECT else AnswerResult.WRONG,
                 score = updatedAnswers.count { answer -> answer.isCorrect },
-                streak = newStreak
             )
         }
 
@@ -312,7 +307,6 @@ class FlagsChallengeViewModel @Inject constructor(
                     currentQuestion = nextQuestion,
                     selectedOption = null,
                     answerResult = null,
-                    showProgress = false
                 )
             }
             startQuiz()
@@ -325,7 +319,6 @@ class FlagsChallengeViewModel @Inject constructor(
                     currentQuestion = null,
                     selectedOption = null,
                     answerResult = null,
-                    streak = 0
                 )
             }
         }

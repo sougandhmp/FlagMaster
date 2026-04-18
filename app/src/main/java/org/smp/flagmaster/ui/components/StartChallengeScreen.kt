@@ -6,7 +6,10 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,8 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -33,11 +34,12 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,13 +51,19 @@ import org.smp.domain.model.DifficultyMode
 import org.smp.flagmaster.R
 import org.smp.flagmaster.ui.FlagsScreenAction
 import org.smp.flagmaster.ui.ScheduleTimeUiState
+import org.smp.flagmaster.ui.theme.BlueVibrantTheme
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
+import org.smp.flagmaster.ui.theme.GreenVibrantTheme
+import org.smp.flagmaster.ui.theme.RoseVibrantTheme
+import org.smp.flagmaster.ui.theme.SunsetVibrantTheme
+import org.smp.flagmaster.ui.theme.VibrantThemeConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StartChallengeScreen(
     uiState: ScheduleTimeUiState,
     onAction: (FlagsScreenAction) -> Unit,
+    config: VibrantThemeConfig = RoseVibrantTheme,
 ) {
     Column(
         modifier = Modifier
@@ -65,7 +73,6 @@ fun StartChallengeScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // App icon + title
         Image(
             painter = painterResource(id = R.drawable.ic_world_globe),
             contentDescription = stringResource(R.string.world_globe_description),
@@ -78,7 +85,7 @@ fun StartChallengeScreen(
             text = stringResource(R.string.flags_challenge),
             style = MaterialTheme.typography.displaySmall,
             fontWeight = FontWeight.ExtraBold,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = Color.White,
             textAlign = TextAlign.Center,
         )
 
@@ -87,17 +94,16 @@ fun StartChallengeScreen(
         Text(
             text = stringResource(R.string.start_challenge_description),
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = Color.White.copy(alpha = 0.7f),
             textAlign = TextAlign.Center,
         )
 
         Spacer(Modifier.height(36.dp))
 
-        // Difficulty selector
         Text(
             text = "Difficulty",
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = Color.White.copy(alpha = 0.7f),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
@@ -108,13 +114,21 @@ fun StartChallengeScreen(
                     selected = uiState.difficultyMode == mode,
                     onClick = { onAction(FlagsScreenAction.OnDifficultySelected(mode)) },
                     shape = SegmentedButtonDefaults.itemShape(index, DifficultyMode.entries.size),
+                    colors = SegmentedButtonDefaults.colors(
+                        activeContainerColor = config.optionSelectedBackground,
+                        activeContentColor = Color.White,
+                        activeBorderColor = Color.White.copy(alpha = 0.6f),
+                        inactiveContainerColor = Color.White.copy(alpha = 0.08f),
+                        inactiveContentColor = Color.White.copy(alpha = 0.7f),
+                        inactiveBorderColor = Color.White.copy(alpha = 0.2f),
+                    ),
                     label = {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(mode.label, fontWeight = FontWeight.SemiBold)
                             Text(
                                 "${mode.timerMs / 1000}s / question",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = Color.White.copy(alpha = 0.6f)
                             )
                         }
                     }
@@ -124,11 +138,10 @@ fun StartChallengeScreen(
 
         Spacer(Modifier.height(24.dp))
 
-        // Question count selector
         Text(
             text = stringResource(R.string.questions),
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = Color.White.copy(alpha = 0.7f),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
@@ -140,6 +153,14 @@ fun StartChallengeScreen(
                     selected = uiState.questionCount == count,
                     onClick = { onAction(FlagsScreenAction.OnQuestionCountSelected(count)) },
                     shape = SegmentedButtonDefaults.itemShape(index, questionCounts.size),
+                    colors = SegmentedButtonDefaults.colors(
+                        activeContainerColor = config.optionSelectedBackground,
+                        activeContentColor = Color.White,
+                        activeBorderColor = Color.White.copy(alpha = 0.6f),
+                        inactiveContainerColor = Color.White.copy(alpha = 0.08f),
+                        inactiveContentColor = Color.White.copy(alpha = 0.7f),
+                        inactiveBorderColor = Color.White.copy(alpha = 0.2f),
+                    ),
                     label = { Text("$count", fontWeight = FontWeight.SemiBold) }
                 )
             }
@@ -147,37 +168,24 @@ fun StartChallengeScreen(
 
         Spacer(Modifier.height(28.dp))
 
-        // Start Now — primary CTA, full width, prominent
-        Button(
+        // Start Now
+        VibrantCtaButton(
+            text = stringResource(R.string.start_now),
+            config = config,
             onClick = { onAction(FlagsScreenAction.StartQuiz) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(16.dp),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.PlayArrow,
-                contentDescription = null,
-                modifier = Modifier.size(22.dp)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = stringResource(R.string.start_now),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        )
 
         Spacer(Modifier.height(12.dp))
 
-        // Schedule — secondary, outlined, full width
+        // Schedule — outlined, white border
         OutlinedButton(
             onClick = { onAction(FlagsScreenAction.OnScheduleChallenge) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
             shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.5f))
         ) {
             Icon(
                 imageVector = Icons.Default.CalendarMonth,
@@ -198,13 +206,13 @@ fun StartChallengeScreen(
             enter = expandVertically() + fadeIn(),
             exit = shrinkVertically() + fadeOut()
         ) {
-            Surface(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp),
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                tonalElevation = 1.dp
+                    .padding(top = 16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.White.copy(alpha = 0.1f))
+                    .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
             ) {
                 Column(
                     modifier = Modifier.padding(20.dp),
@@ -219,7 +227,7 @@ fun StartChallengeScreen(
                         Icon(
                             imageVector = Icons.Default.CalendarMonth,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = config.accentColor,
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(Modifier.width(8.dp))
@@ -227,10 +235,13 @@ fun StartChallengeScreen(
                             text = "Set a time",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = Color.White
                         )
                     }
-                    HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp))
+                    HorizontalDivider(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        color = Color.White.copy(alpha = 0.2f)
+                    )
                     TimerScheduleView(uiState = uiState, onAction = onAction)
                 }
             }
@@ -239,7 +250,7 @@ fun StartChallengeScreen(
 }
 
 @Composable
-@Preview(showBackground = true)
+@Preview(showBackground = true, backgroundColor = 0xFF001F26)
 private fun StartChallengeScreenPreview() {
     FlagMasterTheme {
         StartChallengeScreen(
