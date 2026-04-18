@@ -51,11 +51,8 @@ import org.smp.domain.model.DifficultyMode
 import org.smp.flagmaster.R
 import org.smp.flagmaster.ui.FlagsScreenAction
 import org.smp.flagmaster.ui.ScheduleTimeUiState
-import org.smp.flagmaster.ui.theme.BlueVibrantTheme
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
-import org.smp.flagmaster.ui.theme.GreenVibrantTheme
 import org.smp.flagmaster.ui.theme.RoseVibrantTheme
-import org.smp.flagmaster.ui.theme.SunsetVibrantTheme
 import org.smp.flagmaster.ui.theme.VibrantThemeConfig
 
 @OptIn(ExperimentalMaterial3Api::class)

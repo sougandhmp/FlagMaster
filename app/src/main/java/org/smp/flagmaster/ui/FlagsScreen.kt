@@ -12,10 +12,6 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,35 +26,28 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlin.random.Random
 import org.smp.flagmaster.ui.components.ChallengeScheduledView
-import org.smp.flagmaster.ui.components.VibrantBackground
 import org.smp.flagmaster.ui.components.CountDownView
 import org.smp.flagmaster.ui.components.GameOverScreen
 import org.smp.flagmaster.ui.components.QuestionScreen
 import org.smp.flagmaster.ui.components.StartChallengeScreen
 import org.smp.flagmaster.ui.components.StatsScreen
+import org.smp.flagmaster.ui.components.VibrantBackground
 import org.smp.flagmaster.ui.theme.BlueVibrantTheme
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
-import org.smp.flagmaster.ui.theme.GreenVibrantTheme
 import org.smp.flagmaster.ui.theme.IndigoVibrantTheme
 import org.smp.flagmaster.ui.theme.OrangeVibrantTheme
 import org.smp.flagmaster.ui.theme.PurpleVibrantTheme
 import org.smp.flagmaster.ui.theme.RoseVibrantTheme
 import org.smp.flagmaster.ui.theme.SunsetVibrantTheme
 import org.smp.flagmaster.ui.theme.TealVibrantTheme
-import org.smp.flagmaster.ui.theme.VibrantThemeConfig
 
 @Composable
 fun FlagsChallengeRoute(viewModel: FlagsChallengeViewModel = hiltViewModel()) {
@@ -90,6 +79,7 @@ fun FlagsChallengeScreen(
             uiState.score % 2 == 0 -> SunsetVibrantTheme
             else -> IndigoVibrantTheme
         }
+
         ChallengeState.COMPLETED -> RoseVibrantTheme
     }
 
@@ -120,17 +110,26 @@ fun FlagsChallengeScreen(
                 transitionSpec = {
                     when (targetState) {
                         ChallengeState.COUNT_DOWN ->
-                            scaleIn(initialScale = 0.85f, animationSpec = tween(350)) + fadeIn(tween(350)) togetherWith
-                                scaleOut(targetScale = 1.05f, animationSpec = tween(200)) + fadeOut(tween(200))
+                            scaleIn(
+                                initialScale = 0.85f,
+                                animationSpec = tween(350)
+                            ) + fadeIn(tween(350)) togetherWith
+                                    scaleOut(
+                                        targetScale = 1.05f,
+                                        animationSpec = tween(200)
+                                    ) + fadeOut(tween(200))
+
                         ChallengeState.IN_PROGRESS ->
                             slideInHorizontally(tween(350)) { it / 2 } + fadeIn(tween(350)) togetherWith
-                                slideOutHorizontally(tween(200)) { -it / 2 } + fadeOut(tween(200))
+                                    slideOutHorizontally(tween(200)) { -it / 2 } + fadeOut(tween(200))
+
                         ChallengeState.COMPLETED ->
                             slideInVertically(tween(400)) { it / 3 } + fadeIn(tween(400)) togetherWith
-                                slideOutVertically(tween(250)) { -it / 3 } + fadeOut(tween(250))
+                                    slideOutVertically(tween(250)) { -it / 3 } + fadeOut(tween(250))
+
                         else ->
                             fadeIn(tween(300)) + slideInVertically(tween(300)) { it / 6 } togetherWith
-                                fadeOut(tween(200))
+                                    fadeOut(tween(200))
                     }
                 },
                 modifier = Modifier
@@ -186,14 +185,18 @@ fun FlagsChallengeScreen(
                                 onViewStats = { onAction(FlagsScreenAction.ShowStats) },
                                 onShare = {
                                     val pct = (uiState.score.toFloat() / total * 100).toInt()
-                                    val text = "I scored ${uiState.score}/$total ($pct%) in Flags Challenge! Can you beat me? 🌍"
+                                    val text =
+                                        "I scored ${uiState.score}/$total ($pct%) in Flags Challenge! Can you beat me? 🌍"
                                     val intent = android.content.Intent().apply {
                                         action = android.content.Intent.ACTION_SEND
                                         putExtra(android.content.Intent.EXTRA_TEXT, text)
                                         type = "text/plain"
                                     }
                                     context.startActivity(
-                                        android.content.Intent.createChooser(intent, "Share your score")
+                                        android.content.Intent.createChooser(
+                                            intent,
+                                            "Share your score"
+                                        )
                                     )
                                 },
                                 onHome = { onAction(FlagsScreenAction.GoHome) },

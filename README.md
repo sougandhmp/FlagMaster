@@ -1,30 +1,30 @@
 # 🇺🇳 FlagMaster
 
-> An Android quiz game where you race against the clock to identify world flags. Schedule a challenge, survive a countdown, and answer 15 timed questions — all with persistent state that survives app kills.
+> An Android quiz game where you race against the clock to identify world flags. Pick a difficulty, choose how many questions, schedule a challenge or jump straight in — then answer timed questions backed by persistent state that survives app kills.
 
 ---
 
 ## 📸 Screenshots
 
-| Time Scheduler | Countdown | Question | Game Over |
-|:-:|:-:|:-:|:-:|
-| <img src="screenshots/time_schedule.png" width="180"/> | <img src="screenshots/count_down.png" width="180"/> | <img src="screenshots/challenge_screen_1.png" width="180"/> | <img src="screenshots/game_over_score.png" width="180"/> |
+| Start | Countdown | Question | Fact reveal | Game Over |
+|:-:|:-:|:-:|:-:|:-:|
+| <img src="screenshots/time_schedule.png" width="160"/> | <img src="screenshots/count_down.png" width="160"/> | <img src="screenshots/challenge_screen_1.png" width="160"/> | <img src="screenshots/fact_reveal.png" width="160"/> | <img src="screenshots/game_over_score.png" width="160"/> |
 
 ---
 
 ## ✨ Features
 
-- **Time-scheduled challenge** — Set an exact HH:MM:SS start time; the app counts down and auto-starts
-- **15 timed questions** — 30 seconds per question with an animated depleting timer bar
-- **Urgency colors** — Timer bar shifts green → yellow → red as time runs low
-- **Instant feedback** — Select an answer and move on in 1 second; no need to wait the full 30s
-- **Streak tracking** — 🔥 streak chip appears after 2+ consecutive correct answers
-- **Flag recognition** — One flag image, four country options per question
-- **Haptic feedback** — Tactile response on every answer tap
-- **Visual feedback** — Correct/wrong answer highlighting with scale animation
-- **Live score** — Header shows your running score throughout the quiz
-- **Persistent state** — Powered by DataStore; the quiz resumes at the right question even after an app kill
-- **Animated results screen** — Game over screen with animated score counter and percentage ring
+- **Configurable difficulty** — Easy (45 s), Normal (30 s), or Hard (15 s) per question
+- **Configurable length** — 5, 10, 15, or 20 questions per game
+- **Time-scheduled challenge** — Optionally set an exact HH:MM:SS start time; the app counts down and auto-starts
+- **Country facts** — After each answer the correct country's fun fact is displayed for 10 seconds
+- **10-second fact countdown** — "Next question" button shows a live draining timer; tap any time to skip early
+- **Vibrant themes** — 8 glassmorphic colour schemes (Blue, Orange, Purple, Green, Rose, Indigo, Teal, Sunset) that change per game state
+- **Flag recognition** — One SVG flag image, four country options per question
+- **Instant feedback** — Correct answer highlighted in cyan, wrong selection highlighted in red with ✕ icon
+- **Live score** — Header shows running score and progress throughout the quiz
+- **Persistent state** — DataStore-backed; the quiz resumes at the right question even after an app kill
+- **Animated results screen** — Game over screen with grade ring (S/A/B/C/F) and percentage arc
 - **Unanswered questions** — Auto-marked incorrect when the timer expires
 
 ---
@@ -32,44 +32,67 @@
 ## 🎮 Game Flow
 
 ```
-Schedule time (HH:MM:SS)
+Start screen
+(pick difficulty + question count, optional schedule)
         │
         ▼
-  Waiting screen
+  Waiting screen            ← only when a future time is scheduled
   (shows scheduled time)
         │
         ▼  20 seconds before start
-  Countdown (00:20 → 00:00)
+  Countdown ring (20 → 0)
         │
         ▼
-  Question 1 of 15  ──[30s timer bar]──►  Answer revealed (1–2s)
-        │                                          │
-        └──────────────────────────────────────────┘
-                    × 15 questions
+  Question  ──[timed bar]──►  Answer revealed
+        │                      └─ correct/wrong highlight
+        │                      └─ country fact panel
+        │                      └─ "Next question (Xs)" button
+        │                            (auto-advance after 10 s)
+        └──────────── × N questions
         │
         ▼
-   Game Over + Score
+   Game Over + Grade + Score
 ```
 
 ---
 
 ## 🏗 Architecture
 
-The project follows **Clean Architecture** split across three Gradle modules:
+Three Gradle modules following **Clean Architecture**:
 
 ```
 FlagMaster/
-├── app/          # Presentation — Jetpack Compose UI, ViewModels
-├── domain/       # Business logic — models, use cases, repository interface (pure JVM)
-└── data/         # Infrastructure — Room DB, DataStore, asset loading
+├── app/      # Presentation — Jetpack Compose UI, ViewModels
+├── domain/   # Business logic — models, use cases, repository interface (pure JVM)
+└── data/     # Infrastructure — Room DB, DataStore, asset loading, Firebase sync
 ```
 
 ### Key patterns
-- **Single source of truth** — `MutableStateFlow<ScheduleTimeUiState>` in the ViewModel
-- **Sealed actions** — `FlagsScreenAction` for type-safe UI events
+- **Single source of truth** — `MutableStateFlow<ScheduleTimeUiState>` in `FlagsChallengeViewModel`
+- **Sealed actions** — `FlagsScreenAction` for type-safe UI → ViewModel events
+- **Separate timer jobs** — `timerJob` (per-question countdown) and `advanceJob` (10 s fact delay) are independently cancellable, enabling early skip without cancelling the wrong job
 - **Suspend use cases** — each domain operation is a single-responsibility suspend class
 - **IO-dispatched repository** — all DB and asset I/O runs on `Dispatchers.IO` via `withContext`
-- **Coroutine-based timer** — countdowns use a `suspend fun runCountdown()` + coroutine `Job` instead of `CountDownTimer`, keeping the ViewModel Android-framework-free and unit-testable
+- **Coroutine-based timer** — countdowns use `suspend fun runCountdown()` + coroutine `Job` instead of `CountDownTimer`
+
+---
+
+## 🎨 Theme System
+
+All visual config lives in `ui/theme/VibrantTheme.kt` as `VibrantThemeConfig` data class instances. Eight built-in themes:
+
+| Name | Primary colour | Used when |
+|---|---|---|
+| `TealVibrantTheme` | Teal `#00897B` | Not scheduled |
+| `BlueVibrantTheme` | Cyan `#00BCD4` | Scheduled / waiting |
+| `OrangeVibrantTheme` | Amber `#FF9800` | Countdown |
+| `PurpleVibrantTheme` | Purple `#7B2FBE` | In progress (score % 3 == 0) |
+| `SunsetVibrantTheme` | Deep orange `#FF5722` | In progress (score % 2 == 0) |
+| `IndigoVibrantTheme` | Indigo `#3D5AFE` | In progress (otherwise) |
+| `RoseVibrantTheme` | Pink `#E91E63` | Completed |
+| `GreenVibrantTheme` | Green `#00C853` | Available via `allVibrantThemes` list |
+
+`allVibrantThemes` exposes the full list for cycling through themes per question score.
 
 ---
 
@@ -83,7 +106,7 @@ FlagMaster/
 | DI | Hilt | 2.59.2 |
 | Database | Room | 2.8.4 |
 | Persistence | DataStore Preferences | 1.2.1 |
-| Image loading | Coil | 3.4.0 |
+| Image loading | Coil (SVG support) | 3.4.0 |
 | Serialization | Gson | 2.13.2 |
 | Logging | Timber | 5.0.1 |
 | Testing | JUnit Jupiter | 6.0.3 |
@@ -100,13 +123,13 @@ DataStore stores two keys:
 | Key | Type | Purpose |
 |---|---|---|
 | `challenge_time` | `Long` | Epoch millis of the scheduled start |
-| `quiz_answers` | `String` (JSON) | `List<QuizAnswer>` — answers so far |
+| `quiz_answers` | `String` (JSON) | `List<QuizAnswer>` — answers submitted so far |
 
 On every launch the app reconciles current time against the saved challenge time:
 
 - **Before start** → shows the scheduled time
 - **In progress** → calculates the current question index from elapsed time and resumes
-- **Expired** (> 15 × 40s after start) → clears state automatically
+- **Expired** (> N × 40 s after start, where N = question count) → clears state automatically
 
 ---
 
@@ -126,34 +149,21 @@ Firebase RTDB  ──(online)──►  Room cache  ──►  App (live questio
 
 | Source | Class | When used |
 |---|---|---|
-| Firebase Realtime Database | `FirebaseDataSource` | Network available; fetches `/questions` node |
+| Firebase Realtime Database | `FirebaseDataSource` | Network available |
 | Room (cache) | `FlagsRepositoryImpl` | Firebase unreachable but DB has rows |
-| Bundled assets | `AssetDataSource` | No network and empty DB (first install / no cache) |
+| Bundled assets | `AssetDataSource` | No network and empty DB |
 
 ### Background sync
 
 `SyncViewModel` (scoped to `FlagsNavigation`) owns all sync lifecycle:
 
-| Trigger | Method called | When |
-|---|---|---|
-| App launch | `schedulePeriodic()` + `scheduleImmediateSync()` | `SyncViewModel.init` |
-| App goes to background (`ON_STOP`) | `pausePeriodicSync()` | `DisposableEffect` lifecycle observer |
-| App returns to foreground (`ON_START`) | `resumePeriodicSync()` | `DisposableEffect` lifecycle observer |
+| Trigger | Action |
+|---|---|
+| App launch | Immediate one-time sync + schedule periodic 24 h sync |
+| App goes to background (`ON_STOP`) | Pause periodic sync |
+| App returns to foreground (`ON_START`) | Resume periodic sync |
 
-`FirebaseBackgroundSyncManager` translates these into WorkManager tasks:
-
-| Method | Type | Constraint | Policy |
-|---|---|---|---|
-| `schedulePeriodic()` | Periodic, every 24 h | Network connected | `KEEP` existing |
-| `scheduleImmediateSync()` | One-time | Network connected | `REPLACE` existing |
-| `pausePeriodicSync()` | — | — | Cancels periodic work |
-| `resumePeriodicSync()` | — | — | Re-registers periodic work |
-
-The `FirebaseSyncWorker` is a `@HiltWorker` / `CoroutineWorker` that calls `repository.seedQuestions()` and retries automatically on failure (exponential backoff).
-
-### Network awareness
-
-`NetworkStateManager` (injected via `SyncModule`) checks `ConnectivityManager` for `NET_CAPABILITY_INTERNET` + `NET_CAPABILITY_VALIDATED` before any Firebase call, avoiding unnecessary requests on captive-portal or metered connections.
+`FirebaseBackgroundSyncManager` translates these into WorkManager tasks (network-constrained, exponential backoff on failure).
 
 ---
 
@@ -162,32 +172,33 @@ The `FirebaseSyncWorker` is a `@HiltWorker` / `CoroutineWorker` that calls `repo
 ```
 app/src/main/java/org/smp/flagmaster/
 ├── ui/
-│   ├── FlagsChallengeViewModel.kt   # Quiz game logic & state
+│   ├── FlagsChallengeViewModel.kt   # Quiz game logic, timers, advance/skip
 │   ├── FlagsNavigation.kt           # NavHost + lifecycle sync observer
-│   ├── FlagsUiState.kt              # State, enums, sealed classes
-│   ├── FlagsScreenAction.kt         # User action sealed class
+│   ├── FlagsUiState.kt              # ScheduleTimeUiState, AnswerResult, ChallengeState
+│   ├── FlagsScreenAction.kt         # Sealed UI event class (incl. SkipFact)
+│   ├── theme/
+│   │   ├── VibrantTheme.kt          # VibrantThemeConfig + 8 named theme instances
+│   │   └── ...
 │   ├── sync/
-│   │   └── SyncViewModel.kt         # Firebase sync lifecycle (seed, periodic, pause/resume)
+│   │   └── SyncViewModel.kt         # Firebase sync lifecycle
 │   ├── mapper/
 │   │   ├── TimeSchedulerErrorMapper.kt
-│   │   └── ChallengeTimeMapper.kt       # Digit list → Calendar (UI layer, injectable)
+│   │   └── ChallengeTimeMapper.kt
 │   └── components/
-│       ├── StartChallengeScreen.kt  # Entry screen / time scheduler
-│       ├── TimerScheduleView.kt     # HH:MM:SS digit input
-│       ├── ChallengeScheduledView.kt
-│       ├── CountDownView.kt
-│       ├── QuestionScreen.kt        # Timer bar, streak chip, answer options
-│       ├── ChallengeView.kt         # Flag + answer grid with haptic feedback
-│       ├── ChallengeCompleteView.kt # Mid-challenge completion view
-│       ├── GameOverScreen.kt        # Animated results screen
+│       ├── StartChallengeScreen.kt  # Difficulty + question count picker, optional scheduler
+│       ├── CountDownView.kt         # Animated ring countdown (20 s before start)
+│       ├── QuestionScreen.kt        # Wires state → VibrantChallengeView + fact countdown
+│       ├── VibrantChallengeView.kt  # Glassmorphic question card, options, fact panel, CTA button
+│       ├── GameOverScreen.kt        # Grade ring, score, share / play-again actions
 │       ├── StatsScreen.kt           # Per-question answer review
+│       ├── ChallengeScheduledView.kt
 │       └── ...
 app/src/main/assets/
-├── questions.json                   # Seed data loaded on first launch
+├── questions.json                   # Seed data (255 questions with facts)
 └── flags/                           # 255 SVG flag files (ISO 3166-1 alpha-2)
 
 domain/src/main/java/org/smp/domain/
-├── model/          # Question, Country, QuizAnswer
+├── model/          # Question (+ fact field), Country, QuizAnswer, DifficultyMode
 ├── repository/     # FlagsRepository interface
 └── usecase/        # One class per operation (answers/, challenge/, questions/)
 
@@ -197,7 +208,7 @@ data/src/main/java/org/smp/data/
 ├── asset_data_source/  # questions.json loader
 ├── firebase/           # FirebaseDataSource (RTDB)
 ├── sync/               # FirebaseBackgroundSyncManager, NetworkStateManagerImpl
-└── repository/         # FlagsRepositoryImpl (orchestrates all sources)
+└── repository/         # FlagsRepositoryImpl
 ```
 
 ---
@@ -229,7 +240,7 @@ data/src/main/java/org/smp/data/
 ad.svg   ae.svg   af.svg   ...   us.svg   gb.svg   fr.svg   ...
 ```
 
-They are loaded at runtime by Coil using a `SvgDecoder` configured in `FlagsApplication`:
+Loaded at runtime by Coil with a `SvgDecoder` registered in `FlagsApplication`:
 
 ```kotlin
 .data("file:///android_asset/flags/${countryCode.lowercase()}.svg")

@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -53,7 +52,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.smp.flagmaster.R
-import org.smp.flagmaster.ui.theme.BlueVibrantTheme
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
 import org.smp.flagmaster.ui.theme.PurpleVibrantTheme
 import org.smp.flagmaster.ui.theme.VibrantThemeConfig
@@ -232,7 +230,9 @@ fun GameOverScreen(
                         onClick = onViewStats
                     )
                     VerticalDivider(
-                        modifier = Modifier.height(40.dp).width(1.dp),
+                        modifier = Modifier
+                            .height(40.dp)
+                            .width(1.dp),
                         color = Color.White.copy(alpha = 0.2f)
                     )
                     BottomActionItem(
@@ -241,7 +241,9 @@ fun GameOverScreen(
                         onClick = onShare
                     )
                     VerticalDivider(
-                        modifier = Modifier.height(40.dp).width(1.dp),
+                        modifier = Modifier
+                            .height(40.dp)
+                            .width(1.dp),
                         color = Color.White.copy(alpha = 0.2f)
                     )
                     BottomActionItem(
@@ -255,16 +257,6 @@ fun GameOverScreen(
             }
         }
     }
-}
-
-@Composable
-fun Dot(color: Color) {
-    Box(
-        modifier = Modifier
-            .size(8.dp)
-            .clip(CircleShape)
-            .background(color)
-    )
 }
 
 @Composable
