@@ -34,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -73,6 +74,9 @@ fun FlagsChallengeScreen(
     }
 
     Scaffold(
+            // Matches QuestionScreen's GradientTop so the TopAppBar area blends seamlessly
+            containerColor = if (uiState.challengeState == ChallengeState.IN_PROGRESS)
+                Color(0xFFEDE9FF) else MaterialTheme.colorScheme.surfaceContainerLow,
             snackbarHost = {
                 SnackbarHost(snackbarHostState) { data ->
                     Snackbar(
@@ -85,8 +89,11 @@ fun FlagsChallengeScreen(
             topBar = {
                 if (uiState.challengeState == ChallengeState.IN_PROGRESS) {
                     FlagsChallengeHeader(
-                        time = uiState.remainingTime,
-                        pageCount = "${uiState.score}/${uiState.questions.size.coerceAtLeast(1)}"
+                        questionNumber = uiState.questionIndex + 1,
+                        totalQuestions = uiState.questions.size.coerceAtLeast(1),
+                        remainingTime = uiState.remainingTime,
+                        timerTotalSeconds = (uiState.difficultyMode.timerMs / 1000).toInt(),
+                        score = uiState.score,
                     )
                 }
             }
@@ -135,9 +142,7 @@ fun FlagsChallengeScreen(
                                 totalQuestions = uiState.questions.size.coerceAtLeast(1),
                                 selectedAnswer = uiState.selectedOption?.name,
                                 showResult = uiState.answerResult != null,
-                                remainingTime = uiState.remainingTime,
                                 streak = uiState.streak,
-                                timerTotalSeconds = (uiState.difficultyMode.timerMs / 1000).toInt(),
                                 onAnswerSelected = {
                                     onAction(FlagsScreenAction.OnOptionSelected(it))
                                 },

@@ -9,6 +9,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -41,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -63,13 +66,6 @@ import org.smp.flagmaster.ui.theme.FlagMasterTheme
 /**
  * A composable representing the main quiz view.
  * Displays a flag and a grid of country options for the user to choose from.
- *
- * @param flagCountryCode The country code to load the flag image from resources.
- * @param options The list of country options displayed as answer choices.
- * @param onOptionSelected Callback when an option is selected.
- * @param selected The currently selected country (if any).
- * @param result The result status (CORRECT or WRONG) after answering.
- * @param answer The correct answer's ID string (for highlighting the correct option).
  */
 @Composable
 fun ChallengeView(
@@ -113,18 +109,13 @@ fun ChallengeView(
                 }
             }
         }
-
     }
-
 }
 
 /**
- * Composable displays the flag image for a given country code.
- * Falls back to a white flag emoji if the image is not found.
- *
- * @param countryCode The country code used to load the flag drawable.
+ * Displays the flag image for a given country code.
+ * Falls back silently if the drawable is not found.
  */
-
 @Composable
 fun CountryFlag(countryCode: String) {
     val context = LocalContext.current
@@ -145,94 +136,12 @@ fun CountryFlag(countryCode: String) {
 }
 
 /**
- * Displays a single option (country) as a button.
- * Applies different colors and feedback text based on the selected and result state.
- *
- * @param country The country represented by this button.
- * @param selected Whether this option was selected by the user.
- * @param onClick Called when the button is clicked.
- * @param answer The correct answer's ID, used to style the correct answer.
- * @param answerResult The result status (CORRECT or WRONG) for the current question.
+ * Displays a single answer option.
+ * - Unselected: white card with subtle border
+ * - Selected (pending): primary container fill
+ * - Correct (after reveal): solid primary fill, white text, checkmark on right
+ * - Wrong selection (after reveal): error container fill, X on right
  */
-@Composable
-fun OptionButton(
-    country: Country,
-    selected: Boolean,
-    onClick: (Country) -> Unit,
-    answer: String? = null,
-    answerResult: AnswerResult? = null
-) {
-    val isCorrect = country.id == answer
-    val isWrongSelection = selected && !isCorrect && answerResult != null
-    val showCorrect = isCorrect && answerResult != null
-    val showWrong = isWrongSelection
-
-    // Background color
-    val containerColor = when {
-        showCorrect -> MaterialTheme.colorScheme.secondaryContainer
-        showWrong -> MaterialTheme.colorScheme.errorContainer
-        selected -> MaterialTheme.colorScheme.primaryContainer
-        else -> Color.Transparent
-    }
-
-    // Border color
-    val borderColor = when {
-        showCorrect -> MaterialTheme.colorScheme.secondary
-        showWrong -> MaterialTheme.colorScheme.error
-        selected -> MaterialTheme.colorScheme.primary
-        else -> MaterialTheme.colorScheme.outline
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        OutlinedButton(
-            onClick = { onClick(country) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp),
-            shape = RoundedCornerShape(8.dp),
-            border = BorderStroke(2.dp, borderColor),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = containerColor,
-                contentColor = MaterialTheme.colorScheme.scrim
-            )
-        ) {
-            Text(text = country.name)
-        }
-
-        // Feedback labels
-        when {
-            showCorrect -> {
-                Text(
-                    stringResource(R.string.flags_button_correct),
-                    color = MaterialTheme.colorScheme.secondary,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp)
-                )
-            }
-
-            showWrong -> {
-                Text(
-                    stringResource(R.string.flags_button_wrong),
-                    color = MaterialTheme.colorScheme.error,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp)
-                )
-            }
-
-            else -> {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-        }
-    }
-}
-
 @Composable
 fun AnswerOption(
     text: String,
@@ -243,29 +152,31 @@ fun AnswerOption(
 ) {
     val haptic = LocalHapticFeedback.current
 
-    val backgroundColor = when {
-        showResult && isCorrect -> MaterialTheme.colorScheme.secondaryContainer
-        showResult && isSelected -> MaterialTheme.colorScheme.errorContainer
-        isSelected -> MaterialTheme.colorScheme.primaryContainer
-        else -> MaterialTheme.colorScheme.surface
+    val isWrongSelection = isSelected && !isCorrect
+
+    val containerColor = when {
+        showResult && isCorrect        -> MaterialTheme.colorScheme.primary
+        showResult && isWrongSelection -> MaterialTheme.colorScheme.errorContainer
+        isSelected                     -> MaterialTheme.colorScheme.primaryContainer
+        else                           -> Color.White.copy(alpha = 0.85f)
     }
 
     val textColor = when {
-        showResult && isCorrect -> MaterialTheme.colorScheme.onSecondaryContainer
-        showResult && isSelected -> MaterialTheme.colorScheme.onErrorContainer
-        isSelected -> MaterialTheme.colorScheme.onPrimaryContainer
-        else -> MaterialTheme.colorScheme.onSurface
+        showResult && isCorrect        -> Color.White
+        showResult && isWrongSelection -> MaterialTheme.colorScheme.onErrorContainer
+        isSelected                     -> MaterialTheme.colorScheme.onPrimaryContainer
+        else                           -> Color(0xFF1A1050)
     }
 
     val borderColor = when {
-        showResult && isCorrect -> MaterialTheme.colorScheme.secondary
-        showResult && isSelected -> MaterialTheme.colorScheme.error
-        isSelected -> MaterialTheme.colorScheme.primary
-        else -> MaterialTheme.colorScheme.outline
+        showResult && isCorrect        -> Color.Transparent
+        showResult && isWrongSelection -> MaterialTheme.colorScheme.error
+        isSelected                     -> MaterialTheme.colorScheme.primary
+        else                           -> Color.White.copy(alpha = 0.5f)
     }
 
     val scale by animateFloatAsState(
-        targetValue = if (isSelected) 1.03f else 1f,
+        targetValue = if (isSelected) 1.02f else 1f,
         animationSpec = spring(dampingRatio = 0.4f, stiffness = 400f),
         label = "optionScale"
     )
@@ -281,40 +192,54 @@ fun AnswerOption(
                     onClick()
                 }
             }
-            .border(2.dp, borderColor, RoundedCornerShape(12.dp)),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+            .border(1.dp, borderColor, RoundedCornerShape(14.dp)),
+        shape = RoundedCornerShape(14.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+            Text(
+                text = text,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = textColor,
+                modifier = Modifier.weight(1f)
+            )
+
+            // Icon badge — slides in on result reveal
+            AnimatedVisibility(
+                visible = showResult && (isCorrect || isWrongSelection),
+                enter = fadeIn() + scaleIn(initialScale = 0.4f),
+                exit  = fadeOut() + scaleOut(targetScale = 0.4f),
             ) {
-                Text(
-                    text = text,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = textColor
-                )
-                // Checkmark / X slides in when the result is revealed
-                AnimatedVisibility(
-                    visible = showResult && (isCorrect || isSelected),
-                    enter = fadeIn() + scaleIn(initialScale = 0.5f),
-                    exit = fadeOut() + scaleOut(targetScale = 0.5f),
+                val icon    = if (isCorrect) Icons.Default.Check else Icons.Default.Close
+                val bgColor = if (isCorrect)
+                    Color.White.copy(alpha = 0.25f)
+                else
+                    MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
+                val iconTint = if (isCorrect)
+                    Color.White
+                else
+                    MaterialTheme.colorScheme.onErrorContainer
+
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(bgColor),
+                    contentAlignment = Alignment.Center
                 ) {
-                    val icon = if (isCorrect) Icons.Default.Check else Icons.Default.Close
-                    val iconTint = if (isCorrect) MaterialTheme.colorScheme.secondary
-                                   else MaterialTheme.colorScheme.error
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
                         tint = iconTint,
-                        modifier = Modifier
-                            .padding(start = 8.dp)
-                            .size(18.dp)
+                        modifier = Modifier.size(15.dp)
                     )
                 }
             }
@@ -322,6 +247,66 @@ fun AnswerOption(
     }
 }
 
+/**
+ * Legacy option button (used by ChallengeView grid — kept for backward compat).
+ */
+@Composable
+fun OptionButton(
+    country: Country,
+    selected: Boolean,
+    onClick: (Country) -> Unit,
+    answer: String? = null,
+    answerResult: AnswerResult? = null
+) {
+    val isCorrect = country.id == answer
+    val isWrongSelection = selected && !isCorrect && answerResult != null
+    val showCorrect = isCorrect && answerResult != null
+
+    val containerColor = when {
+        showCorrect      -> MaterialTheme.colorScheme.secondaryContainer
+        isWrongSelection -> MaterialTheme.colorScheme.errorContainer
+        selected         -> MaterialTheme.colorScheme.primaryContainer
+        else             -> Color.Transparent
+    }
+
+    val borderColor = when {
+        showCorrect      -> MaterialTheme.colorScheme.secondary
+        isWrongSelection -> MaterialTheme.colorScheme.error
+        selected         -> MaterialTheme.colorScheme.primary
+        else             -> MaterialTheme.colorScheme.outline
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(
+            onClick = { onClick(country) },
+            modifier = Modifier.fillMaxWidth().height(60.dp),
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(2.dp, borderColor),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = containerColor,
+                contentColor = MaterialTheme.colorScheme.scrim
+            )
+        ) {
+            Text(text = country.name)
+        }
+
+        when {
+            showCorrect -> Text(
+                stringResource(R.string.flags_button_correct),
+                color = MaterialTheme.colorScheme.secondary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+            )
+            isWrongSelection -> Text(
+                stringResource(R.string.flags_button_wrong),
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+            )
+            else -> Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
 
 @Composable
 @Preview

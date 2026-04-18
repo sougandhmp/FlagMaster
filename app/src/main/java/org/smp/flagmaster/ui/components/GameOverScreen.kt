@@ -67,6 +67,8 @@ fun GameOverScreen(
 
     var startAnimations by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) { startAnimations = true }
+
     val cardScale by animateFloatAsState(
         targetValue = if (startAnimations) 1f else 0.9f,
         animationSpec = tween(500, easing = FastOutSlowInEasing),
