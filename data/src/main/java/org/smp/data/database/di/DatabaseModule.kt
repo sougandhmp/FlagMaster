@@ -21,5 +21,5 @@ object DatabaseModule {
         context,
         FlagsDatabase::class.java,
         "flags-database",
-    ).fallbackToDestructiveMigration(true).build()
+    ).build()
 }

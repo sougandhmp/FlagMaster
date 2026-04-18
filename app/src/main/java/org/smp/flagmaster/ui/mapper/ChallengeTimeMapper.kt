@@ -1,9 +1,9 @@
-package org.smp.domain.usecase.challenge
+package org.smp.flagmaster.ui.mapper
 
 import java.util.Calendar
 import javax.inject.Inject
 
-class GetChallengeTimeUseCase @Inject constructor() {
+class ChallengeTimeMapper @Inject constructor() {
 
     operator fun invoke(digits: List<String>): Calendar {
         val hour = "${digits[0]}${digits[1]}".toIntOrNull() ?: 0

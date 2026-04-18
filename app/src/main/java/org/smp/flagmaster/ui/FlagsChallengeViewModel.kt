@@ -1,9 +1,9 @@
 package org.smp.flagmaster.ui
 
-import android.os.CountDownTimer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,11 +14,11 @@ import org.smp.domain.model.QuizAnswer
 import org.smp.domain.usecase.answers.ObserveQuizAnswersUseCase
 import org.smp.domain.usecase.answers.SaveQuizAnswersUseCase
 import org.smp.domain.usecase.challenge.ClearQuizAnswersAndTimeUseCase
-import org.smp.domain.usecase.challenge.GetChallengeTimeUseCase
 import org.smp.domain.usecase.challenge.ObserveChallengeTimeUseCase
 import org.smp.domain.usecase.challenge.SaveChallengeTimeUseCase
 import org.smp.domain.usecase.questions.GetAllQuestionsUseCase
 import org.smp.domain.usecase.questions.SeedQuestionsUseCase
+import org.smp.flagmaster.ui.mapper.ChallengeTimeMapper
 import org.smp.flagmaster.ui.mapper.TimeSchedulerErrorMapper
 import timber.log.Timber
 import java.util.Calendar
@@ -29,36 +29,40 @@ import javax.inject.Inject
 class FlagsChallengeViewModel @Inject constructor(
     private val seedQuestionsUseCase: SeedQuestionsUseCase,
     private val getAllQuestionsUseCase: GetAllQuestionsUseCase,
+    private val challengeTimeMapper: ChallengeTimeMapper,
     private val timeSchedulerErrorMapper: TimeSchedulerErrorMapper,
     private val observeChallengeTimeUseCase: ObserveChallengeTimeUseCase,
     private val observeQuizAnswersUseCase: ObserveQuizAnswersUseCase,
     private val saveChallengeTimeUseCase: SaveChallengeTimeUseCase,
     private val saveQuizAnswersUseCase: SaveQuizAnswersUseCase,
     private val clearQuizAnswersAndTimeUseCase: ClearQuizAnswersAndTimeUseCase,
-    private val getChallengeTimeUseCase: GetChallengeTimeUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ScheduleTimeUiState())
     val uiState = _uiState.asStateFlow()
 
-    private var activeTimer: CountDownTimer? = null
+    // Holds the active countdown or quiz timer coroutine so it can be cancelled cleanly.
+    // viewModelScope cancels all children automatically on ViewModel.onCleared().
+    private var timerJob: Job? = null
 
-    companion object Companion {
+    companion object {
         private const val QUIZ_TIMER_MS = 30_000L
         private const val QUIZ_INTERVAL_MS = 10_000L         // used for resume-time calculation only
         private const val FEEDBACK_DELAY_SELECTION_MS = 1_000L
         private const val FEEDBACK_DELAY_TIMEOUT_MS = 2_000L
     }
 
+    // Questions are loaded first so that when the DataStore observation fires its first
+    // emission, _uiState.value.questions is already populated (fixes startup race condition).
     init {
         viewModelScope.launch {
             seedQuestions()
             getAllQuestions()
+            observeSavedQuizAndTime()
         }
-        observeSavedQuizAndTime()
     }
 
-    fun observeSavedQuizAndTime() {
+    private fun observeSavedQuizAndTime() {
         viewModelScope.launch {
             combine(
                 observeChallengeTimeUseCase(),
@@ -71,7 +75,7 @@ class FlagsChallengeViewModel @Inject constructor(
                 val now = Calendar.getInstance()
                 val timeForChallengeCompletion = 15 * (QUIZ_TIMER_MS + QUIZ_INTERVAL_MS)
                 val completed =
-                    Calendar.getInstance().timeInMillis > challenge.timeInMillis + timeForChallengeCompletion
+                    now.timeInMillis > challenge.timeInMillis + timeForChallengeCompletion
 
                 if (now.timeInMillis in challenge.timeInMillis..(challenge.timeInMillis + timeForChallengeCompletion)) {
                     val index =
@@ -84,17 +88,16 @@ class FlagsChallengeViewModel @Inject constructor(
                             answers = answers,
                             score = answers.count { answer -> answer.isCorrect },
                             questionIndex = index,
-                            currentQuestion = uiState.value.questions.getOrNull(index),
+                            currentQuestion = _uiState.value.questions.getOrNull(index),
                         )
                     }
                     startQuiz()
-                } else if(completed){
+                } else if (completed) {
                     clearAnswers()
                 }
             }
         }
     }
-
 
     fun onAction(action: FlagsScreenAction) {
         when (action) {
@@ -109,7 +112,7 @@ class FlagsChallengeViewModel @Inject constructor(
                 if (error != null) {
                     _uiState.update { it.copy(errorMessage = error) }
                 } else {
-                    val challengeTime = getChallengeTime()
+                    val challengeTime = challengeTimeMapper(_uiState.value.digits)
                     _uiState.update { it.copy(showScheduler = false) }
                     scheduleChallenge(challengeTime)
                 }
@@ -140,7 +143,7 @@ class FlagsChallengeViewModel @Inject constructor(
         val millisUntilChallenge = challengeTime.timeInMillis - now.timeInMillis
         val millisUntil20Sec = millisUntilChallenge - 20_000L
 
-        activeTimer?.cancel()
+        timerJob?.cancel()
 
         if (millisUntil20Sec <= 0) {
             _uiState.update { it.copy(errorMessage = "Selected time is too close or in the past!") }
@@ -157,36 +160,37 @@ class FlagsChallengeViewModel @Inject constructor(
 
         saveChallengeTime(challengeTime)
 
-        startCountdown(millisUntil20Sec) {
+        // Sequential countdown phases in a single coroutine — no nested callbacks.
+        timerJob = viewModelScope.launch {
+            runCountdown(millisUntil20Sec)
             _uiState.update { it.copy(challengeState = ChallengeState.COUNT_DOWN) }
-            startCountdown(20_000L) {
-                startQuiz()
+            runCountdown(20_000L)
+            // Inline quiz start to avoid self-cancellation of the running timerJob.
+            _uiState.update { it.copy(challengeState = ChallengeState.IN_PROGRESS) }
+            runCountdown(QUIZ_TIMER_MS)
+            if (_uiState.value.answerResult == null) {
+                evaluateAndAdvance(FEEDBACK_DELAY_TIMEOUT_MS)
             }
         }
     }
 
     private fun saveChallengeTime(challengeTime: Calendar) {
         viewModelScope.launch {
-            runCatching { saveChallengeTimeUseCase(challengeTime.timeInMillis) }.onSuccess {
-                Timber.d(
-                    "Challenge time saved ${getTimeString(challengeTime)}"
-                )
-            }.onFailure { Timber.e(it, "Failed to save challenge time") }
+            runCatching { saveChallengeTimeUseCase(challengeTime.timeInMillis) }
+                .onSuccess { Timber.d("Challenge time saved ${getTimeString(challengeTime)}") }
+                .onFailure { Timber.e(it, "Failed to save challenge time") }
         }
     }
 
-    private fun startCountdown(duration: Long, onFinish: () -> Unit) {
-        _uiState.update { it.copy(remainingTime = formatTimeFromMillis(duration)) }
-        activeTimer?.cancel()
-        activeTimer = object : CountDownTimer(duration, 1000L) {
-            override fun onTick(millisUntilFinished: Long) {
-                _uiState.update { it.copy(remainingTime = formatTimeFromMillis(millisUntilFinished)) }
-            }
-
-            override fun onFinish() {
-                onFinish()
-            }
-        }.also { it.start() }
+    // Counts down [duration] ms in 1-second ticks, updating remainingTime on each tick.
+    private suspend fun runCountdown(duration: Long) {
+        var remaining = duration
+        _uiState.update { it.copy(remainingTime = formatTimeFromMillis(remaining)) }
+        while (remaining > 0) {
+            delay(1_000L)
+            remaining = (remaining - 1_000L).coerceAtLeast(0L)
+            _uiState.update { it.copy(remainingTime = formatTimeFromMillis(remaining)) }
+        }
     }
 
     private fun formatTimeFromMillis(millis: Long): String {
@@ -195,9 +199,6 @@ class FlagsChallengeViewModel @Inject constructor(
         val seconds = (totalSeconds % 60).toInt()
         return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
     }
-
-    private fun getChallengeTime() =
-        runCatching { getChallengeTimeUseCase(_uiState.value.digits) }.getOrDefault(Calendar.getInstance())
 
     private fun getTimeString(calendar: Calendar): String =
         String.format(
@@ -215,7 +216,6 @@ class FlagsChallengeViewModel @Inject constructor(
                     it.copy(
                         questions = questions,
                         currentQuestion = questions.getOrNull(it.questionIndex),
-                        answer = questions.getOrNull(it.questionIndex)?.answerId.orEmpty()
                     )
                 }
             }.onFailure {
@@ -225,8 +225,9 @@ class FlagsChallengeViewModel @Inject constructor(
 
     private fun startQuiz() {
         _uiState.update { it.copy(challengeState = ChallengeState.IN_PROGRESS) }
-        val currentIndex = _uiState.value.questionIndex
-        startCountdown(QUIZ_TIMER_MS) {
+        timerJob?.cancel()
+        timerJob = viewModelScope.launch {
+            runCountdown(QUIZ_TIMER_MS)
             // Timer expired — only evaluate if the user hasn't already picked an answer
             if (_uiState.value.answerResult == null) {
                 evaluateAndAdvance(FEEDBACK_DELAY_TIMEOUT_MS)
@@ -246,7 +247,7 @@ class FlagsChallengeViewModel @Inject constructor(
         val selection = _uiState.value.selectedOption
         val currentIndex = _uiState.value.questionIndex
 
-        activeTimer?.cancel()
+        timerJob?.cancel()
 
         val isCorrect = question.answerId == selection?.id
         val updatedAnswers = _uiState.value.answers.toMutableList().apply {
@@ -294,7 +295,6 @@ class FlagsChallengeViewModel @Inject constructor(
                 it.copy(
                     questionIndex = nextIndex,
                     currentQuestion = nextQuestion,
-                    answer = nextQuestion.answerId,
                     selectedOption = null,
                     answerResult = null,
                     showProgress = false
@@ -327,10 +327,5 @@ class FlagsChallengeViewModel @Inject constructor(
         runCatching { seedQuestionsUseCase() }
             .onSuccess { Timber.d("Questions seeded") }
             .onFailure { Timber.e(it, "Seeding failed") }
-    }
-
-    override fun onCleared() {
-        activeTimer?.cancel()
-        super.onCleared()
     }
 }
