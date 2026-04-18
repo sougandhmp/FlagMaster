@@ -43,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlin.random.Random
 import org.smp.flagmaster.ui.components.ChallengeScheduledView
+import org.smp.flagmaster.ui.components.VibrantBackground
 import org.smp.flagmaster.ui.components.CountDownView
 import org.smp.flagmaster.ui.components.GameOverScreen
 import org.smp.flagmaster.ui.components.QuestionScreen
@@ -58,47 +59,6 @@ import org.smp.flagmaster.ui.theme.RoseVibrantTheme
 import org.smp.flagmaster.ui.theme.SunsetVibrantTheme
 import org.smp.flagmaster.ui.theme.TealVibrantTheme
 import org.smp.flagmaster.ui.theme.VibrantThemeConfig
-
-@Composable
-fun VibrantBackground(
-    config: VibrantThemeConfig,
-    modifier: Modifier = Modifier,
-    content: @Composable BoxScope.() -> Unit,
-) {
-    val stars = remember {
-        List(60) {
-            Triple(Random.nextFloat(), Random.nextFloat(), Random.nextFloat() * 1.5f + 0.5f)
-        }
-    }
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Brush.verticalGradient(config.mainGradient))
-    ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            stars.forEach { (x, y, radius) ->
-                drawCircle(
-                    color = Color.White.copy(alpha = 0.35f),
-                    radius = radius.dp.toPx(),
-                    center = Offset(x * size.width, y * size.height)
-                )
-            }
-        }
-        Canvas(modifier = Modifier.fillMaxSize().blur(60.dp)) {
-            drawCircle(
-                color = config.accentColor.copy(alpha = 0.2f),
-                radius = size.minDimension / 1.5f,
-                center = Offset(size.width * 0.2f, size.height * 0.3f)
-            )
-            drawCircle(
-                color = config.accentColor.copy(alpha = 0.15f),
-                radius = size.minDimension / 2f,
-                center = Offset(size.width * 0.8f, size.height * 0.7f)
-            )
-        }
-        content()
-    }
-}
 
 @Composable
 fun FlagsChallengeRoute(viewModel: FlagsChallengeViewModel = hiltViewModel()) {
@@ -143,7 +103,7 @@ fun FlagsChallengeScreen(
     }
 
     VibrantBackground(config = theme) {
-    Scaffold(
+        Scaffold(
             containerColor = Color.Transparent,
             snackbarHost = {
                 SnackbarHost(snackbarHostState) { data ->
@@ -199,10 +159,10 @@ fun FlagsChallengeScreen(
                             totalQuestions = uiState.questions.size.coerceAtLeast(1),
                             score = uiState.score,
                             remainingTime = uiState.remainingTime,
-                            selectedAnswer = uiState.selectedOption?.name,
+                            selectedAnswer = uiState.selectedOption?.code,
                             showResult = uiState.answerResult != null,
                             onAnswerSelected = { onAction(FlagsScreenAction.OnOptionSelected(it)) },
-                            onNextQuestion = {},
+                            onNextQuestion = { onAction(FlagsScreenAction.SkipFact) },
                             config = theme,
                         )
                     }
@@ -246,7 +206,6 @@ fun FlagsChallengeScreen(
         }
     }
 }
-
 
 @Composable
 @Preview

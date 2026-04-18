@@ -25,4 +25,5 @@ sealed class FlagsScreenAction {
     object GoHome : FlagsScreenAction()
     object ShowStats : FlagsScreenAction()
     object HideStats : FlagsScreenAction()
+    object SkipFact : FlagsScreenAction()
 }

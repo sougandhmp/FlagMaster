@@ -41,13 +41,14 @@ class FlagsChallengeViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private var timerJob: Job? = null
+    private var advanceJob: Job? = null
     private var allQuestions: List<Question> = emptyList()
 
     companion object {
         private const val QUIZ_TIMER_MS = 30_000L
         private const val QUIZ_INTERVAL_MS = 10_000L         // used for resume-time calculation only
-        private const val FEEDBACK_DELAY_SELECTION_MS = 1_000L
-        private const val FEEDBACK_DELAY_TIMEOUT_MS = 2_000L
+        private const val FEEDBACK_DELAY_SELECTION_MS = 10_000L
+        private const val FEEDBACK_DELAY_TIMEOUT_MS = 10_000L
     }
 
     init {
@@ -164,6 +165,7 @@ class FlagsChallengeViewModel @Inject constructor(
             is FlagsScreenAction.GoHome -> resetForNewGame()
             is FlagsScreenAction.ShowStats -> _uiState.update { it.copy(showStats = true) }
             is FlagsScreenAction.HideStats -> _uiState.update { it.copy(showStats = false) }
+            is FlagsScreenAction.SkipFact -> skipFact()
         }
     }
 
@@ -288,13 +290,22 @@ class FlagsChallengeViewModel @Inject constructor(
                 .onFailure { Timber.e(it, "Failed to save answers") }
         }
 
-        viewModelScope.launch {
+        val isLast = currentIndex == _uiState.value.questions.lastIndex
+        advanceJob?.cancel()
+        advanceJob = viewModelScope.launch {
             delay(feedbackDelayMs)
-            moveToNextQuestionOrFinish(
-                isLast = currentIndex == _uiState.value.questions.lastIndex,
-                currentIndex = currentIndex
-            )
+            moveToNextQuestionOrFinish(isLast = isLast, currentIndex = currentIndex)
         }
+    }
+
+    private fun skipFact() {
+        val state = _uiState.value
+        if (state.answerResult == null) return
+        advanceJob?.cancel()
+        moveToNextQuestionOrFinish(
+            isLast = state.questionIndex == state.questions.lastIndex,
+            currentIndex = state.questionIndex
+        )
     }
 
     private fun moveToNextQuestionOrFinish(isLast: Boolean, currentIndex: Int) {

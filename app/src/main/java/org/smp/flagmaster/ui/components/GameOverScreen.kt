@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.InsertChart
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -84,7 +83,7 @@ fun GameOverScreen(
         else -> Color(0xFFFF7043)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    VibrantBackground(config = config) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -214,7 +213,7 @@ fun GameOverScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 VibrantCtaButton(
-                    text = "Play again",
+                    text = stringResource(R.string.play_again),
                     config = config,
                     onClick = onPlayAgain,
                     modifier = Modifier
