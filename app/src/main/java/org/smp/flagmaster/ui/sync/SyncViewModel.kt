@@ -17,17 +17,23 @@ class SyncViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            try {
+            runCatching {
                 syncManager.schedulePeriodic()
-                Timber.d("Background sync scheduled")
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to schedule background sync")
-            }
+                syncManager.scheduleImmediateSync()
+            }.onFailure { Timber.e(it, "Failed to schedule sync") }
         }
         viewModelScope.launch {
             runCatching { seedQuestionsUseCase() }
                 .onSuccess { Timber.d("Questions seeded") }
                 .onFailure { Timber.e(it, "Seeding failed") }
         }
+    }
+
+    fun pauseSync() {
+        syncManager.pausePeriodicSync()
+    }
+
+    fun resumeSync() {
+        syncManager.resumePeriodicSync()
     }
 }

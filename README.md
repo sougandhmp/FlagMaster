@@ -132,13 +132,22 @@ Firebase RTDB  ──(online)──►  Room cache  ──►  App (live questio
 
 ### Background sync
 
-`FirebaseBackgroundSyncManager` schedules WorkManager tasks:
+`SyncViewModel` (scoped to `FlagsNavigation`) owns all sync lifecycle:
+
+| Trigger | Method called | When |
+|---|---|---|
+| App launch | `schedulePeriodic()` + `scheduleImmediateSync()` | `SyncViewModel.init` |
+| App goes to background (`ON_STOP`) | `pausePeriodicSync()` | `DisposableEffect` lifecycle observer |
+| App returns to foreground (`ON_START`) | `resumePeriodicSync()` | `DisposableEffect` lifecycle observer |
+
+`FirebaseBackgroundSyncManager` translates these into WorkManager tasks:
 
 | Method | Type | Constraint | Policy |
 |---|---|---|---|
 | `schedulePeriodic()` | Periodic, every 24 h | Network connected | `KEEP` existing |
 | `scheduleImmediateSync()` | One-time | Network connected | `REPLACE` existing |
 | `pausePeriodicSync()` | — | — | Cancels periodic work |
+| `resumePeriodicSync()` | — | — | Re-registers periodic work |
 
 The `FirebaseSyncWorker` is a `@HiltWorker` / `CoroutineWorker` that calls `repository.seedQuestions()` and retries automatically on failure (exponential backoff).
 
@@ -153,10 +162,12 @@ The `FirebaseSyncWorker` is a `@HiltWorker` / `CoroutineWorker` that calls `repo
 ```
 app/src/main/java/org/smp/flagmaster/
 ├── ui/
-│   ├── FlagsChallengeViewModel.kt   # All game logic & state
-│   ├── FlagsNavigation.kt           # NavHost + route definitions
+│   ├── FlagsChallengeViewModel.kt   # Quiz game logic & state
+│   ├── FlagsNavigation.kt           # NavHost + lifecycle sync observer
 │   ├── FlagsUiState.kt              # State, enums, sealed classes
 │   ├── FlagsScreenAction.kt         # User action sealed class
+│   ├── sync/
+│   │   └── SyncViewModel.kt         # Firebase sync lifecycle (seed, periodic, pause/resume)
 │   ├── mapper/
 │   │   ├── TimeSchedulerErrorMapper.kt
 │   │   └── ChallengeTimeMapper.kt       # Digit list → Calendar (UI layer, injectable)

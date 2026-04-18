@@ -25,7 +25,7 @@ Three Gradle modules following Clean Architecture:
 
 - **`:domain`** — Pure Kotlin/JVM. Models (`Question`, `Country`, `QuizAnswer`), the `FlagsRepository` interface, and 12 single-responsibility use cases grouped under `answers/`, `challenge/`, and `questions/`.
 - **`:data`** — Android library. Implements `FlagsRepository` using Room (question persistence), DataStore (quiz state: `challenge_time` + `quiz_answers` JSON), and an asset data source that seeds the DB from `app/src/main/assets/questions.json` on first launch.
-- **`:app`** — Presentation layer. Single `FlagsChallengeViewModel` holding a `MutableStateFlow<FlagsUiState>`. UI events flow through the `FlagsScreenAction` sealed class. Hilt handles DI throughout.
+- **`:app`** — Presentation layer. `FlagsChallengeViewModel` holds quiz game state (`MutableStateFlow<ScheduleTimeUiState>`). `SyncViewModel` (scoped to `FlagsNavigation`) owns Firebase sync lifecycle — seeds on launch, schedules periodic 24 h sync, and pauses/resumes with app lifecycle. UI events flow through the `FlagsScreenAction` sealed class. Hilt handles DI throughout.
 
 **Data flow:** Compose UI → ViewModel → Use Cases → Repository interface → Room / DataStore / Asset source
 
@@ -39,9 +39,12 @@ Three Gradle modules following Clean Architecture:
 | Purpose | Path |
 |---|---|
 | Game logic & state | `app/src/main/java/org/smp/flagmaster/ui/FlagsChallengeViewModel.kt` |
+| Sync lifecycle | `app/src/main/java/org/smp/flagmaster/ui/sync/SyncViewModel.kt` |
+| Navigation + lifecycle | `app/src/main/java/org/smp/flagmaster/ui/FlagsNavigation.kt` |
 | UI state model | `app/src/main/java/org/smp/flagmaster/ui/FlagsUiState.kt` |
 | UI event actions | `app/src/main/java/org/smp/flagmaster/ui/FlagsScreenAction.kt` |
 | Repository impl | `data/src/main/java/org/smp/data/repository/FlagsRepositoryImpl.kt` |
+| Background sync manager | `data/src/main/java/org/smp/data/sync/FirebaseBackgroundSyncManager.kt` |
 | Domain use cases | `domain/src/main/java/org/smp/domain/usecase/` |
 | Question seed data | `app/src/main/assets/questions.json` |
 | Dependency versions | `gradle/libs.versions.toml` |

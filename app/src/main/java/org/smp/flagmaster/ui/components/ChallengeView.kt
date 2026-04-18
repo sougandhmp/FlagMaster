@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,12 +29,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,14 +45,14 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
 import org.smp.domain.model.Country
 import org.smp.flagmaster.R
 import org.smp.flagmaster.ui.AnswerResult
@@ -148,24 +145,24 @@ fun AnswerOption(
     val isWrongSelection = isSelected && !isCorrect
 
     val containerColor = when {
-        showResult && isCorrect        -> MaterialTheme.colorScheme.primary
+        showResult && isCorrect -> MaterialTheme.colorScheme.primary
         showResult && isWrongSelection -> MaterialTheme.colorScheme.errorContainer
-        isSelected                     -> MaterialTheme.colorScheme.primaryContainer
-        else                           -> Color.White.copy(alpha = 0.85f)
+        isSelected -> MaterialTheme.colorScheme.primaryContainer
+        else -> Color.White.copy(alpha = 0.85f)
     }
 
     val textColor = when {
-        showResult && isCorrect        -> Color.White
+        showResult && isCorrect -> Color.White
         showResult && isWrongSelection -> MaterialTheme.colorScheme.onErrorContainer
-        isSelected                     -> MaterialTheme.colorScheme.onPrimaryContainer
-        else                           -> Color(0xFF1A1050)
+        isSelected -> MaterialTheme.colorScheme.onPrimaryContainer
+        else -> Color(0xFF1A1050)
     }
 
     val borderColor = when {
-        showResult && isCorrect        -> Color.Transparent
+        showResult && isCorrect -> Color.Transparent
         showResult && isWrongSelection -> MaterialTheme.colorScheme.error
-        isSelected                     -> MaterialTheme.colorScheme.primary
-        else                           -> Color.White.copy(alpha = 0.5f)
+        isSelected -> MaterialTheme.colorScheme.primary
+        else -> Color.White.copy(alpha = 0.5f)
     }
 
     val scale by animateFloatAsState(
@@ -209,9 +206,9 @@ fun AnswerOption(
             AnimatedVisibility(
                 visible = showResult && (isCorrect || isWrongSelection),
                 enter = fadeIn() + scaleIn(initialScale = 0.4f),
-                exit  = fadeOut() + scaleOut(targetScale = 0.4f),
+                exit = fadeOut() + scaleOut(targetScale = 0.4f),
             ) {
-                val icon    = if (isCorrect) Icons.Default.Check else Icons.Default.Close
+                val icon = if (isCorrect) Icons.Default.Check else Icons.Default.Close
                 val bgColor = if (isCorrect)
                     Color.White.copy(alpha = 0.25f)
                 else
@@ -236,67 +233,6 @@ fun AnswerOption(
                     )
                 }
             }
-        }
-    }
-}
-
-/**
- * Legacy option button (used by ChallengeView grid — kept for backward compat).
- */
-@Composable
-fun OptionButton(
-    country: Country,
-    selected: Boolean,
-    onClick: (Country) -> Unit,
-    answer: String? = null,
-    answerResult: AnswerResult? = null
-) {
-    val isCorrect = country.code == answer
-    val isWrongSelection = selected && !isCorrect && answerResult != null
-    val showCorrect = isCorrect && answerResult != null
-
-    val containerColor = when {
-        showCorrect      -> MaterialTheme.colorScheme.secondaryContainer
-        isWrongSelection -> MaterialTheme.colorScheme.errorContainer
-        selected         -> MaterialTheme.colorScheme.primaryContainer
-        else             -> Color.Transparent
-    }
-
-    val borderColor = when {
-        showCorrect      -> MaterialTheme.colorScheme.secondary
-        isWrongSelection -> MaterialTheme.colorScheme.error
-        selected         -> MaterialTheme.colorScheme.primary
-        else             -> MaterialTheme.colorScheme.outline
-    }
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        OutlinedButton(
-            onClick = { onClick(country) },
-            modifier = Modifier.fillMaxWidth().height(60.dp),
-            shape = RoundedCornerShape(8.dp),
-            border = BorderStroke(2.dp, borderColor),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = containerColor,
-                contentColor = MaterialTheme.colorScheme.scrim
-            )
-        ) {
-            Text(text = country.name)
-        }
-
-        when {
-            showCorrect -> Text(
-                stringResource(R.string.flags_button_correct),
-                color = MaterialTheme.colorScheme.secondary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
-            )
-            isWrongSelection -> Text(
-                stringResource(R.string.flags_button_wrong),
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
-            )
-            else -> Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
