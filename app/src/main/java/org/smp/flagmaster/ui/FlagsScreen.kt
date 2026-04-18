@@ -42,15 +42,14 @@ import org.smp.flagmaster.ui.components.StatsScreen
 import org.smp.flagmaster.ui.components.VibrantBackground
 import org.smp.flagmaster.ui.theme.BlueVibrantTheme
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
-import org.smp.flagmaster.ui.theme.IndigoVibrantTheme
 import org.smp.flagmaster.ui.theme.OrangeVibrantTheme
-import org.smp.flagmaster.ui.theme.PurpleVibrantTheme
 import org.smp.flagmaster.ui.theme.RoseVibrantTheme
-import org.smp.flagmaster.ui.theme.SunsetVibrantTheme
 import org.smp.flagmaster.ui.theme.TealVibrantTheme
+import org.smp.flagmaster.ui.theme.allVibrantThemes
 
 @Composable
-fun FlagsChallengeRoute(viewModel: FlagsChallengeViewModel = hiltViewModel()) {
+fun FlagsChallengeRoute() {
+    val viewModel: FlagsChallengeViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     FlagsChallengeScreen(uiState = uiState, onAction = viewModel::onAction)
 }
@@ -74,11 +73,7 @@ fun FlagsChallengeScreen(
         ChallengeState.NOT_SCHEDULED -> TealVibrantTheme
         ChallengeState.SCHEDULED -> BlueVibrantTheme
         ChallengeState.COUNT_DOWN -> OrangeVibrantTheme
-        ChallengeState.IN_PROGRESS -> when {
-            uiState.score % 3 == 0 -> PurpleVibrantTheme
-            uiState.score % 2 == 0 -> SunsetVibrantTheme
-            else -> IndigoVibrantTheme
-        }
+        ChallengeState.IN_PROGRESS -> allVibrantThemes[uiState.questionIndex % allVibrantThemes.size]
 
         ChallengeState.COMPLETED -> RoseVibrantTheme
     }

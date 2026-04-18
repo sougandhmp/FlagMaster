@@ -1,6 +1,8 @@
 package org.smp.flagmaster.ui.components
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,20 +29,12 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -55,7 +49,6 @@ import org.smp.flagmaster.ui.theme.BlueVibrantTheme
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
 import org.smp.flagmaster.ui.theme.OrangeVibrantTheme
 import org.smp.flagmaster.ui.theme.VibrantThemeConfig
-import kotlin.random.Random
 
 @Composable
 fun VibrantChallengeView(
@@ -124,7 +117,11 @@ fun VibrantChallengeView(
                             .height(200.dp)
                             .clip(RoundedCornerShape(24.dp))
                             .background(Color.White.copy(alpha = 0.05f))
-                            .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(24.dp)),
+                            .border(
+                                1.dp,
+                                Color.White.copy(alpha = 0.2f),
+                                RoundedCornerShape(24.dp)
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         CountryFlag(countryCode = flagCountryCode)
@@ -158,6 +155,7 @@ fun VibrantChallengeView(
                 config = config,
                 onClick = onSeeResults,
                 countdownFraction = factCountdown.toFloat() / 10f,
+                showCountdownLabel = true,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(horizontal = 24.dp, vertical = 32.dp),
@@ -353,6 +351,7 @@ fun VibrantCtaButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     countdownFraction: Float = 1f,
+    showCountdownLabel: Boolean = false,
 ) {
     val animatable = remember { Animatable(countdownFraction) }
     LaunchedEffect(countdownFraction) {
@@ -390,7 +389,7 @@ fun VibrantCtaButton(
                 fontWeight = FontWeight.Black,
                 letterSpacing = 1.sp
             )
-            if (countdownFraction > 0f) {
+            if (showCountdownLabel && countdownFraction > 0f) {
                 Text(
                     text = "auto in ${(countdownFraction * 10).toInt()}s",
                     color = Color.White.copy(alpha = 0.65f),
