@@ -6,9 +6,9 @@
 
 ## 📸 Screenshots
 
-| Start | Countdown | Question | Fact reveal | Game Over |
-|:-:|:-:|:-:|:-:|:-:|
-| <img src="screenshots/time_schedule.png" width="160"/> | <img src="screenshots/count_down.png" width="160"/> | <img src="screenshots/challenge_screen_1.png" width="160"/> | <img src="screenshots/fact_reveal.png" width="160"/> | <img src="screenshots/game_over_score.png" width="160"/> |
+|                         Start                          |                      Countdown                      |                          Question                           |                        Game Over                         |
+|:------------------------------------------------------:|:---------------------------------------------------:|:-----------------------------------------------------------:|:--------------------------------------------------------:|
+| <img src="screenshots/time_schedule.png" width="160"/> | <img src="screenshots/count_down.png" width="160"/> | <img src="screenshots/challenge_screen_1.png" width="160"/> | <img src="screenshots/game_over_score.png" width="160"/> |
 
 ---
 
@@ -81,16 +81,16 @@ FlagMaster/
 
 All visual config lives in `ui/theme/VibrantTheme.kt` as `VibrantThemeConfig` data class instances. Eight built-in themes:
 
-| Name | Primary colour | Used when |
-|---|---|---|
-| `TealVibrantTheme` | Teal `#00897B` | Not scheduled |
-| `BlueVibrantTheme` | Cyan `#00BCD4` | Scheduled / waiting |
-| `OrangeVibrantTheme` | Amber `#FF9800` | Countdown |
-| `PurpleVibrantTheme` | Purple `#7B2FBE` | In progress (score % 3 == 0) |
-| `SunsetVibrantTheme` | Deep orange `#FF5722` | In progress (score % 2 == 0) |
-| `IndigoVibrantTheme` | Indigo `#3D5AFE` | In progress (otherwise) |
-| `RoseVibrantTheme` | Pink `#E91E63` | Completed |
-| `GreenVibrantTheme` | Green `#00C853` | Available via `allVibrantThemes` list |
+| Name                 | Primary colour        | Used when                             |
+|----------------------|-----------------------|---------------------------------------|
+| `TealVibrantTheme`   | Teal `#00897B`        | Not scheduled                         |
+| `BlueVibrantTheme`   | Cyan `#00BCD4`        | Scheduled / waiting                   |
+| `OrangeVibrantTheme` | Amber `#FF9800`       | Countdown                             |
+| `PurpleVibrantTheme` | Purple `#7B2FBE`      | In progress (score % 3 == 0)          |
+| `SunsetVibrantTheme` | Deep orange `#FF5722` | In progress (score % 2 == 0)          |
+| `IndigoVibrantTheme` | Indigo `#3D5AFE`      | In progress (otherwise)               |
+| `RoseVibrantTheme`   | Pink `#E91E63`        | Completed                             |
+| `GreenVibrantTheme`  | Green `#00C853`       | Available via `allVibrantThemes` list |
 
 `allVibrantThemes` exposes the full list for cycling through themes per question score.
 
@@ -98,21 +98,21 @@ All visual config lives in `ui/theme/VibrantTheme.kt` as `VibrantThemeConfig` da
 
 ## 🛠 Tech Stack
 
-| Layer | Library | Version |
-|---|---|---|
-| UI | Jetpack Compose BOM | 2026.03.01 |
-| Navigation | Navigation Compose | 2.9.7 |
-| State | ViewModel + StateFlow | Lifecycle 2.10.0 |
-| DI | Hilt | 2.59.2 |
-| Database | Room | 2.8.4 |
-| Persistence | DataStore Preferences | 1.2.1 |
-| Image loading | Coil (SVG support) | 3.4.0 |
-| Serialization | Gson | 2.13.2 |
-| Logging | Timber | 5.0.1 |
-| Testing | JUnit Jupiter | 6.0.3 |
-| Build | AGP 9.1.1 · Gradle 9.4.1 · Kotlin 2.3.20 · KSP 2.3.6 | — |
-| Min SDK | Android 7.0 (API 24) | — |
-| Target SDK | Android 15 (API 36) | — |
+| Layer         | Library                                              | Version          |
+|---------------|------------------------------------------------------|------------------|
+| UI            | Jetpack Compose BOM                                  | 2026.03.01       |
+| Navigation    | Navigation Compose                                   | 2.9.7            |
+| State         | ViewModel + StateFlow                                | Lifecycle 2.10.0 |
+| DI            | Hilt                                                 | 2.59.2           |
+| Database      | Room                                                 | 2.8.4            |
+| Persistence   | DataStore Preferences                                | 1.2.1            |
+| Image loading | Coil (SVG support)                                   | 3.4.0            |
+| Serialization | Gson                                                 | 2.13.2           |
+| Logging       | Timber                                               | 5.0.1            |
+| Testing       | JUnit Jupiter                                        | 6.0.3            |
+| Build         | AGP 9.1.1 · Gradle 9.4.1 · Kotlin 2.3.20 · KSP 2.3.6 | —                |
+| Min SDK       | Android 7.0 (API 24)                                 | —                |
+| Target SDK    | Android 15 (API 36)                                  | —                |
 
 ---
 
@@ -120,10 +120,10 @@ All visual config lives in `ui/theme/VibrantTheme.kt` as `VibrantThemeConfig` da
 
 DataStore stores two keys:
 
-| Key | Type | Purpose |
-|---|---|---|
-| `challenge_time` | `Long` | Epoch millis of the scheduled start |
-| `quiz_answers` | `String` (JSON) | `List<QuizAnswer>` — answers submitted so far |
+| Key              | Type            | Purpose                                       |
+|------------------|-----------------|-----------------------------------------------|
+| `challenge_time` | `Long`          | Epoch millis of the scheduled start           |
+| `quiz_answers`   | `String` (JSON) | `List<QuizAnswer>` — answers submitted so far |
 
 On every launch the app reconciles current time against the saved challenge time:
 
@@ -147,21 +147,21 @@ Firebase RTDB  ──(online)──►  Room cache  ──►  App (live questio
 
 ### Sources
 
-| Source | Class | When used |
-|---|---|---|
-| Firebase Realtime Database | `FirebaseDataSource` | Network available |
-| Room (cache) | `FlagsRepositoryImpl` | Firebase unreachable but DB has rows |
-| Bundled assets | `AssetDataSource` | No network and empty DB |
+| Source                     | Class                 | When used                            |
+|----------------------------|-----------------------|--------------------------------------|
+| Firebase Realtime Database | `FirebaseDataSource`  | Network available                    |
+| Room (cache)               | `FlagsRepositoryImpl` | Firebase unreachable but DB has rows |
+| Bundled assets             | `AssetDataSource`     | No network and empty DB              |
 
 ### Background sync
 
 `SyncViewModel` (scoped to `FlagsNavigation`) owns all sync lifecycle:
 
-| Trigger | Action |
-|---|---|
-| App launch | Immediate one-time sync + schedule periodic 24 h sync |
-| App goes to background (`ON_STOP`) | Pause periodic sync |
-| App returns to foreground (`ON_START`) | Resume periodic sync |
+| Trigger                                | Action                                                |
+|----------------------------------------|-------------------------------------------------------|
+| App launch                             | Immediate one-time sync + schedule periodic 24 h sync |
+| App goes to background (`ON_STOP`)     | Pause periodic sync                                   |
+| App returns to foreground (`ON_START`) | Resume periodic sync                                  |
 
 `FirebaseBackgroundSyncManager` translates these into WorkManager tasks (network-constrained, exponential backoff on failure).
 
@@ -243,5 +243,5 @@ ad.svg   ae.svg   af.svg   ...   us.svg   gb.svg   fr.svg   ...
 Loaded at runtime by Coil with a `SvgDecoder` registered in `FlagsApplication`:
 
 ```kotlin
-.data("file:///android_asset/flags/${countryCode.lowercase()}.svg")
+data("file:///android_asset/flags/${countryCode.lowercase()}.svg")
 ```
