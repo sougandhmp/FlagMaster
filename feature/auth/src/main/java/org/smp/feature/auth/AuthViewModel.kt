@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.smp.domain.usecase.auth.CreateAccountUseCase
@@ -57,10 +58,18 @@ class AuthViewModel @Inject constructor(
             is AuthAction.AvatarSelected -> _uiState.update { it.copy(selectedAvatar = action.url) }
             is AuthAction.CompleteProfile -> launchAuthAction {
                 updateProfileUseCase(_uiState.value.displayName, _uiState.value.selectedAvatar)
+                refreshState()
             }
             is AuthAction.UpdateProfile -> launchAuthAction {
                 updateProfileUseCase(_uiState.value.displayName, _uiState.value.selectedAvatar)
+                refreshState()
             }
+        }
+    }
+
+    private suspend fun refreshState() {
+        observeAuthState().first()?.let { user ->
+            _uiState.update { it.copy(authState = AuthState.Authenticated(user)) }
         }
     }
 
