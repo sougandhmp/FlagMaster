@@ -16,9 +16,13 @@ import androidx.navigation.compose.rememberNavController
 import org.smp.feature.auth.AuthState
 import org.smp.feature.auth.AuthViewModel
 import org.smp.feature.auth.LoginRoute
-import org.smp.feature.auth.ProfileRoute
 import org.smp.feature.auth.loginScreen
-import org.smp.feature.auth.profileScreen
+import org.smp.feature.leaderboard.navigation.LeaderboardRoute
+import org.smp.feature.leaderboard.navigation.leaderboardScreen
+import org.smp.feature.profile.navigation.ProfileRoute
+import org.smp.feature.profile.navigation.ProfileSetupRoute
+import org.smp.feature.profile.navigation.profileScreen
+import org.smp.feature.profile.navigation.profileSetupScreen
 import org.smp.flagmaster.ui.sync.SyncViewModel
 
 @Composable
@@ -44,10 +48,20 @@ fun FlagsNavigation() {
     val navController = rememberNavController()
 
     LaunchedEffect(authUiState.authState) {
-        when (authUiState.authState) {
-            is AuthState.Authenticated -> navController.navigate(FlagsChallengeRoute) {
-                popUpTo<LoginRoute> { inclusive = true }
-                launchSingleTop = true
+        when (val state = authUiState.authState) {
+            is AuthState.Authenticated -> {
+                if (state.user.displayName.isNullOrBlank()) {
+                    navController.navigate(ProfileSetupRoute) {
+                        popUpTo<LoginRoute> { inclusive = true }
+                        launchSingleTop = true
+                    }
+                } else {
+                    navController.navigate(FlagsChallengeRoute) {
+                        popUpTo<LoginRoute> { inclusive = true }
+                        popUpTo<ProfileSetupRoute> { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
             }
             is AuthState.Unauthenticated -> navController.navigate(LoginRoute) {
                 popUpTo(0) { inclusive = true }
@@ -63,12 +77,17 @@ fun FlagsNavigation() {
         modifier = Modifier.fillMaxSize()
     ) {
         loginScreen(authViewModel = authViewModel)
+        profileSetupScreen(authViewModel = authViewModel)
         timeScheduleScreen(
-            onProfileClick = { navController.navigate(ProfileRoute) }
+            onProfileClick = { navController.navigate(ProfileRoute) },
+            onLeaderboardClick = { navController.navigate(LeaderboardRoute) }
         )
         profileScreen(
             authViewModel = authViewModel,
             onBack = { navController.popBackStack() },
+        )
+        leaderboardScreen(
+            onBack = { navController.popBackStack() }
         )
     }
 }

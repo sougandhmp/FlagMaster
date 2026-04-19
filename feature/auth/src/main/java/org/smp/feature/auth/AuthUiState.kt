@@ -8,4 +8,6 @@ data class AuthUiState(
     val email: String = "",
     val password: String = "",
     val passwordVisible: Boolean = false,
+    val displayName: String = "",
+    val selectedAvatar: String? = null,
 )

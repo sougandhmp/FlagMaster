@@ -60,4 +60,9 @@ interface FlagsRepository {
      * @return Unit
      */
     suspend fun clearQuizAnswersAndTime()
+
+    /**
+     * Schedule a sync with Firebase to get the latest questions.
+     */
+    fun scheduleSync()
 }

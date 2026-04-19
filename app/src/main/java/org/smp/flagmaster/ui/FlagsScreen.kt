@@ -50,13 +50,22 @@ import org.smp.core.ui.allVibrantThemes
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
 
 @Composable
-fun FlagsChallengeRoute(onProfileClick: () -> Unit = {}) {
+fun FlagsChallengeRoute(
+    onProfileClick: () -> Unit = {},
+    onLeaderboardClick: () -> Unit = {}
+) {
     val viewModel: FlagsChallengeViewModel = hiltViewModel()
     val authViewModel: AuthViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val authUiState by authViewModel.uiState.collectAsStateWithLifecycle()
     val userPhotoUrl = (authUiState.authState as? AuthState.Authenticated)?.user?.photoUrl
-    FlagsChallengeScreen(uiState = uiState, onAction = viewModel::onAction, userPhotoUrl = userPhotoUrl, onProfileClick = onProfileClick)
+    FlagsChallengeScreen(
+        uiState = uiState,
+        onAction = viewModel::onAction,
+        userPhotoUrl = userPhotoUrl,
+        onProfileClick = onProfileClick,
+        onLeaderboardClick = onLeaderboardClick
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,6 +75,7 @@ fun FlagsChallengeScreen(
     onAction: (FlagsScreenAction) -> Unit = {},
     userPhotoUrl: String? = null,
     onProfileClick: () -> Unit = {},
+    onLeaderboardClick: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -145,6 +155,7 @@ fun FlagsChallengeScreen(
                         config = theme,
                         userPhotoUrl = userPhotoUrl,
                         onProfileClick = onProfileClick,
+                        onLeaderboardClick = onLeaderboardClick,
                     )
 
                     ChallengeState.SCHEDULED ->

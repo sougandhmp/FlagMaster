@@ -11,6 +11,8 @@ import org.smp.domain.usecase.auth.CreateAccountUseCase
 import org.smp.domain.usecase.auth.ObserveAuthStateUseCase
 import org.smp.domain.usecase.auth.SignInWithEmailUseCase
 import org.smp.domain.usecase.auth.SignOutUseCase
+import org.smp.domain.usecase.auth.UpdateProfileUseCase
+import org.smp.domain.usecase.questions.ScheduleSyncUseCase
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -20,7 +22,9 @@ class AuthViewModel @Inject constructor(
     private val signInWithEmailUseCase: SignInWithEmailUseCase,
     private val createAccountUseCase: CreateAccountUseCase,
     private val handleGoogleSignInUseCase: HandleGoogleSignInUseCase,
+    private val updateProfileUseCase: UpdateProfileUseCase,
     private val signOutUseCase: SignOutUseCase,
+    private val scheduleSyncUseCase: ScheduleSyncUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthUiState())
@@ -43,9 +47,20 @@ class AuthViewModel @Inject constructor(
             is AuthAction.TabSelected -> _uiState.update { it.copy(selectedTab = action.index) }
             is AuthAction.TogglePasswordVisibility -> _uiState.update { it.copy(passwordVisible = !it.passwordVisible) }
             is AuthAction.Submit -> submit()
-            is AuthAction.GoogleSignIn -> launchAuthAction { handleGoogleSignInUseCase() }
+            is AuthAction.GoogleSignIn -> launchAuthAction {
+                handleGoogleSignInUseCase()
+                scheduleSyncUseCase()
+            }
             is AuthAction.SignOut -> launchAuthAction { signOutUseCase() }
             is AuthAction.ClearError -> _uiState.update { it.copy(error = null) }
+            is AuthAction.DisplayNameChanged -> _uiState.update { it.copy(displayName = action.name) }
+            is AuthAction.AvatarSelected -> _uiState.update { it.copy(selectedAvatar = action.url) }
+            is AuthAction.CompleteProfile -> launchAuthAction {
+                updateProfileUseCase(_uiState.value.displayName, _uiState.value.selectedAvatar)
+            }
+            is AuthAction.UpdateProfile -> launchAuthAction {
+                updateProfileUseCase(_uiState.value.displayName, _uiState.value.selectedAvatar)
+            }
         }
     }
 
@@ -54,6 +69,7 @@ class AuthViewModel @Inject constructor(
         launchAuthAction {
             if (state.selectedTab == 0) signInWithEmailUseCase(state.email, state.password)
             else createAccountUseCase(state.email, state.password)
+            scheduleSyncUseCase()
         }
     }
 

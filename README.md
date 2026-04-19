@@ -14,6 +14,9 @@
 
 ## ✨ Features
 
+- **Leaderboard** — Competitive ranking system based on points, streaks, and difficulty
+- **Profile Customization** — Personalize your presence with display names and avatars (DiceBear or gallery)
+- **Mandatory Profile Setup** — Seamless onboarding for new users to set their identity
 - **Configurable difficulty** — Easy (45 s), Normal (30 s), or Hard (15 s) per question
 - **Configurable length** — 5, 10, 15, or 20 questions per game
 - **Time-scheduled challenge** — Optionally set an exact HH:MM:SS start time; the app counts down and auto-starts
@@ -58,16 +61,23 @@ Start screen
 
 ## 🏗 Architecture
 
-Three Gradle modules following **Clean Architecture**:
+Three Gradle modules following **Clean Architecture**, with dedicated feature modules:
 
 ```
 FlagMaster/
-├── app/      # Presentation — Jetpack Compose UI, ViewModels
-├── domain/   # Business logic — models, use cases, repository interface (pure JVM)
-└── data/     # Infrastructure — Room DB, DataStore, asset loading, Firebase sync
+├── app/                  # Presentation — Jetpack Compose UI, ViewModels
+├── domain/               # Business logic — models, use cases, repository interface (pure JVM)
+├── data/                 # Infrastructure — Room, DataStore, Firebase Auth/Firestore
+├── feature/
+│   ├── auth/             # Email/Password + Google Sign-In with Credential Manager
+│   ├── leaderboard/      # Real-time ranking with top 3 podium
+│   └── profile/          # Profile management and onboarding
+└── core/ui/              # Shared UI components and Glassmorphic themes
 ```
 
 ### Key patterns
+- **Type-Safe Navigation** — Using `kotlinx-serialization` for all navigation routes
+- **Credential Manager** — Modern Google Sign-In implementation (`GetSignInWithGoogleOption`)
 - **Single source of truth** — `MutableStateFlow<ScheduleTimeUiState>` in `FlagsChallengeViewModel`
 - **Sealed actions** — `FlagsScreenAction` for type-safe UI → ViewModel events
 - **Separate timer jobs** — `timerJob` (per-question countdown) and `advanceJob` (10 s fact delay) are independently cancellable, enabling early skip without cancelling the wrong job
@@ -101,13 +111,14 @@ All visual config lives in `ui/theme/VibrantTheme.kt` as `VibrantThemeConfig` da
 | Layer         | Library                                              | Version          |
 |---------------|------------------------------------------------------|------------------|
 | UI            | Jetpack Compose BOM                                  | 2026.03.01       |
-| Navigation    | Navigation Compose                                   | 2.9.7            |
+| Navigation    | Type-Safe Navigation Compose                         | 2.9.7            |
+| Auth          | Firebase Auth + Credential Manager                   | 1.6.0            |
+| Database      | Room + Cloud Firestore                               | 26.2.0           |
 | State         | ViewModel + StateFlow                                | Lifecycle 2.10.0 |
 | DI            | Hilt                                                 | 2.59.2           |
-| Database      | Room                                                 | 2.8.4            |
 | Persistence   | DataStore Preferences                                | 1.2.1            |
 | Image loading | Coil (SVG support)                                   | 3.4.0            |
-| Serialization | Gson                                                 | 2.13.2           |
+| Serialization | kotlinx-serialization                                | 1.11.0           |
 | Logging       | Timber                                               | 5.0.1            |
 | Testing       | JUnit Jupiter                                        | 6.0.3            |
 | Build         | AGP 9.1.1 · Gradle 9.4.1 · Kotlin 2.3.20 · KSP 2.3.6 | —                |

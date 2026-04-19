@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -70,215 +71,237 @@ fun StartChallengeScreen(
     config: VibrantThemeConfig = RoseVibrantTheme,
     userPhotoUrl: String? = null,
     onProfileClick: () -> Unit = {},
+    onLeaderboardClick: () -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_world_globe),
-            contentDescription = stringResource(R.string.world_globe_description),
+        Column(
             modifier = Modifier
-                .sizeIn(maxWidth = 120.dp, maxHeight = 120.dp)
-                .padding(bottom = 16.dp)
-        )
-
-        Text(
-            text = stringResource(R.string.flags_challenge),
-            style = MaterialTheme.typography.displaySmall,
-            fontWeight = FontWeight.ExtraBold,
-            color = Color.White,
-            textAlign = TextAlign.Center,
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Text(
-            text = stringResource(R.string.start_challenge_description),
-            style = MaterialTheme.typography.bodyLarge,
-            color = Color.White.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center,
-        )
-
-        Spacer(Modifier.height(36.dp))
-
-        Text(
-            text = "Difficulty",
-            style = MaterialTheme.typography.labelLarge,
-            color = Color.White.copy(alpha = 0.7f),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            DifficultyMode.entries.forEachIndexed { index, mode ->
-                SegmentedButton(
-                    selected = uiState.difficultyMode == mode,
-                    onClick = { onAction(FlagsScreenAction.OnDifficultySelected(mode)) },
-                    shape = SegmentedButtonDefaults.itemShape(index, DifficultyMode.entries.size),
-                    colors = SegmentedButtonDefaults.colors(
-                        activeContainerColor = config.optionSelectedBackground,
-                        activeContentColor = Color.White,
-                        activeBorderColor = Color.White.copy(alpha = 0.6f),
-                        inactiveContainerColor = Color.White.copy(alpha = 0.08f),
-                        inactiveContentColor = Color.White.copy(alpha = 0.7f),
-                        inactiveBorderColor = Color.White.copy(alpha = 0.2f),
-                    ),
-                    label = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(mode.label, fontWeight = FontWeight.SemiBold)
-                            Text(
-                                "${mode.timerMs / 1000}s / question",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White.copy(alpha = 0.6f)
-                            )
-                        }
-                    }
-                )
-            }
-        }
-
-        Spacer(Modifier.height(24.dp))
-
-        Text(
-            text = stringResource(R.string.questions),
-            style = MaterialTheme.typography.labelLarge,
-            color = Color.White.copy(alpha = 0.7f),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
-        val questionCounts = listOf(5, 10, 15, 20)
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            questionCounts.forEachIndexed { index, count ->
-                SegmentedButton(
-                    selected = uiState.questionCount == count,
-                    onClick = { onAction(FlagsScreenAction.OnQuestionCountSelected(count)) },
-                    shape = SegmentedButtonDefaults.itemShape(index, questionCounts.size),
-                    colors = SegmentedButtonDefaults.colors(
-                        activeContainerColor = config.optionSelectedBackground,
-                        activeContentColor = Color.White,
-                        activeBorderColor = Color.White.copy(alpha = 0.6f),
-                        inactiveContainerColor = Color.White.copy(alpha = 0.08f),
-                        inactiveContentColor = Color.White.copy(alpha = 0.7f),
-                        inactiveBorderColor = Color.White.copy(alpha = 0.2f),
-                    ),
-                    label = { Text("$count", fontWeight = FontWeight.SemiBold) }
-                )
-            }
-        }
-
-        Spacer(Modifier.height(28.dp))
-
-        VibrantCtaButton(
-            text = stringResource(R.string.start_now),
-            config = config,
-            onClick = { onAction(FlagsScreenAction.StartQuiz) },
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        OutlinedButton(
-            onClick = { onAction(FlagsScreenAction.OnScheduleChallenge) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.5f))
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.CalendarMonth,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
+            Image(
+                painter = painterResource(id = R.drawable.ic_world_globe),
+                contentDescription = stringResource(R.string.world_globe_description),
+                modifier = Modifier
+                    .sizeIn(maxWidth = 120.dp, maxHeight = 120.dp)
+                    .padding(bottom = 16.dp)
             )
-            Spacer(Modifier.width(8.dp))
+
             Text(
-                text = stringResource(R.string.schedule_challenge),
-                fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold
+                text = stringResource(R.string.flags_challenge),
+                style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White,
+                textAlign = TextAlign.Center,
             )
-        }
 
-        AnimatedVisibility(
-            visible = uiState.showScheduler,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut()
-        ) {
-            Box(
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = stringResource(R.string.start_challenge_description),
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White.copy(alpha = 0.7f),
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(Modifier.height(36.dp))
+
+            Text(
+                text = "Difficulty",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.White.copy(alpha = 0.7f),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White.copy(alpha = 0.1f))
-                    .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CalendarMonth,
-                            contentDescription = null,
-                            tint = config.accentColor,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = "Set a time",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White
-                        )
-                    }
-                    HorizontalDivider(
-                        modifier = Modifier.padding(bottom = 16.dp),
-                        color = Color.White.copy(alpha = 0.2f)
+                    .padding(bottom = 8.dp)
+            )
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                DifficultyMode.entries.forEachIndexed { index, mode ->
+                    SegmentedButton(
+                        selected = uiState.difficultyMode == mode,
+                        onClick = { onAction(FlagsScreenAction.OnDifficultySelected(mode)) },
+                        shape = SegmentedButtonDefaults.itemShape(
+                            index,
+                            DifficultyMode.entries.size
+                        ),
+                        colors = SegmentedButtonDefaults.colors(
+                            activeContainerColor = config.optionSelectedBackground,
+                            activeContentColor = Color.White,
+                            activeBorderColor = Color.White.copy(alpha = 0.6f),
+                            inactiveContainerColor = Color.White.copy(alpha = 0.08f),
+                            inactiveContentColor = Color.White.copy(alpha = 0.7f),
+                            inactiveBorderColor = Color.White.copy(alpha = 0.2f),
+                        ),
+                        label = {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(mode.label, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    "${mode.timerMs / 1000}s / question",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White.copy(alpha = 0.6f)
+                                )
+                            }
+                        }
                     )
-                    TimerScheduleView(uiState = uiState, onAction = onAction)
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            Text(
+                text = stringResource(R.string.questions),
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.White.copy(alpha = 0.7f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
+            val questionCounts = listOf(5, 10, 15, 20)
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                questionCounts.forEachIndexed { index, count ->
+                    SegmentedButton(
+                        selected = uiState.questionCount == count,
+                        onClick = { onAction(FlagsScreenAction.OnQuestionCountSelected(count)) },
+                        shape = SegmentedButtonDefaults.itemShape(index, questionCounts.size),
+                        colors = SegmentedButtonDefaults.colors(
+                            activeContainerColor = config.optionSelectedBackground,
+                            activeContentColor = Color.White,
+                            activeBorderColor = Color.White.copy(alpha = 0.6f),
+                            inactiveContainerColor = Color.White.copy(alpha = 0.08f),
+                            inactiveContentColor = Color.White.copy(alpha = 0.7f),
+                            inactiveBorderColor = Color.White.copy(alpha = 0.2f),
+                        ),
+                        label = { Text("$count", fontWeight = FontWeight.SemiBold) }
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(28.dp))
+
+            VibrantCtaButton(
+                text = stringResource(R.string.start_now),
+                config = config,
+                onClick = { onAction(FlagsScreenAction.StartQuiz) },
+            )
+
+            Spacer(Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = { onAction(FlagsScreenAction.OnScheduleChallenge) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.5f))
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CalendarMonth,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.schedule_challenge),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            AnimatedVisibility(
+                visible = uiState.showScheduler,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.White.copy(alpha = 0.1f))
+                        .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CalendarMonth,
+                                contentDescription = null,
+                                tint = config.accentColor,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = "Set a time",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White
+                            )
+                        }
+                        HorizontalDivider(
+                            modifier = Modifier.padding(bottom = 16.dp),
+                            color = Color.White.copy(alpha = 0.2f)
+                        )
+                        TimerScheduleView(uiState = uiState, onAction = onAction)
+                    }
                 }
             }
         }
-    }
 
-    IconButton(
-        onClick = onProfileClick,
-        modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(top = 12.dp, end = 12.dp),
-        colors = IconButtonDefaults.iconButtonColors(
-            contentColor = Color.White,
-            containerColor = Color.White.copy(alpha = 0.15f),
-        ),
-    ) {
-        if (userPhotoUrl != null) {
-            AsyncImage(
-                model = userPhotoUrl,
-                contentDescription = "Profile",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(28.dp)
-                    .clip(CircleShape),
-            )
-        } else {
+        IconButton(
+            onClick = onProfileClick,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 12.dp, end = 12.dp),
+            colors = IconButtonDefaults.iconButtonColors(
+                contentColor = Color.White,
+                containerColor = Color.White.copy(alpha = 0.15f),
+            ),
+        ) {
+            if (userPhotoUrl != null) {
+                AsyncImage(
+                    model = userPhotoUrl,
+                    contentDescription = "Profile",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape),
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Profile",
+                    modifier = Modifier.size(22.dp),
+                )
+            }
+        }
+
+        IconButton(
+            onClick = onLeaderboardClick,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(top = 12.dp, start = 12.dp),
+            colors = IconButtonDefaults.iconButtonColors(
+                contentColor = Color.White,
+                containerColor = Color.White.copy(alpha = 0.15f),
+            ),
+        ) {
             Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "Profile",
+                imageVector = Icons.Default.EmojiEvents,
+                contentDescription = "Leaderboard",
                 modifier = Modifier.size(22.dp),
+                tint = Color(0xFFFFD700)
             )
         }
-    }
     }
 }
 
