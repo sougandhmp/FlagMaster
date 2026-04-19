@@ -54,6 +54,7 @@ dependencies {
 
     implementation(libs.gson)
     implementation(libs.google.firebase.firestore)
+    implementation(libs.firebase.auth)
     implementation(libs.kotlinx.coroutines.play.services)
 
     // WorkManager for background sync

@@ -24,7 +24,7 @@ import org.smp.flagmaster.ui.sync.SyncViewModel
 @Composable
 fun FlagsNavigation() {
     val authViewModel = hiltViewModel<AuthViewModel>()
-    val authState by authViewModel.authState.collectAsStateWithLifecycle()
+    val authUiState by authViewModel.uiState.collectAsStateWithLifecycle()
 
     val syncViewModel = hiltViewModel<SyncViewModel>()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -43,8 +43,8 @@ fun FlagsNavigation() {
 
     val navController = rememberNavController()
 
-    LaunchedEffect(authState) {
-        when (authState) {
+    LaunchedEffect(authUiState.authState) {
+        when (authUiState.authState) {
             is AuthState.Authenticated -> navController.navigate(FlagsChallengeRoute) {
                 popUpTo<LoginRoute> { inclusive = true }
                 launchSingleTop = true

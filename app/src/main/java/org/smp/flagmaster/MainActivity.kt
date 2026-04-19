@@ -11,6 +11,7 @@ import org.smp.flagmaster.ui.theme.FlagMasterTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)

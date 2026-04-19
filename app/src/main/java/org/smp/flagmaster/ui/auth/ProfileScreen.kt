@@ -49,8 +49,8 @@ fun ProfileScreen(
     authViewModel: AuthViewModel,
     onBack: () -> Unit,
 ) {
-    val authState by authViewModel.authState.collectAsStateWithLifecycle()
-    val user = (authState as? AuthState.Authenticated)?.user
+    val uiState by authViewModel.uiState.collectAsStateWithLifecycle()
+    val user = (uiState.authState as? AuthState.Authenticated)?.user
 
     VibrantBackground(config = TealVibrantTheme) {
         Scaffold(
@@ -90,7 +90,7 @@ fun ProfileScreen(
                     val photoUrl = user?.photoUrl
                     if (photoUrl != null) {
                         AsyncImage(
-                            model = photoUrl.toString(),
+                            model = photoUrl,
                             contentDescription = "Profile photo",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop,
@@ -150,7 +150,7 @@ fun ProfileScreen(
                 Spacer(Modifier.height(40.dp))
 
                 Button(
-                    onClick = { authViewModel.signOut() },
+                    onClick = { authViewModel.onAction(AuthAction.SignOut) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),

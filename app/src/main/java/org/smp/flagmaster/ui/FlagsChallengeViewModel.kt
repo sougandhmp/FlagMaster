@@ -277,12 +277,14 @@ class FlagsChallengeViewModel @Inject constructor(
         }
         val newStreak = if (isCorrect) _uiState.value.currentStreak + 1 else 0
 
+        val totalTicks = (feedbackDelayMs / 1000).toInt()
         _uiState.update {
             it.copy(
                 answers = updatedAnswers,
                 answerResult = if (isCorrect) AnswerResult.CORRECT else AnswerResult.WRONG,
                 score = updatedAnswers.count { answer -> answer.isCorrect },
                 currentStreak = newStreak,
+                factCountdown = totalTicks,
             )
         }
 
@@ -295,7 +297,11 @@ class FlagsChallengeViewModel @Inject constructor(
         val isLast = currentIndex == _uiState.value.questions.lastIndex
         advanceJob?.cancel()
         advanceJob = viewModelScope.launch {
-            delay(feedbackDelayMs)
+            for (remaining in totalTicks downTo 1) {
+                _uiState.update { it.copy(factCountdown = remaining) }
+                delay(1000L)
+            }
+            _uiState.update { it.copy(factCountdown = 0) }
             moveToNextQuestionOrFinish(isLast = isLast, currentIndex = currentIndex)
         }
     }
@@ -304,6 +310,7 @@ class FlagsChallengeViewModel @Inject constructor(
         val state = _uiState.value
         if (state.answerResult == null) return
         advanceJob?.cancel()
+        _uiState.update { it.copy(factCountdown = 0) }
         moveToNextQuestionOrFinish(
             isLast = state.questionIndex == state.questions.lastIndex,
             currentIndex = state.questionIndex
@@ -320,6 +327,7 @@ class FlagsChallengeViewModel @Inject constructor(
                     currentQuestion = nextQuestion,
                     selectedOption = null,
                     answerResult = null,
+                    factCountdown = 10,
                 )
             }
             startQuiz()

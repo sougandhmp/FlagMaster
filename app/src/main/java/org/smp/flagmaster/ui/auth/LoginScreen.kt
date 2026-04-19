@@ -32,24 +32,18 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -58,30 +52,21 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import kotlinx.coroutines.launch
-import org.smp.flagmaster.R
 import org.smp.flagmaster.ui.components.VibrantBackground
 import org.smp.flagmaster.ui.theme.BlueVibrantTheme
-import timber.log.Timber
 
 private val tabTitles = listOf("Sign In", "Create Account")
 
 @Composable
 fun LoginScreen(authViewModel: AuthViewModel) {
-    val isLoading by authViewModel.isLoading.collectAsStateWithLifecycle()
-    val error by authViewModel.error.collectAsStateWithLifecycle()
+    val uiState by authViewModel.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(error) {
-        error?.let {
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let {
             snackbarHostState.showSnackbar(it)
-            authViewModel.clearError()
+            authViewModel.onAction(AuthAction.ClearError)
         }
     }
 
@@ -120,10 +105,8 @@ fun LoginScreen(authViewModel: AuthViewModel) {
                 Spacer(Modifier.height(36.dp))
 
                 AuthForm(
-                    isLoading = isLoading,
-                    onSignIn = authViewModel::signInWithEmail,
-                    onCreateAccount = authViewModel::createAccount,
-                    onGoogleSignIn = authViewModel::signInWithGoogle,
+                    uiState = uiState,
+                    onAction = authViewModel::onAction,
                 )
             }
 
@@ -141,61 +124,48 @@ fun LoginScreen(authViewModel: AuthViewModel) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AuthForm(
-    isLoading: Boolean,
-    onSignIn: (String, String) -> Unit,
-    onCreateAccount: (String, String) -> Unit,
-    onGoogleSignIn: (String) -> Unit,
+    uiState: AuthUiState,
+    onAction: (AuthAction) -> Unit,
 ) {
-    var selectedTab by remember { mutableIntStateOf(0) }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     val fieldColors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.White,
-            unfocusedBorderColor = Color.White.copy(alpha = 0.4f),
-            focusedLabelColor = Color.White,
-            unfocusedLabelColor = Color.White.copy(alpha = 0.6f),
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-            cursorColor = Color.White,
-            focusedLeadingIconColor = Color.White,
-            unfocusedLeadingIconColor = Color.White.copy(alpha = 0.6f),
-            focusedTrailingIconColor = Color.White,
-            unfocusedTrailingIconColor = Color.White.copy(alpha = 0.6f),
-        )
+        focusedBorderColor = Color.White,
+        unfocusedBorderColor = Color.White.copy(alpha = 0.4f),
+        focusedLabelColor = Color.White,
+        unfocusedLabelColor = Color.White.copy(alpha = 0.6f),
+        focusedTextColor = Color.White,
+        unfocusedTextColor = Color.White,
+        cursorColor = Color.White,
+        focusedLeadingIconColor = Color.White,
+        unfocusedLeadingIconColor = Color.White.copy(alpha = 0.6f),
+        focusedTrailingIconColor = Color.White,
+        unfocusedTrailingIconColor = Color.White.copy(alpha = 0.6f),
+    )
 
-    fun submitForm() {
+    fun submit() {
         focusManager.clearFocus()
-        if (selectedTab == 0) onSignIn(email, password) else onCreateAccount(email, password)
+        onAction(AuthAction.Submit)
     }
 
-    TabRow(
-        selectedTabIndex = selectedTab,
+    SecondaryTabRow(
+        selectedTabIndex = uiState.selectedTab,
         containerColor = Color.Transparent,
         contentColor = Color.White,
-        indicator = { tabPositions ->
-            TabRowDefaults.SecondaryIndicator(
-                modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                color = Color.White,
-            )
-        },
         divider = { HorizontalDivider(color = Color.White.copy(alpha = 0.2f)) }
     ) {
         tabTitles.forEachIndexed { index, title ->
             Tab(
-                selected = selectedTab == index,
-                onClick = { selectedTab = index },
+                selected = uiState.selectedTab == index,
+                onClick = { onAction(AuthAction.TabSelected(index)) },
                 text = {
                     Text(
                         text = title,
-                        fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal,
-                        color = if (selectedTab == index) Color.White else Color.White.copy(alpha = 0.5f),
+                        fontWeight = if (uiState.selectedTab == index) FontWeight.Bold else FontWeight.Normal,
+                        color = if (uiState.selectedTab == index) Color.White else Color.White.copy(alpha = 0.5f),
                     )
                 }
             )
@@ -205,8 +175,8 @@ private fun AuthForm(
     Spacer(Modifier.height(24.dp))
 
     OutlinedTextField(
-        value = email,
-        onValueChange = { email = it },
+        value = uiState.email,
+        onValueChange = { onAction(AuthAction.EmailChanged(it)) },
         label = { Text("Email") },
         singleLine = true,
         leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
@@ -223,16 +193,16 @@ private fun AuthForm(
     Spacer(Modifier.height(12.dp))
 
     OutlinedTextField(
-        value = password,
-        onValueChange = { password = it },
+        value = uiState.password,
+        onValueChange = { onAction(AuthAction.PasswordChanged(it)) },
         label = { Text("Password") },
         singleLine = true,
         leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        visualTransformation = if (uiState.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
-            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+            IconButton(onClick = { onAction(AuthAction.TogglePasswordVisibility) }) {
                 Icon(
-                    imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                    imageVector = if (uiState.passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                     contentDescription = null,
                 )
             }
@@ -241,7 +211,7 @@ private fun AuthForm(
             keyboardType = KeyboardType.Password,
             imeAction = ImeAction.Done,
         ),
-        keyboardActions = KeyboardActions(onDone = { submitForm() }),
+        keyboardActions = KeyboardActions(onDone = { submit() }),
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
         colors = fieldColors,
@@ -250,8 +220,8 @@ private fun AuthForm(
     Spacer(Modifier.height(24.dp))
 
     Button(
-        onClick = { submitForm() },
-        enabled = !isLoading && email.isNotBlank() && password.isNotBlank(),
+        onClick = { submit() },
+        enabled = !uiState.isLoading && uiState.email.isNotBlank() && uiState.password.isNotBlank(),
         modifier = Modifier
             .fillMaxWidth()
             .height(52.dp),
@@ -263,11 +233,11 @@ private fun AuthForm(
             disabledContentColor = Color.White.copy(alpha = 0.5f),
         )
     ) {
-        if (isLoading) {
+        if (uiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color(0xFF001F26), strokeWidth = 2.dp)
         } else {
             Text(
-                text = if (selectedTab == 0) "Sign In" else "Create Account",
+                text = if (uiState.selectedTab == 0) "Sign In" else "Create Account",
                 fontWeight = FontWeight.Bold,
             )
         }
@@ -288,32 +258,8 @@ private fun AuthForm(
     Spacer(Modifier.height(20.dp))
 
     Button(
-        onClick = {
-            scope.launch {
-                try {
-                    val webClientId = context.getString(R.string.google_oauth_web_client_id)
-                    val credentialManager = CredentialManager.create(context)
-                    val googleIdOption = GetGoogleIdOption.Builder()
-                        .setFilterByAuthorizedAccounts(false)
-                        .setServerClientId(webClientId)
-                        .setAutoSelectEnabled(false)
-                        .build()
-                    val request = GetCredentialRequest.Builder()
-                        .addCredentialOption(googleIdOption)
-                        .build()
-                    val result = credentialManager.getCredential(context, request)
-                    val credential = result.credential
-                    if (credential is CustomCredential &&
-                        credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-                    ) {
-                        onGoogleSignIn(GoogleIdTokenCredential.createFrom(credential.data).idToken)
-                    }
-                } catch (e: Exception) {
-                    Timber.e(e, "Google sign-in failed")
-                }
-            }
-        },
-        enabled = !isLoading,
+        onClick = { onAction(AuthAction.GoogleSignIn) },
+        enabled = !uiState.isLoading,
         modifier = Modifier
             .fillMaxWidth()
             .height(52.dp),

@@ -23,6 +23,7 @@ data class ScheduleTimeUiState(
     val showStats: Boolean = false,
     val questionCount: Int = 10,
     val currentStreak: Int = 0,
+    val factCountdown: Int = 10,
 )
 
 enum class AnswerResult{

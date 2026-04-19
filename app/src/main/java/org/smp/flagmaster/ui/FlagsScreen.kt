@@ -39,6 +39,8 @@ import org.smp.flagmaster.ui.components.GameOverScreen
 import org.smp.flagmaster.ui.components.QuestionScreen
 import org.smp.flagmaster.ui.components.StartChallengeScreen
 import org.smp.flagmaster.ui.components.StatsScreen
+import org.smp.flagmaster.ui.auth.AuthState
+import org.smp.flagmaster.ui.auth.AuthViewModel
 import org.smp.flagmaster.ui.components.VibrantBackground
 import org.smp.flagmaster.ui.theme.BlueVibrantTheme
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
@@ -50,8 +52,11 @@ import org.smp.flagmaster.ui.theme.allVibrantThemes
 @Composable
 fun FlagsChallengeRoute(onProfileClick: () -> Unit = {}) {
     val viewModel: FlagsChallengeViewModel = hiltViewModel()
+    val authViewModel: AuthViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    FlagsChallengeScreen(uiState = uiState, onAction = viewModel::onAction, onProfileClick = onProfileClick)
+    val authUiState by authViewModel.uiState.collectAsStateWithLifecycle()
+    val userPhotoUrl = (authUiState.authState as? AuthState.Authenticated)?.user?.photoUrl
+    FlagsChallengeScreen(uiState = uiState, onAction = viewModel::onAction, userPhotoUrl = userPhotoUrl, onProfileClick = onProfileClick)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +64,7 @@ fun FlagsChallengeRoute(onProfileClick: () -> Unit = {}) {
 fun FlagsChallengeScreen(
     uiState: ScheduleTimeUiState,
     onAction: (FlagsScreenAction) -> Unit = {},
+    userPhotoUrl: String? = null,
     onProfileClick: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -75,7 +81,6 @@ fun FlagsChallengeScreen(
         ChallengeState.SCHEDULED -> BlueVibrantTheme
         ChallengeState.COUNT_DOWN -> OrangeVibrantTheme
         ChallengeState.IN_PROGRESS -> allVibrantThemes[uiState.questionIndex % allVibrantThemes.size]
-
         ChallengeState.COMPLETED -> RoseVibrantTheme
     }
 
@@ -138,6 +143,7 @@ fun FlagsChallengeScreen(
                         uiState = uiState,
                         onAction = onAction,
                         config = theme,
+                        userPhotoUrl = userPhotoUrl,
                         onProfileClick = onProfileClick,
                     )
 
@@ -161,6 +167,7 @@ fun FlagsChallengeScreen(
                             onNextQuestion = { onAction(FlagsScreenAction.SkipFact) },
                             config = theme,
                             streak = uiState.currentStreak,
+                            factCountdown = uiState.factCountdown,
                         )
                     }
 

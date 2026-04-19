@@ -1,9 +1,9 @@
 package org.smp.flagmaster.ui.auth
 
-import com.google.firebase.auth.FirebaseUser
+import org.smp.domain.model.AuthUser
 
 sealed interface AuthState {
     data object Loading : AuthState
     data object Unauthenticated : AuthState
-    data class Authenticated(val user: FirebaseUser) : AuthState
+    data class Authenticated(val user: AuthUser) : AuthState
 }

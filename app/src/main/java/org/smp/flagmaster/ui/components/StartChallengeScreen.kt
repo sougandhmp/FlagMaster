@@ -23,9 +23,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,6 +68,7 @@ fun StartChallengeScreen(
     uiState: ScheduleTimeUiState,
     onAction: (FlagsScreenAction) -> Unit,
     config: VibrantThemeConfig = RoseVibrantTheme,
+    userPhotoUrl: String? = null,
     onProfileClick: () -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -260,11 +265,22 @@ fun StartChallengeScreen(
             containerColor = Color.White.copy(alpha = 0.15f),
         ),
     ) {
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = "Profile",
-            modifier = Modifier.size(22.dp),
-        )
+        if (userPhotoUrl != null) {
+            AsyncImage(
+                model = userPhotoUrl,
+                contentDescription = "Profile",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(CircleShape),
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "Profile",
+                modifier = Modifier.size(22.dp),
+            )
+        }
     }
     }
 }
