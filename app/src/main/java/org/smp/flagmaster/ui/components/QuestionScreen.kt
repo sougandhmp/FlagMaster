@@ -29,6 +29,7 @@ fun QuestionScreen(
     score: Int = 0,
     remainingTime: String = "00",
     config: VibrantThemeConfig = BlueVibrantTheme,
+    streak: Int = 0,
 ) {
     val themeConfig = remember(score) {
         allVibrantThemes.getOrElse(score % allVibrantThemes.size) { BlueVibrantTheme }
@@ -54,6 +55,7 @@ fun QuestionScreen(
         totalQuestions = totalQuestions,
         score = score,
         remainingTime = remainingTime,
+        streak = streak,
         flagCountryCode = question.countryCode,
         options = question.options,
         selectedCountry = question.options.find { it.code == selectedAnswer },

@@ -48,10 +48,10 @@ import org.smp.flagmaster.ui.theme.TealVibrantTheme
 import org.smp.flagmaster.ui.theme.allVibrantThemes
 
 @Composable
-fun FlagsChallengeRoute() {
+fun FlagsChallengeRoute(onProfileClick: () -> Unit = {}) {
     val viewModel: FlagsChallengeViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    FlagsChallengeScreen(uiState = uiState, onAction = viewModel::onAction)
+    FlagsChallengeScreen(uiState = uiState, onAction = viewModel::onAction, onProfileClick = onProfileClick)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +59,7 @@ fun FlagsChallengeRoute() {
 fun FlagsChallengeScreen(
     uiState: ScheduleTimeUiState,
     onAction: (FlagsScreenAction) -> Unit = {},
+    onProfileClick: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -136,7 +137,8 @@ fun FlagsChallengeScreen(
                     ChallengeState.NOT_SCHEDULED -> StartChallengeScreen(
                         uiState = uiState,
                         onAction = onAction,
-                        config = theme
+                        config = theme,
+                        onProfileClick = onProfileClick,
                     )
 
                     ChallengeState.SCHEDULED ->
@@ -158,6 +160,7 @@ fun FlagsChallengeScreen(
                             onAnswerSelected = { onAction(FlagsScreenAction.OnOptionSelected(it)) },
                             onNextQuestion = { onAction(FlagsScreenAction.SkipFact) },
                             config = theme,
+                            streak = uiState.currentStreak,
                         )
                     }
 

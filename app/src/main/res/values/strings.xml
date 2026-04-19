@@ -40,4 +40,6 @@
     <string name="difficulty">Difficulty</string>
     <string name="fun_fact">Fun Fact</string>
     <string name="questions">Questions</string>
+    <!-- Replace with your OAuth 2.0 Web Client ID from Firebase Console > Authentication > Sign-in method > Google -->
+    <string name="google_oauth_web_client_id" translatable="false">YOUR_WEB_CLIENT_ID</string>
 </resources>

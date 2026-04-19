@@ -1,8 +1,13 @@
 package org.smp.flagmaster.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -58,6 +63,7 @@ fun VibrantChallengeView(
     totalQuestions: Int = 15,
     score: Int = 2,
     remainingTime: String = "00:00",
+    streak: Int = 0,
     flagCountryCode: String = "ae",
     options: List<Country>,
     selectedCountry: Country? = null,
@@ -84,7 +90,7 @@ fun VibrantChallengeView(
                 totalQuestions = totalQuestions,
                 score = score,
                 remainingTime = if (showResult) "" else remainingTime,
-                config = config
+                config = config,
             )
 
             // Glassmorphic Content Card
@@ -110,6 +116,30 @@ fun VibrantChallengeView(
                             lineHeight = 32.sp
                         )
                     )
+
+                    AnimatedVisibility(
+                        visible = streak >= 2,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically(),
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(Color(0xFFFF6F00).copy(alpha = 0.25f))
+                                .border(1.dp, Color(0xFFFF6F00).copy(alpha = 0.5f), RoundedCornerShape(20.dp))
+                                .padding(horizontal = 14.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            Text(text = "🔥", fontSize = 14.sp)
+                            Text(
+                                text = "$streak streak",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp,
+                            )
+                        }
+                    }
 
                     Box(
                         modifier = Modifier
@@ -194,12 +224,31 @@ fun FactPanel(fact: String, config: VibrantThemeConfig) {
 
 
 @Composable
+private fun HeaderPill(
+    background: Color,
+    borderColor: Color,
+    modifier: Modifier = Modifier,
+    horizontalPadding: androidx.compose.ui.unit.Dp = 12.dp,
+    content: @Composable () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(background)
+            .border(1.dp, borderColor, RoundedCornerShape(20.dp))
+            .padding(horizontal = horizontalPadding, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        content = { content() },
+    )
+}
+
+@Composable
 fun VibrantHeader(
     questionNumber: Int,
     totalQuestions: Int,
     score: Int,
     remainingTime: String,
-    config: VibrantThemeConfig
+    config: VibrantThemeConfig,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Box(
@@ -234,15 +283,10 @@ fun VibrantHeader(
                 fontSize = 22.sp
             )
 
-            // Score Pill (Right)
-            Row(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(config.scorePillColor)
-                    .border(1.dp, Color.White.copy(alpha = 0.3f), RoundedCornerShape(20.dp))
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
+            HeaderPill(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                background = config.scorePillColor,
+                borderColor = Color.White.copy(alpha = 0.3f),
             ) {
                 Icon(
                     imageVector = Icons.Default.Star,
@@ -251,12 +295,7 @@ fun VibrantHeader(
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "$score",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
+                Text(text = "$score", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
         }
 

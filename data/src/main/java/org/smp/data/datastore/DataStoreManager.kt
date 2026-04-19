@@ -10,6 +10,7 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.smp.domain.model.QuizAnswer
+import timber.log.Timber
 import javax.inject.Inject
 
 // Name your Preferences DataStore
@@ -32,6 +33,7 @@ class DataStoreManager @Inject constructor(private val context: Context) {
         try {
             Gson().fromJson(json, object : TypeToken<List<QuizAnswer>>() {}.type)
         } catch (e: Exception) {
+            Timber.e(e, "Failed to deserialize quiz answers, resetting")
             emptyList()
         }
     }

@@ -79,6 +79,13 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.hilt.ext.work)
 
+    // Firebase Auth + Google Sign-In
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services)
+    implementation(libs.google.identity.googleid)
+    implementation(libs.kotlinx.coroutines.play.services)
+
     testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.junit.jupiter.params)
     testRuntimeOnly(libs.junit.jupiter.engine)

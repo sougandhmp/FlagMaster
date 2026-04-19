@@ -53,7 +53,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
 
     implementation(libs.gson)
-    implementation(libs.google.firebase.database)
+    implementation(libs.google.firebase.firestore)
     implementation(libs.kotlinx.coroutines.play.services)
 
     // WorkManager for background sync

@@ -22,6 +22,7 @@ data class ScheduleTimeUiState(
     val difficultyMode: DifficultyMode = DifficultyMode.NORMAL,
     val showStats: Boolean = false,
     val questionCount: Int = 10,
+    val currentStreak: Int = 0,
 )
 
 enum class AnswerResult{

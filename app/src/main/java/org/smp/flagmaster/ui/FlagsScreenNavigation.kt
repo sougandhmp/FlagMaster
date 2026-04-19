@@ -7,8 +7,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object FlagsChallengeRoute
 
-fun NavGraphBuilder.timeScheduleScreen() {
+fun NavGraphBuilder.timeScheduleScreen(onProfileClick: () -> Unit) {
     composable<FlagsChallengeRoute> {
-        FlagsChallengeRoute()
+        FlagsChallengeRoute(onProfileClick = onProfileClick)
     }
 }

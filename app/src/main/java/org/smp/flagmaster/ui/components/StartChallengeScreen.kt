@@ -25,10 +25,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SegmentedButton
@@ -61,7 +64,9 @@ fun StartChallengeScreen(
     uiState: ScheduleTimeUiState,
     onAction: (FlagsScreenAction) -> Unit,
     config: VibrantThemeConfig = RoseVibrantTheme,
+    onProfileClick: () -> Unit = {},
 ) {
+    Box(modifier = Modifier.fillMaxSize()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -243,6 +248,24 @@ fun StartChallengeScreen(
                 }
             }
         }
+    }
+
+    IconButton(
+        onClick = onProfileClick,
+        modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(top = 12.dp, end = 12.dp),
+        colors = IconButtonDefaults.iconButtonColors(
+            contentColor = Color.White,
+            containerColor = Color.White.copy(alpha = 0.15f),
+        ),
+    ) {
+        Icon(
+            imageVector = Icons.Default.Person,
+            contentDescription = "Profile",
+            modifier = Modifier.size(22.dp),
+        )
+    }
     }
 }
 

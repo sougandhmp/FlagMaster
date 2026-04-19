@@ -275,12 +275,14 @@ class FlagsChallengeViewModel @Inject constructor(
                 )
             )
         }
+        val newStreak = if (isCorrect) _uiState.value.currentStreak + 1 else 0
 
         _uiState.update {
             it.copy(
                 answers = updatedAnswers,
                 answerResult = if (isCorrect) AnswerResult.CORRECT else AnswerResult.WRONG,
                 score = updatedAnswers.count { answer -> answer.isCorrect },
+                currentStreak = newStreak,
             )
         }
 

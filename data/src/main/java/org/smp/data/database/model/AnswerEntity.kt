@@ -2,6 +2,7 @@ package org.smp.data.database.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /** Stores each quiz question. Table name "questions" (renamed from "answers" in migration 2→3). */
@@ -15,7 +16,7 @@ data class QuestionEntity(
 )
 
 /** Stores the answer options for a question (one row per option, 4 per question). */
-@Entity(tableName = "countries")
+@Entity(tableName = "countries", indices = [Index(value = ["questionId"])])
 data class CountryEntity(
     @PrimaryKey(autoGenerate = true) val uid: Int = 0,
     val code: String,

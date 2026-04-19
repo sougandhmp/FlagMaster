@@ -90,7 +90,7 @@ fun StatsScreen(
                 Spacer(Modifier.height(4.dp))
             }
 
-            itemsIndexed(questions) { index, question ->
+            itemsIndexed(questions, key = { _, q -> q.questionId }) { index, question ->
                 val answer = answerMap[question.questionId]
                 val correctOption = question.options.firstOrNull { it.code == question.answerId }
                 val selectedOption =
