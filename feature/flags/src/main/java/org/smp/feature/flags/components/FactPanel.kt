@@ -1,4 +1,4 @@
-package org.smp.flagmaster.ui.components
+package org.smp.feature.flags.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,9 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.MaterialTheme
 import org.smp.core.ui.BlueVibrantTheme
 import org.smp.core.ui.VibrantThemeConfig
-import org.smp.flagmaster.ui.theme.FlagMasterTheme
 
 @Composable
 fun FactPanel(fact: String, config: VibrantThemeConfig) {
@@ -56,7 +56,7 @@ fun FactPanel(fact: String, config: VibrantThemeConfig) {
 @Preview
 @Composable
 fun FactPanelPreview() {
-    FlagMasterTheme {
+    MaterialTheme {
         FactPanel(
             fact = "North Macedonia declared independence from Yugoslavia in 1991 and is one of the youngest countries in Europe.",
             config = BlueVibrantTheme,

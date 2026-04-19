@@ -1,4 +1,4 @@
-package org.smp.flagmaster.ui.components
+package org.smp.feature.flags.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.sp
 import org.smp.core.ui.BlueVibrantTheme
 import org.smp.core.ui.OrangeVibrantTheme
 import org.smp.core.ui.VibrantThemeConfig
-import org.smp.flagmaster.ui.theme.FlagMasterTheme
 
 private val CorrectGreen = Color(0xFF4CAF50)
 
@@ -197,28 +196,24 @@ private fun ScorePopup(visible: Boolean, modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun VibrantHeaderActivePreview() {
-    FlagMasterTheme {
-        VibrantHeader(
-            questionNumber = 7,
-            totalQuestions = 15,
-            score = 5,
-            remainingTime = "00:28",
-            config = BlueVibrantTheme,
-        )
-    }
+    VibrantHeader(
+        questionNumber = 7,
+        totalQuestions = 15,
+        score = 5,
+        remainingTime = "00:28",
+        config = BlueVibrantTheme,
+    )
 }
 
 @Preview
 @Composable
 fun VibrantHeaderResultPreview() {
-    FlagMasterTheme {
-        VibrantHeader(
-            questionNumber = 15,
-            totalQuestions = 15,
-            score = 12,
-            remainingTime = "",
-            config = OrangeVibrantTheme,
-            showScorePopup = true,
-        )
-    }
+    VibrantHeader(
+        questionNumber = 15,
+        totalQuestions = 15,
+        score = 12,
+        remainingTime = "",
+        config = OrangeVibrantTheme,
+        showScorePopup = true,
+    )
 }
