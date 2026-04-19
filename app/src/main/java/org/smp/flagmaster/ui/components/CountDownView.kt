@@ -30,9 +30,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.smp.flagmaster.R
-import org.smp.flagmaster.ui.theme.BlueVibrantTheme
+import org.smp.core.ui.BlueVibrantTheme
+import org.smp.core.ui.VibrantThemeConfig
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
-import org.smp.flagmaster.ui.theme.VibrantThemeConfig
 
 /**
  * Displays an animated ring countdown shown 20 seconds before quiz start.

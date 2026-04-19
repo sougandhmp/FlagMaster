@@ -1,4 +1,4 @@
-package org.smp.flagmaster.ui.auth
+package org.smp.feature.auth
 
 sealed interface AuthAction {
     data class EmailChanged(val email: String) : AuthAction

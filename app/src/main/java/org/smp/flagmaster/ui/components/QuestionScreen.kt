@@ -1,13 +1,11 @@
 package org.smp.flagmaster.ui.components
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import org.smp.domain.model.Country
 import org.smp.domain.model.Question
-import org.smp.flagmaster.ui.theme.BlueVibrantTheme
-import org.smp.flagmaster.ui.theme.VibrantThemeConfig
-import org.smp.flagmaster.ui.theme.allVibrantThemes
+import org.smp.core.ui.BlueVibrantTheme
+import org.smp.core.ui.VibrantThemeConfig
 
 @Composable
 fun QuestionScreen(

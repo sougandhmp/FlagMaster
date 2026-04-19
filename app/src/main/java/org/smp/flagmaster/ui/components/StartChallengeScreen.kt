@@ -21,9 +21,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Person
@@ -45,7 +46,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -58,9 +58,9 @@ import org.smp.domain.model.DifficultyMode
 import org.smp.flagmaster.R
 import org.smp.flagmaster.ui.FlagsScreenAction
 import org.smp.flagmaster.ui.ScheduleTimeUiState
+import org.smp.core.ui.RoseVibrantTheme
+import org.smp.core.ui.VibrantThemeConfig
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
-import org.smp.flagmaster.ui.theme.RoseVibrantTheme
-import org.smp.flagmaster.ui.theme.VibrantThemeConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -175,7 +175,6 @@ fun StartChallengeScreen(
 
         Spacer(Modifier.height(28.dp))
 
-        // Start Now
         VibrantCtaButton(
             text = stringResource(R.string.start_now),
             config = config,
@@ -184,7 +183,6 @@ fun StartChallengeScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        // Schedule — outlined, white border
         OutlinedButton(
             onClick = { onAction(FlagsScreenAction.OnScheduleChallenge) },
             modifier = Modifier
@@ -192,7 +190,7 @@ fun StartChallengeScreen(
                 .height(52.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.5f))
+            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.5f))
         ) {
             Icon(
                 imageVector = Icons.Default.CalendarMonth,
@@ -207,7 +205,6 @@ fun StartChallengeScreen(
             )
         }
 
-        // Scheduler expander
         AnimatedVisibility(
             visible = uiState.showScheduler,
             enter = expandVertically() + fadeIn(),

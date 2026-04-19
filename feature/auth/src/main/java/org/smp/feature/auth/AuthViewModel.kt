@@ -1,4 +1,4 @@
-package org.smp.flagmaster.ui.auth
+package org.smp.feature.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -44,7 +44,7 @@ class AuthViewModel @Inject constructor(
             is AuthAction.TogglePasswordVisibility -> _uiState.update { it.copy(passwordVisible = !it.passwordVisible) }
             is AuthAction.Submit -> submit()
             is AuthAction.GoogleSignIn -> launchAuthAction { handleGoogleSignInUseCase() }
-            is AuthAction.SignOut -> signOutUseCase()
+            is AuthAction.SignOut -> launchAuthAction { signOutUseCase() }
             is AuthAction.ClearError -> _uiState.update { it.copy(error = null) }
         }
     }
@@ -61,7 +61,10 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             runCatching { action() }
-                .onFailure { e -> _uiState.update { it.copy(error = e.message) }; Timber.e(e, "Auth action failed") }
+                .onFailure { e ->
+                    _uiState.update { it.copy(error = e.message) }
+                    Timber.e(e, "Auth action failed")
+                }
             _uiState.update { it.copy(isLoading = false) }
         }
     }

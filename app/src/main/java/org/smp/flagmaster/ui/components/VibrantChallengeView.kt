@@ -50,10 +50,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.smp.domain.model.Country
 import org.smp.flagmaster.R
-import org.smp.flagmaster.ui.theme.BlueVibrantTheme
+import org.smp.core.ui.BlueVibrantTheme
+import org.smp.core.ui.OrangeVibrantTheme
+import org.smp.core.ui.VibrantThemeConfig
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
-import org.smp.flagmaster.ui.theme.OrangeVibrantTheme
-import org.smp.flagmaster.ui.theme.VibrantThemeConfig
 
 @Composable
 fun VibrantChallengeView(

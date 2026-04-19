@@ -1,4 +1,4 @@
-package org.smp.flagmaster.ui.auth
+package org.smp.feature.auth
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable

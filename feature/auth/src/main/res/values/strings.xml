@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Replace with your OAuth 2.0 Web Client ID from Firebase Console > Authentication > Sign-in method > Google -->
+    <string name="google_oauth_web_client_id" translatable="false">630568195288-gnigj14ji9jq3vfcblvnllr9tqev3tik.apps.googleusercontent.com</string>
+</resources>

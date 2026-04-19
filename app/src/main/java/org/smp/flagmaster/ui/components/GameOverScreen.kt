@@ -52,9 +52,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.smp.flagmaster.R
+import org.smp.core.ui.PurpleVibrantTheme
+import org.smp.core.ui.VibrantBackground
+import org.smp.core.ui.VibrantThemeConfig
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
-import org.smp.flagmaster.ui.theme.PurpleVibrantTheme
-import org.smp.flagmaster.ui.theme.VibrantThemeConfig
 
 @Composable
 fun GameOverScreen(

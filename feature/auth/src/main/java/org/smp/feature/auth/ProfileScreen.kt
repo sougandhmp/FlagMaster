@@ -1,4 +1,4 @@
-package org.smp.flagmaster.ui.auth
+package org.smp.feature.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,8 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import org.smp.flagmaster.ui.components.VibrantBackground
-import org.smp.flagmaster.ui.theme.TealVibrantTheme
+import org.smp.core.ui.TealVibrantTheme
+import org.smp.core.ui.VibrantBackground
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

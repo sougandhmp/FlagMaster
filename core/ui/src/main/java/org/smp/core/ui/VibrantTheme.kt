@@ -1,4 +1,4 @@
-package org.smp.flagmaster.ui.theme
+package org.smp.core.ui
 
 import androidx.compose.ui.graphics.Color
 

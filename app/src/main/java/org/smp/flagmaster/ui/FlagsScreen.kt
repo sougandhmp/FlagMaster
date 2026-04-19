@@ -39,15 +39,15 @@ import org.smp.flagmaster.ui.components.GameOverScreen
 import org.smp.flagmaster.ui.components.QuestionScreen
 import org.smp.flagmaster.ui.components.StartChallengeScreen
 import org.smp.flagmaster.ui.components.StatsScreen
-import org.smp.flagmaster.ui.auth.AuthState
-import org.smp.flagmaster.ui.auth.AuthViewModel
-import org.smp.flagmaster.ui.components.VibrantBackground
-import org.smp.flagmaster.ui.theme.BlueVibrantTheme
+import org.smp.feature.auth.AuthState
+import org.smp.feature.auth.AuthViewModel
+import org.smp.core.ui.BlueVibrantTheme
+import org.smp.core.ui.OrangeVibrantTheme
+import org.smp.core.ui.RoseVibrantTheme
+import org.smp.core.ui.TealVibrantTheme
+import org.smp.core.ui.VibrantBackground
+import org.smp.core.ui.allVibrantThemes
 import org.smp.flagmaster.ui.theme.FlagMasterTheme
-import org.smp.flagmaster.ui.theme.OrangeVibrantTheme
-import org.smp.flagmaster.ui.theme.RoseVibrantTheme
-import org.smp.flagmaster.ui.theme.TealVibrantTheme
-import org.smp.flagmaster.ui.theme.allVibrantThemes
 
 @Composable
 fun FlagsChallengeRoute(onProfileClick: () -> Unit = {}) {

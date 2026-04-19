@@ -29,3 +29,5 @@ rootProject.name = "FlagMaster"
 include(":app")
 include(":data")
 include(":domain")
+include(":core:ui")
+include(":feature:auth")

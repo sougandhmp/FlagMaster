@@ -1,4 +1,4 @@
-package org.smp.flagmaster.ui.auth
+package org.smp.feature.auth
 
 data class AuthUiState(
     val authState: AuthState = AuthState.Loading,

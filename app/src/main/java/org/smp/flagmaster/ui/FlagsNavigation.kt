@@ -13,12 +13,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import org.smp.flagmaster.ui.auth.AuthState
-import org.smp.flagmaster.ui.auth.AuthViewModel
-import org.smp.flagmaster.ui.auth.LoginRoute
-import org.smp.flagmaster.ui.auth.ProfileRoute
-import org.smp.flagmaster.ui.auth.loginScreen
-import org.smp.flagmaster.ui.auth.profileScreen
+import org.smp.feature.auth.AuthState
+import org.smp.feature.auth.AuthViewModel
+import org.smp.feature.auth.LoginRoute
+import org.smp.feature.auth.ProfileRoute
+import org.smp.feature.auth.loginScreen
+import org.smp.feature.auth.profileScreen
 import org.smp.flagmaster.ui.sync.SyncViewModel
 
 @Composable

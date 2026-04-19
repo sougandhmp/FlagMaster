@@ -1,4 +1,4 @@
-package org.smp.flagmaster.ui.components
+package org.smp.core.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -12,7 +12,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import org.smp.flagmaster.ui.theme.VibrantThemeConfig
 import kotlin.random.Random
 
 @Composable

@@ -327,7 +327,7 @@ class FlagsChallengeViewModel @Inject constructor(
                     currentQuestion = nextQuestion,
                     selectedOption = null,
                     answerResult = null,
-                    factCountdown = 10,
+                    factCountdown = 0,
                 )
             }
             startQuiz()
