@@ -17,6 +17,8 @@ import org.smp.domain.usecase.answers.SaveQuizAnswersUseCase
 import org.smp.domain.usecase.challenge.ClearQuizAnswersAndTimeUseCase
 import org.smp.domain.usecase.challenge.ObserveChallengeTimeUseCase
 import org.smp.domain.usecase.challenge.SaveChallengeTimeUseCase
+import org.smp.domain.usecase.leaderboard.IncrementGamesPlayedUseCase
+import org.smp.domain.usecase.leaderboard.UpdateUserPointsUseCase
 import org.smp.domain.usecase.questions.ObserveQuestionsUseCase
 import org.smp.flagmaster.ui.mapper.ChallengeTimeMapper
 import org.smp.flagmaster.ui.mapper.TimeSchedulerErrorMapper
@@ -35,6 +37,8 @@ class FlagsChallengeViewModel @Inject constructor(
     private val saveChallengeTimeUseCase: SaveChallengeTimeUseCase,
     private val saveQuizAnswersUseCase: SaveQuizAnswersUseCase,
     private val clearQuizAnswersAndTimeUseCase: ClearQuizAnswersAndTimeUseCase,
+    private val updateUserPointsUseCase: UpdateUserPointsUseCase,
+    private val incrementGamesPlayedUseCase: IncrementGamesPlayedUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ScheduleTimeUiState())
@@ -278,6 +282,8 @@ class FlagsChallengeViewModel @Inject constructor(
         val newStreak = if (isCorrect) _uiState.value.currentStreak + 1 else 0
 
         val totalTicks = (feedbackDelayMs / 1000).toInt()
+        val remainingTimeMs = 0L // TODO: Pass actual remaining time if needed for points
+        
         _uiState.update {
             it.copy(
                 answers = updatedAnswers,
@@ -289,6 +295,16 @@ class FlagsChallengeViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            runCatching {
+                updateUserPointsUseCase(
+                    isCorrect = isCorrect,
+                    remainingTimeMs = remainingTimeMs,
+                    totalTimeMs = _uiState.value.difficultyMode.timerMs,
+                    currentStreak = newStreak,
+                    difficultyMode = _uiState.value.difficultyMode
+                )
+            }.onFailure { Timber.e(it, "Failed to update user stats") }
+
             runCatching { saveQuizAnswersUseCase(updatedAnswers) }
                 .onSuccess { Timber.d("Answers saved $updatedAnswers") }
                 .onFailure { Timber.e(it, "Failed to save answers") }
@@ -333,6 +349,10 @@ class FlagsChallengeViewModel @Inject constructor(
             startQuiz()
         } else {
             clearAnswers()
+            viewModelScope.launch {
+                runCatching { incrementGamesPlayedUseCase() }
+                    .onFailure { Timber.e(it, "Failed to increment games played") }
+            }
             _uiState.update {
                 it.copy(
                     challengeState = ChallengeState.COMPLETED,

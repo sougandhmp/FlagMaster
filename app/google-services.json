@@ -12,7 +12,20 @@
           "package_name": "org.smp.flagmaster"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "630568195288-9sk221rg5l6rs9piq3rqsiol70030uhh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.smp.flagmaster",
+            "certificate_hash": "ed01aba28e2b9c661affb15161d89885e0c9228c"
+          }
+        },
+        {
+          "client_id": "630568195288-gnigj14ji9jq3vfcblvnllr9tqev3tik.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCOR5mn0YnmkaRkn2hzveNOuF-upX-IyKo"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "630568195288-gnigj14ji9jq3vfcblvnllr9tqev3tik.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

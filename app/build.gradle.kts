@@ -47,12 +47,15 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":core:ui"))
     implementation(project(":feature:auth"))
+    implementation(project(":feature:leaderboard"))
+    implementation(project(":feature:profile"))
     implementation(libs.timber)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.material.navigation)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(platform(libs.firebase.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
@@ -82,6 +85,8 @@ dependencies {
     implementation(libs.hilt.ext.work)
 
     implementation(libs.kotlinx.coroutines.play.services)
+
+    implementation(libs.play.services.auth)
 
     testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.junit.jupiter.params)

@@ -3,6 +3,7 @@ package org.smp.data.auth
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.userProfileChangeRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -11,6 +12,7 @@ import org.smp.domain.model.AuthUser
 import org.smp.domain.repository.AuthRepository
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.net.toUri
 
 @Singleton
 class FirebaseAuthRepository @Inject constructor() : AuthRepository {
@@ -23,6 +25,8 @@ class FirebaseAuthRepository @Inject constructor() : AuthRepository {
         awaitClose { auth.removeAuthStateListener(listener) }
     }
 
+    override fun getCurrentUser(): AuthUser? = auth.currentUser?.toAuthUser()
+
     override suspend fun signInWithEmail(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).await()
     }
@@ -33,6 +37,16 @@ class FirebaseAuthRepository @Inject constructor() : AuthRepository {
 
     override suspend fun signInWithGoogle(idToken: String) {
         auth.signInWithCredential(GoogleAuthProvider.getCredential(idToken, null)).await()
+    }
+
+    override suspend fun updateProfile(displayName: String, photoUrl: String?) {
+        val user = auth.currentUser ?: return
+        val profileUpdates = userProfileChangeRequest {
+            this.displayName = displayName
+            photoUrl?.let { this.photoUri = it.toUri() }
+        }
+        user.updateProfile(profileUpdates).await()
+        user.reload().await()
     }
 
     override fun signOut() = auth.signOut()
