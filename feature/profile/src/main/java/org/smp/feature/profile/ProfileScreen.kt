@@ -4,6 +4,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -42,6 +43,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -54,8 +57,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -88,6 +94,15 @@ fun ProfileScreen(
     val uiState by authViewModel.uiState.collectAsStateWithLifecycle()
     val user = (uiState.authState as? AuthState.Authenticated)?.user
     var isEditing by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val haptic = LocalHapticFeedback.current
+
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let {
+            snackbarHostState.showSnackbar(it)
+            authViewModel.onAction(AuthAction.ClearError)
+        }
+    }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -108,6 +123,7 @@ fun ProfileScreen(
     VibrantBackground(config = TealVibrantTheme) {
         Scaffold(
             containerColor = Color.Transparent,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 TopAppBar(
                     title = { Text("Profile", color = Color.White, fontWeight = FontWeight.Bold) },
@@ -176,7 +192,8 @@ fun ProfileScreen(
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
-                        val currentPhotoUrl = if (isEditing) uiState.selectedAvatar else user?.photoUrl
+                        val currentPhotoUrl =
+                            if (isEditing) uiState.selectedAvatar else user?.photoUrl
                         if (currentPhotoUrl != null) {
                             Box(contentAlignment = Alignment.Center) {
                                 AsyncImage(
@@ -201,12 +218,13 @@ fun ProfileScreen(
                                 }
                             }
                         } else {
-                            val initials = (if (isEditing) uiState.displayName else user?.displayName)
-                                ?.split(" ")
-                                ?.mapNotNull { it.firstOrNull()?.uppercaseChar() }
-                                ?.take(2)
-                                ?.joinToString("")
-                                ?: user?.email?.firstOrNull()?.uppercaseChar()?.toString()
+                            val initials =
+                                (if (isEditing) uiState.displayName else user?.displayName)
+                                    ?.split(" ")
+                                    ?.mapNotNull { it.firstOrNull()?.uppercaseChar() }
+                                    ?.take(2)
+                                    ?.joinToString("")
+                                    ?: user?.email?.firstOrNull()?.uppercaseChar()?.toString()
 
                             if (!initials.isNullOrBlank()) {
                                 Text(
@@ -288,16 +306,27 @@ fun ProfileScreen(
                     ) {
                         items(avatars) { avatarUrl ->
                             val isSelected = uiState.selectedAvatar == avatarUrl
+                            val scale by animateFloatAsState(
+                                if (isSelected) 1.1f else 1f,
+                                label = "avatar_scale"
+                            )
+
                             Box(
                                 modifier = Modifier
                                     .size(60.dp)
+                                    .scale(scale)
                                     .clip(CircleShape)
                                     .border(
                                         width = 3.dp,
-                                        color = if (isSelected) Color.White else Color.Transparent,
+                                        color = if (isSelected) Color.White else Color.White.copy(
+                                            alpha = 0.1f
+                                        ),
                                         shape = CircleShape
                                     )
-                                    .clickable { authViewModel.onAction(AuthAction.AvatarSelected(avatarUrl)) }
+                                    .clickable {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        authViewModel.onAction(AuthAction.AvatarSelected(avatarUrl))
+                                    }
                             ) {
                                 AsyncImage(
                                     model = avatarUrl,

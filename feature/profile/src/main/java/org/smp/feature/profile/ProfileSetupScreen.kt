@@ -23,9 +23,17 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.draw.scale
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,14 +63,28 @@ private val avatars = listOf(
 @Composable
 fun ProfileSetupScreen(authViewModel: AuthViewModel) {
     val uiState by authViewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val haptic = LocalHapticFeedback.current
+
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let {
+            snackbarHostState.showSnackbar(it)
+            authViewModel.onAction(AuthAction.ClearError)
+        }
+    }
 
     VibrantBackground(config = BlueVibrantTheme) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        androidx.compose.material3.Scaffold(
+            containerColor = Color.Transparent,
+            snackbarHost = { SnackbarHost(snackbarHostState) }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 28.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
             Spacer(Modifier.height(48.dp))
 
             Text(
@@ -119,16 +141,22 @@ fun ProfileSetupScreen(authViewModel: AuthViewModel) {
             ) {
                 items(avatars) { avatarUrl ->
                     val isSelected = uiState.selectedAvatar == avatarUrl
+                    val scale by animateFloatAsState(if (isSelected) 1.15f else 1f, label = "avatar_scale")
+
                     Box(
                         modifier = Modifier
                             .size(70.dp)
+                            .scale(scale)
                             .clip(CircleShape)
                             .border(
                                 width = 3.dp,
-                                color = if (isSelected) Color.White else Color.Transparent,
+                                color = if (isSelected) Color.White else Color.White.copy(alpha = 0.1f),
                                 shape = CircleShape
                             )
-                            .clickable { authViewModel.onAction(AuthAction.AvatarSelected(avatarUrl)) }
+                            .clickable {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                authViewModel.onAction(AuthAction.AvatarSelected(avatarUrl))
+                            }
                     ) {
                         AsyncImage(
                             model = avatarUrl,
@@ -165,4 +193,5 @@ fun ProfileSetupScreen(authViewModel: AuthViewModel) {
             Spacer(Modifier.height(24.dp))
         }
     }
+}
 }

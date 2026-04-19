@@ -39,6 +39,7 @@ class FlagsChallengeViewModel @Inject constructor(
     private val clearQuizAnswersAndTimeUseCase: ClearQuizAnswersAndTimeUseCase,
     private val updateUserPointsUseCase: UpdateUserPointsUseCase,
     private val incrementGamesPlayedUseCase: IncrementGamesPlayedUseCase,
+    private val soundManager: SoundManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ScheduleTimeUiState())
@@ -51,8 +52,8 @@ class FlagsChallengeViewModel @Inject constructor(
     companion object {
         private const val QUIZ_TIMER_MS = 30_000L
         private const val QUIZ_INTERVAL_MS = 10_000L         // used for resume-time calculation only
-        private const val FEEDBACK_DELAY_SELECTION_MS = 10_000L
-        private const val FEEDBACK_DELAY_TIMEOUT_MS = 10_000L
+        private const val FEEDBACK_DELAY_SELECTION_MS = 800L
+        private const val FEEDBACK_DELAY_TIMEOUT_MS = 1500L
     }
 
     init {
@@ -294,6 +295,17 @@ class FlagsChallengeViewModel @Inject constructor(
             )
         }
 
+        if (isCorrect) soundManager.playCorrect() else soundManager.playWrong()
+
+        val isLast = currentIndex == _uiState.value.questions.lastIndex
+        if (feedbackDelayMs < 1000L) {
+             viewModelScope.launch {
+                 delay(feedbackDelayMs)
+                 moveToNextQuestionOrFinish(isLast = isLast, currentIndex = currentIndex)
+             }
+             return
+        }
+
         viewModelScope.launch {
             runCatching {
                 updateUserPointsUseCase(
@@ -310,7 +322,6 @@ class FlagsChallengeViewModel @Inject constructor(
                 .onFailure { Timber.e(it, "Failed to save answers") }
         }
 
-        val isLast = currentIndex == _uiState.value.questions.lastIndex
         advanceJob?.cancel()
         advanceJob = viewModelScope.launch {
             for (remaining in totalTicks downTo 1) {
@@ -349,6 +360,7 @@ class FlagsChallengeViewModel @Inject constructor(
             startQuiz()
         } else {
             clearAnswers()
+            soundManager.playConfetti()
             viewModelScope.launch {
                 runCatching { incrementGamesPlayedUseCase() }
                     .onFailure { Timber.e(it, "Failed to increment games played") }

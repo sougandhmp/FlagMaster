@@ -1,7 +1,13 @@
 package org.smp.flagmaster.ui.components
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -69,6 +75,8 @@ fun GameOverScreen(
     onBackPressed: () -> Unit = {}
 ) {
     val percentage = (score.toFloat() / totalQuestions * 100).toInt()
+    val nearMiss = percentage in 85..89 || percentage in 75..79 || percentage in 55..59
+    
     val grade = when {
         percentage >= 90 -> "S"
         percentage >= 80 -> "A"
@@ -136,6 +144,17 @@ fun GameOverScreen(
                     ),
                     modifier = Modifier.padding(top = 8.dp)
                 )
+
+                if (nearMiss) {
+                    Text(
+                        text = "So close! Just one more for the next grade! 🎯",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color(0xFFFFD54F)
+                        ),
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -211,11 +230,22 @@ fun GameOverScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+                val pulseScale by infiniteTransition.animateFloat(
+                    initialValue = 1f,
+                    targetValue = 1.05f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(800, easing = LinearEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "pulse_scale"
+                )
+
                 VibrantCtaButton(
                     text = stringResource(R.string.play_again),
                     config = config,
                     onClick = onPlayAgain,
-                    modifier = Modifier
+                    modifier = Modifier.graphicsLayer(scaleX = pulseScale, scaleY = pulseScale)
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
