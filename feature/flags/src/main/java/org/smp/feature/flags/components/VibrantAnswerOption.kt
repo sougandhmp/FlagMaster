@@ -1,4 +1,4 @@
-package org.smp.feature.flags.components
+package org.smp.flagmaster.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.smp.core.ui.BlueVibrantTheme
 import org.smp.core.ui.VibrantThemeConfig
+import org.smp.flagmaster.ui.theme.FlagMasterTheme
 
 @Composable
 fun VibrantAnswerOption(
@@ -114,38 +115,44 @@ fun VibrantAnswerOption(
 @Preview
 @Composable
 fun VibrantAnswerOptionDefaultPreview() {
-    VibrantAnswerOption(
-        text = "United Arab Emirates",
-        isSelected = false,
-        isCorrect = false,
-        showResult = false,
-        config = BlueVibrantTheme,
-        onClick = {},
-    )
+    FlagMasterTheme {
+        VibrantAnswerOption(
+            text = "United Arab Emirates",
+            isSelected = false,
+            isCorrect = false,
+            showResult = false,
+            config = BlueVibrantTheme,
+            onClick = {},
+        )
+    }
 }
 
 @Preview
 @Composable
 fun VibrantAnswerOptionCorrectPreview() {
-    VibrantAnswerOption(
-        text = "United Arab Emirates",
-        isSelected = true,
-        isCorrect = true,
-        showResult = true,
-        config = BlueVibrantTheme,
-        onClick = {},
-    )
+    FlagMasterTheme {
+        VibrantAnswerOption(
+            text = "United Arab Emirates",
+            isSelected = true,
+            isCorrect = true,
+            showResult = true,
+            config = BlueVibrantTheme,
+            onClick = {},
+        )
+    }
 }
 
 @Preview
 @Composable
 fun VibrantAnswerOptionWrongPreview() {
-    VibrantAnswerOption(
-        text = "Macedonia",
-        isSelected = true,
-        isCorrect = false,
-        showResult = true,
-        config = BlueVibrantTheme,
-        onClick = {},
-    )
+    FlagMasterTheme {
+        VibrantAnswerOption(
+            text = "Macedonia",
+            isSelected = true,
+            isCorrect = false,
+            showResult = true,
+            config = BlueVibrantTheme,
+            onClick = {},
+        )
+    }
 }

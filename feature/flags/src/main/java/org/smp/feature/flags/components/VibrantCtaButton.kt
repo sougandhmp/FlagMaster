@@ -1,4 +1,4 @@
-package org.smp.feature.flags.components
+package org.smp.flagmaster.ui.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import org.smp.core.ui.BlueVibrantTheme
 import org.smp.core.ui.OrangeVibrantTheme
 import org.smp.core.ui.VibrantThemeConfig
+import org.smp.flagmaster.ui.theme.FlagMasterTheme
 
 @Composable
 fun VibrantCtaButton(
@@ -107,23 +108,27 @@ fun VibrantCtaButton(
 @Preview
 @Composable
 fun VibrantCtaButtonFullPreview() {
-    VibrantCtaButton(
-        text = "Next Question",
-        config = BlueVibrantTheme,
-        onClick = {},
-        countdownFraction = 1f,
-        showCountdownLabel = true,
-    )
+    FlagMasterTheme {
+        VibrantCtaButton(
+            text = "Next Question",
+            config = BlueVibrantTheme,
+            onClick = {},
+            countdownFraction = 1f,
+            showCountdownLabel = true,
+        )
+    }
 }
 
 @Preview
 @Composable
 fun VibrantCtaButtonMidPreview() {
-    VibrantCtaButton(
-        text = "Next Question",
-        config = OrangeVibrantTheme,
-        onClick = {},
-        countdownFraction = 0.4f,
-        showCountdownLabel = true,
-    )
+    FlagMasterTheme {
+        VibrantCtaButton(
+            text = "Next Question",
+            config = OrangeVibrantTheme,
+            onClick = {},
+            countdownFraction = 0.4f,
+            showCountdownLabel = true,
+        )
+    }
 }
