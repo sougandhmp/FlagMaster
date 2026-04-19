@@ -6,7 +6,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -48,14 +48,19 @@ fun FlagsNavigation() {
     val navController = rememberNavController()
 
     LaunchedEffect(authUiState.authState) {
+        val currentRoute = navController.currentDestination?.route ?: ""
+        val isAtAuthFlow = currentRoute.contains("LoginRoute") || currentRoute.contains("ProfileSetupRoute") || currentRoute.isEmpty()
+
         when (val state = authUiState.authState) {
             is AuthState.Authenticated -> {
                 if (state.user.displayName.isNullOrBlank()) {
-                    navController.navigate(ProfileSetupRoute) {
-                        popUpTo<LoginRoute> { inclusive = true }
-                        launchSingleTop = true
+                    if (!currentRoute.contains("ProfileSetupRoute")) {
+                        navController.navigate(ProfileSetupRoute) {
+                            popUpTo<LoginRoute> { inclusive = true }
+                            launchSingleTop = true
+                        }
                     }
-                } else {
+                } else if (isAtAuthFlow) {
                     navController.navigate(FlagsChallengeRoute) {
                         popUpTo<LoginRoute> { inclusive = true }
                         popUpTo<ProfileSetupRoute> { inclusive = true }
@@ -63,9 +68,13 @@ fun FlagsNavigation() {
                     }
                 }
             }
-            is AuthState.Unauthenticated -> navController.navigate(LoginRoute) {
-                popUpTo(0) { inclusive = true }
-                launchSingleTop = true
+            is AuthState.Unauthenticated -> {
+                if (!currentRoute.contains("LoginRoute")) {
+                    navController.navigate(LoginRoute) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
             }
             AuthState.Loading -> {}
         }

@@ -63,6 +63,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import org.smp.core.ui.TealVibrantTheme
 import org.smp.core.ui.VibrantBackground
+import org.smp.core.ui.shimmer
 import org.smp.feature.auth.AuthAction
 import org.smp.feature.auth.AuthState
 import org.smp.feature.auth.AuthViewModel
@@ -177,12 +178,28 @@ fun ProfileScreen(
                     ) {
                         val currentPhotoUrl = if (isEditing) uiState.selectedAvatar else user?.photoUrl
                         if (currentPhotoUrl != null) {
-                            AsyncImage(
-                                model = currentPhotoUrl,
-                                contentDescription = "Profile photo",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop,
-                            )
+                            Box(contentAlignment = Alignment.Center) {
+                                AsyncImage(
+                                    model = currentPhotoUrl,
+                                    contentDescription = "Profile photo",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop,
+                                )
+                                if (uiState.isLoading) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Color.Black.copy(alpha = 0.4f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(32.dp),
+                                            color = Color.White,
+                                            strokeWidth = 3.dp
+                                        )
+                                    }
+                                }
+                            }
                         } else {
                             val initials = (if (isEditing) uiState.displayName else user?.displayName)
                                 ?.split(" ")
@@ -300,6 +317,11 @@ fun ProfileScreen(
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
+                            modifier = if (uiState.isLoading) {
+                                Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .shimmer()
+                            } else Modifier
                         )
                         Spacer(Modifier.height(4.dp))
                     }
@@ -309,6 +331,11 @@ fun ProfileScreen(
                             text = email,
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.7f),
+                            modifier = if (uiState.isLoading) {
+                                Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .shimmer()
+                            } else Modifier
                         )
                     }
                 }
