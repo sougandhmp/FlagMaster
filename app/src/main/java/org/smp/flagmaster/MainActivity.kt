@@ -6,8 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
-import org.smp.flagmaster.ui.FlagsNavigation
-import org.smp.flagmaster.ui.theme.FlagMasterTheme
+import org.smp.feature.flags.theme.FlagMasterTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
@@ -8,35 +8,19 @@ plugins {
 }
 
 android {
-    namespace = "org.smp.flagmaster"
+    namespace = "org.smp.feature.flags"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "org.smp.flagmaster"
         minSdk = 24
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    testOptions {
-        unitTests.all { it.useJUnitPlatform() }
-    }
+
     buildFeatures {
         compose = true
     }
@@ -44,11 +28,9 @@ android {
 
 dependencies {
     implementation(project(":domain"))
+    implementation(project(":data"))
     implementation(project(":core:ui"))
     implementation(project(":feature:auth"))
-    implementation(project(":feature:leaderboard"))
-    implementation(project(":feature:profile"))
-    implementation(project(":feature:flags"))
 
     implementation(libs.timber)
     implementation(libs.androidx.core.ktx)
@@ -69,7 +51,6 @@ dependencies {
     implementation(libs.hilt.core)
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.hilt.ext.work)
     ksp(libs.hilt.compiler)
     ksp(libs.hilt.ext.compiler)
 
