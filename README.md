@@ -61,35 +61,43 @@ Start screen
 
 ## 🏗 Architecture
 
-Three Gradle modules following **Clean Architecture**, with dedicated feature modules:
+Six Gradle modules following **Clean Architecture** with feature-based modularization:
 
 ```
 FlagMaster/
-├── app/                  # Presentation — Jetpack Compose UI, ViewModels
-├── domain/               # Business logic — models, use cases, repository interface (pure JVM)
-├── data/                 # Infrastructure — Room, DataStore, Firebase Auth/Firestore
+├── app/              # Shell — FlagsNavigation, MainActivity, FlagsApplication (Coil/Hilt setup)
+├── domain/           # Pure Kotlin/JVM — models, repository interfaces, use cases
+├── data/             # Android library — Room, DataStore, Firebase Auth/Firestore implementations
 ├── feature/
-│   ├── auth/             # Email/Password + Google Sign-In with Credential Manager
-│   ├── leaderboard/      # Real-time ranking with top 3 podium
-│   └── profile/          # Profile management and onboarding
-└── core/ui/              # Shared UI components and Glassmorphic themes
+│   ├── flags/        # Quiz gameplay: FlagsChallengeViewModel, SyncViewModel, all quiz screens
+│   ├── auth/         # Email/password + Google Sign-In with Credential Manager
+│   ├── leaderboard/  # Real-time Firestore-backed ranking with top 3 podium
+│   └── profile/      # Profile setup onboarding and profile display screen
+└── core/
+    └── ui/           # Shared composables (ConfettiShower, Shimmer) + VibrantTheme system
 ```
 
 ### Key patterns
-- **Type-Safe Navigation** — Using `kotlinx-serialization` for all navigation routes
-- **Credential Manager** — Modern Google Sign-In implementation (`GetSignInWithGoogleOption`)
-- **Single source of truth** — `MutableStateFlow<ScheduleTimeUiState>` in `FlagsChallengeViewModel`
-- **Sealed actions** — `FlagsScreenAction` for type-safe UI → ViewModel events
-- **Separate timer jobs** — `timerJob` (per-question countdown) and `advanceJob` (10 s fact delay) are independently cancellable, enabling early skip without cancelling the wrong job
-- **Suspend use cases** — each domain operation is a single-responsibility suspend class
-- **IO-dispatched repository** — all DB and asset I/O runs on `Dispatchers.IO` via `withContext`
-- **Coroutine-based timer** — countdowns use `suspend fun runCountdown()` + coroutine `Job` instead of `CountDownTimer`
+
+| Pattern | Detail |
+|---|---|
+| **Feature modularization** | Each product surface (flags, auth, leaderboard, profile) is its own Gradle module; `:app` is a thin shell |
+| **Clean Architecture layers** | `domain` → pure JVM (no Android); `data` → Android lib; `feature/*` → Compose UI + ViewModel |
+| **Type-safe navigation** | `kotlinx-serialization` typed routes across all nav graphs |
+| **Credential Manager** | Modern Google Sign-In via `GetSignInWithGoogleOption` (no legacy `GoogleSignInClient`) |
+| **Single source of truth** | `MutableStateFlow<ScheduleTimeUiState>` in `FlagsChallengeViewModel` |
+| **Sealed actions** | `FlagsScreenAction` for type-safe UI → ViewModel events |
+| **Separate timer jobs** | `timerJob` (per-question countdown) and `advanceJob` (10 s fact delay) are independently cancellable, enabling early skip without cancelling the wrong job |
+| **Suspend use cases** | Each domain operation is a single-responsibility `suspend` class |
+| **IO-dispatched repository** | All DB and asset I/O runs on `Dispatchers.IO` via `withContext` |
+| **Coroutine-based timer** | Countdowns use `suspend fun runCountdown()` + coroutine `Job` instead of `CountDownTimer` |
+| **Shared theme via core:ui** | `VibrantTheme` in `:core:ui` consumed by all feature modules |
 
 ---
 
 ## 🎨 Theme System
 
-All visual config lives in `ui/theme/VibrantTheme.kt` as `VibrantThemeConfig` data class instances. Eight built-in themes:
+All visual config lives in `core/ui/src/main/java/org/smp/core/ui/VibrantTheme.kt` as `VibrantThemeConfig` data class instances. Eight built-in themes:
 
 | Name                 | Primary colour        | Used when                             |
 |----------------------|-----------------------|---------------------------------------|
@@ -182,44 +190,67 @@ Firebase RTDB  ──(online)──►  Room cache  ──►  App (live questio
 
 ```
 app/src/main/java/org/smp/flagmaster/
-├── ui/
-│   ├── FlagsChallengeViewModel.kt   # Quiz game logic, timers, advance/skip
-│   ├── FlagsNavigation.kt           # NavHost + lifecycle sync observer
-│   ├── FlagsUiState.kt              # ScheduleTimeUiState, AnswerResult, ChallengeState
-│   ├── FlagsScreenAction.kt         # Sealed UI event class (incl. SkipFact)
-│   ├── theme/
-│   │   ├── VibrantTheme.kt          # VibrantThemeConfig + 8 named theme instances
-│   │   └── ...
-│   ├── sync/
-│   │   └── SyncViewModel.kt         # Firebase sync lifecycle
-│   ├── mapper/
-│   │   ├── TimeSchedulerErrorMapper.kt
-│   │   └── ChallengeTimeMapper.kt
-│   └── components/
-│       ├── StartChallengeScreen.kt  # Difficulty + question count picker, optional scheduler
-│       ├── CountDownView.kt         # Animated ring countdown (20 s before start)
-│       ├── QuestionScreen.kt        # Wires state → VibrantChallengeView + fact countdown
-│       ├── VibrantChallengeView.kt  # Glassmorphic question card, options, fact panel, CTA button
-│       ├── GameOverScreen.kt        # Grade ring, score, share / play-again actions
-│       ├── StatsScreen.kt           # Per-question answer review
-│       ├── ChallengeScheduledView.kt
-│       └── ...
+├── FlagsApplication.kt              # Coil SvgDecoder + Hilt app entry point
+├── FlagsNavigation.kt               # Root NavHost wiring all feature nav graphs
+└── MainActivity.kt
+
 app/src/main/assets/
 ├── questions.json                   # Seed data (255 questions with facts)
 └── flags/                           # 255 SVG flag files (ISO 3166-1 alpha-2)
 
+feature/flags/src/main/java/org/smp/feature/flags/
+├── FlagsChallengeViewModel.kt       # Quiz game logic, timers, advance/skip
+├── FlagsUiState.kt                  # ScheduleTimeUiState, AnswerResult, ChallengeState
+├── FlagsScreenAction.kt             # Sealed UI event class
+├── FlagsScreen.kt                   # Top-level screen composable
+├── FlagsScreenNavigation.kt
+├── SoundManager.kt                  # Quiz sound effects
+├── theme/                           # Feature-local colour/type tokens (delegates to core:ui)
+├── sync/SyncViewModel.kt            # Firebase sync lifecycle
+├── mapper/                          # ChallengeTimeMapper, TimeSchedulerErrorMapper
+└── components/
+    ├── StartChallengeScreen.kt      # Difficulty + question count picker, optional scheduler
+    ├── CountDownView.kt             # Animated ring countdown (20 s before start)
+    ├── QuestionScreen.kt            # Wires state → VibrantChallengeView + fact countdown
+    ├── VibrantChallengeView.kt      # Glassmorphic question card, options, fact panel, CTA
+    ├── GameOverScreen.kt            # Grade ring, score, share / play-again actions
+    ├── StatsScreen.kt               # Per-question answer review
+    └── ...
+
+feature/auth/src/main/java/org/smp/feature/auth/
+├── AuthViewModel.kt
+├── LoginScreen.kt
+├── CredentialManagerGoogleAuthProvider.kt   # Modern Google Sign-In
+└── AuthNavigation.kt
+
+feature/leaderboard/src/main/java/org/smp/feature/leaderboard/
+├── LeaderboardViewModel.kt
+├── LeaderboardScreen.kt
+└── navigation/LeaderboardNavigation.kt
+
+feature/profile/src/main/java/org/smp/feature/profile/
+├── ProfileScreen.kt
+├── ProfileSetupScreen.kt
+└── navigation/ProfileNavigation.kt
+
+core/ui/src/main/java/org/smp/core/ui/
+├── VibrantTheme.kt                  # VibrantThemeConfig + 8 named theme instances
+├── VibrantBackground.kt
+├── ConfettiShower.kt
+└── Shimmer.kt
+
 domain/src/main/java/org/smp/domain/
-├── model/          # Question (+ fact field), Country, QuizAnswer, DifficultyMode
-├── repository/     # FlagsRepository interface
-└── usecase/        # One class per operation (answers/, challenge/, questions/)
+├── model/          # Question, Country, QuizAnswer, AuthUser, UserStats, DifficultyMode
+├── repository/     # FlagsRepository, AuthRepository, LeaderboardRepository interfaces
+└── usecase/        # One class per operation (answers/, challenge/, questions/, auth/, leaderboard/)
 
 data/src/main/java/org/smp/data/
 ├── database/           # Room DB, DAOs, entities
 ├── datastore/          # DataStore read/write
-├── asset_data_source/  # questions.json loader
-├── firebase/           # FirebaseDataSource (RTDB)
-├── sync/               # FirebaseBackgroundSyncManager, NetworkStateManagerImpl
-└── repository/         # FlagsRepositoryImpl
+├── firebase/           # FirebaseDataSource (RTDB questions)
+├── auth/               # FirebaseAuthRepository
+├── sync/               # FirebaseBackgroundSyncManager
+└── repository/         # FlagsRepositoryImpl, FirebaseLeaderboardRepository
 ```
 
 ---
