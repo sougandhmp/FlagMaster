@@ -40,11 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.smp.core.ui.BlueVibrantTheme
-import org.smp.core.ui.OrangeVibrantTheme
-import org.smp.core.ui.VibrantThemeConfig
-
-private val CorrectGreen = Color(0xFF4CAF50)
+import org.smp.feature.flags.theme.FlagMasterTheme
 
 @Composable
 fun VibrantHeader(
@@ -52,9 +48,9 @@ fun VibrantHeader(
     totalQuestions: Int,
     score: Int,
     remainingTime: String,
-    config: VibrantThemeConfig,
     showScorePopup: Boolean = false,
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val animatedScoreScale = remember(score) { Animatable(1.2f) }
     LaunchedEffect(score) {
         animatedScoreScale.animateTo(
@@ -77,41 +73,43 @@ fun VibrantHeader(
                         .align(Alignment.CenterStart)
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(config.timerCircleColor)
-                        .border(1.dp, Color.White.copy(alpha = 0.3f), CircleShape),
+                        .background(colorScheme.secondaryContainer)
+                        .border(1.dp, colorScheme.outlineVariant, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = remainingTime,
-                        color = Color.White,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = colorScheme.onSecondaryContainer,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp
                     )
                 }
             }
 
             Text(
                 text = "$questionNumber / $totalQuestions",
-                color = Color.White,
+                style = MaterialTheme.typography.titleLarge,
+                color = colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
-                fontSize = 22.sp
             )
 
-            Box(contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                contentAlignment = Alignment.Center
+            ) {
                 HeaderPill(
                     modifier = Modifier
-                        .align(Alignment.CenterEnd)
                         .graphicsLayer(
                             scaleX = animatedScoreScale.value,
                             scaleY = animatedScoreScale.value
                         ),
-                    background = config.scorePillColor,
-                    borderColor = Color.White.copy(alpha = 0.3f),
+                    background = colorScheme.tertiaryContainer,
+                    borderColor = colorScheme.outlineVariant,
                 ) {
                     Icon(
                         imageVector = Icons.Default.Star,
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = colorScheme.onTertiaryContainer,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -121,9 +119,9 @@ fun VibrantHeader(
                     )
                     Text(
                         text = "$animatedScore",
-                        color = Color.White,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = colorScheme.onTertiaryContainer,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
                     )
                 }
 
@@ -143,14 +141,14 @@ fun VibrantHeader(
                 .fillMaxWidth()
                 .height(4.dp)
                 .clip(CircleShape)
-                .background(config.progressTrack)
+                .background(colorScheme.surfaceVariant)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(questionNumber.toFloat() / totalQuestions)
                     .height(4.dp)
                     .clip(CircleShape)
-                    .background(config.progressIndicator)
+                    .background(colorScheme.primary)
             )
         }
     }
@@ -185,10 +183,9 @@ private fun ScorePopup(visible: Boolean, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = "+10",
-            color = CorrectGreen,
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+            color = MaterialTheme.colorScheme.tertiary,
             fontWeight = FontWeight.ExtraBold,
-            fontSize = 18.sp,
-            style = MaterialTheme.typography.bodyLarge
         )
     }
 }
@@ -196,24 +193,26 @@ private fun ScorePopup(visible: Boolean, modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun VibrantHeaderActivePreview() {
-    VibrantHeader(
-        questionNumber = 7,
-        totalQuestions = 15,
-        score = 5,
-        remainingTime = "00:28",
-        config = BlueVibrantTheme,
-    )
+    FlagMasterTheme {
+        VibrantHeader(
+            questionNumber = 7,
+            totalQuestions = 15,
+            score = 5,
+            remainingTime = "00:28",
+        )
+    }
 }
 
 @Preview
 @Composable
 fun VibrantHeaderResultPreview() {
-    VibrantHeader(
-        questionNumber = 15,
-        totalQuestions = 15,
-        score = 12,
-        remainingTime = "",
-        config = OrangeVibrantTheme,
-        showScorePopup = true,
-    )
+    FlagMasterTheme {
+        VibrantHeader(
+            questionNumber = 15,
+            totalQuestions = 15,
+            score = 12,
+            remainingTime = "",
+            showScorePopup = true,
+        )
+    }
 }

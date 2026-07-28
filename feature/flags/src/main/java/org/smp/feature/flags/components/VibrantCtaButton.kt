@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,20 +25,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.smp.core.ui.BlueVibrantTheme
-import org.smp.core.ui.OrangeVibrantTheme
-import org.smp.core.ui.VibrantThemeConfig
+import org.smp.feature.flags.theme.FlagMasterTheme
 
 @Composable
 fun VibrantCtaButton(
     text: String,
-    config: VibrantThemeConfig,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     countdownFraction: Float = 1f,
@@ -58,6 +55,7 @@ fun VibrantCtaButton(
         )
     }
     val animatedFraction = animatable.value
+    val colorScheme = MaterialTheme.colorScheme
 
     Box(
         modifier = modifier
@@ -65,7 +63,7 @@ fun VibrantCtaButton(
             .height(72.dp)
             .graphicsLayer(scaleX = scale, scaleY = scale)
             .clip(RoundedCornerShape(36.dp))
-            .background(Brush.horizontalGradient(config.buttonGradient))
+            .background(Brush.horizontalGradient(listOf(colorScheme.primary, colorScheme.tertiary)))
             .clickable(
                 onClick = onClick,
                 interactionSource = interactionSource,
@@ -77,7 +75,7 @@ fun VibrantCtaButton(
             modifier = Modifier
                 .fillMaxWidth(animatedFraction)
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.20f))
+                .background(colorScheme.scrim.copy(alpha = 0.2f))
         )
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -86,18 +84,16 @@ fun VibrantCtaButton(
         ) {
             Text(
                 text = text.uppercase(),
-                color = Color.White,
-                fontSize = 18.sp,
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, letterSpacing = 1.sp),
+                color = colorScheme.onPrimary,
                 fontWeight = FontWeight.Black,
-                letterSpacing = 1.sp
             )
             if (showCountdownLabel && countdownFraction > 0f) {
                 Text(
                     text = "auto in ${(countdownFraction * 10).toInt()}s",
-                    color = Color.White.copy(alpha = 0.65f),
-                    fontSize = 11.sp,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colorScheme.onPrimary.copy(alpha = 0.65f),
                     fontWeight = FontWeight.Normal,
-                    letterSpacing = 0.5.sp
                 )
             }
         }
@@ -107,23 +103,25 @@ fun VibrantCtaButton(
 @Preview
 @Composable
 fun VibrantCtaButtonFullPreview() {
-    VibrantCtaButton(
-        text = "Next Question",
-        config = BlueVibrantTheme,
-        onClick = {},
-        countdownFraction = 1f,
-        showCountdownLabel = true,
-    )
+    FlagMasterTheme {
+        VibrantCtaButton(
+            text = "Next Question",
+            onClick = {},
+            countdownFraction = 1f,
+            showCountdownLabel = true,
+        )
+    }
 }
 
 @Preview
 @Composable
 fun VibrantCtaButtonMidPreview() {
-    VibrantCtaButton(
-        text = "Next Question",
-        config = OrangeVibrantTheme,
-        onClick = {},
-        countdownFraction = 0.4f,
-        showCountdownLabel = true,
-    )
+    FlagMasterTheme {
+        VibrantCtaButton(
+            text = "Next Question",
+            onClick = {},
+            countdownFraction = 0.4f,
+            showCountdownLabel = true,
+        )
+    }
 }

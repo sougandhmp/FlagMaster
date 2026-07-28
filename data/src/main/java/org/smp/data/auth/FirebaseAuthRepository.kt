@@ -35,6 +35,10 @@ class FirebaseAuthRepository @Inject constructor() : AuthRepository {
         auth.createUserWithEmailAndPassword(email, password).await()
     }
 
+    override suspend fun sendPasswordResetEmail(email: String) {
+        auth.sendPasswordResetEmail(email).await()
+    }
+
     override suspend fun signInWithGoogle(idToken: String) {
         auth.signInWithCredential(GoogleAuthProvider.getCredential(idToken, null)).await()
     }

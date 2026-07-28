@@ -26,7 +26,7 @@ data class ConfettiPiece(
 fun ConfettiShower(
     modifier: Modifier = Modifier,
     pieceCount: Int = 50,
-    color: Color = Color(0xFF4CAF50) // Default Green
+    colors: List<Color> = listOf(Color(0xFF4CAF50)), // Default Green
 ) {
     val pieces = remember {
         List(pieceCount) {
@@ -34,7 +34,7 @@ fun ConfettiShower(
                 x = Random.nextFloat(),
                 y = -0.1f - Random.nextFloat() * 0.5f,
                 size = 5f + Random.nextFloat() * 10f,
-                color = color.copy(alpha = 0.6f + Random.nextFloat() * 0.4f),
+                color = colors[Random.nextInt(colors.size)].copy(alpha = 0.6f + Random.nextFloat() * 0.4f),
                 speed = 0.005f + Random.nextFloat() * 0.01f,
                 angle = Random.nextFloat() * 360f
             )

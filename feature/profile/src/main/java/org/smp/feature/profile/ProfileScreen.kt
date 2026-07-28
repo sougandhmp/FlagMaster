@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -32,22 +33,19 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -67,8 +65,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import org.smp.core.ui.TealVibrantTheme
-import org.smp.core.ui.VibrantBackground
 import org.smp.core.ui.shimmer
 import org.smp.feature.auth.AuthAction
 import org.smp.feature.auth.AuthState
@@ -96,6 +92,7 @@ fun ProfileScreen(
     var isEditing by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val haptic = LocalHapticFeedback.current
+    val colorScheme = MaterialTheme.colorScheme
 
     LaunchedEffect(uiState.error) {
         uiState.error?.let {
@@ -120,288 +117,266 @@ fun ProfileScreen(
         }
     }
 
-    VibrantBackground(config = TealVibrantTheme) {
-        Scaffold(
-            containerColor = Color.Transparent,
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-            topBar = {
-                TopAppBar(
-                    title = { Text("Profile", color = Color.White, fontWeight = FontWeight.Bold) },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Color.White,
-                            )
-                        }
-                    },
-                    actions = {
-                        if (isEditing) {
-                            IconButton(onClick = { isEditing = false }) {
-                                Icon(Icons.Default.Close, "Cancel", tint = Color.White)
-                            }
-                            IconButton(
-                                onClick = {
-                                    authViewModel.onAction(AuthAction.UpdateProfile)
-                                    isEditing = false
-                                },
-                                enabled = uiState.displayName.isNotBlank() && !uiState.isLoading
-                            ) {
-                                if (uiState.isLoading) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(24.dp),
-                                        color = Color.White
-                                    )
-                                } else {
-                                    Icon(Icons.Default.Save, "Save", tint = Color.White)
-                                }
-                            }
-                        } else {
-                            IconButton(onClick = { isEditing = true }) {
-                                Icon(Icons.Default.Edit, "Edit", tint = Color.White)
-                            }
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                )
-            }
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Spacer(Modifier.height(32.dp))
-
-                Box(
-                    modifier = Modifier.size(120.dp),
-                    contentAlignment = Alignment.BottomEnd
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.2f))
-                            .border(
-                                width = 2.dp,
-                                color = Color.White.copy(alpha = 0.4f),
-                                shape = CircleShape
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        val currentPhotoUrl =
-                            if (isEditing) uiState.selectedAvatar else user?.photoUrl
-                        if (currentPhotoUrl != null) {
-                            Box(contentAlignment = Alignment.Center) {
-                                AsyncImage(
-                                    model = currentPhotoUrl,
-                                    contentDescription = "Profile photo",
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop,
-                                )
-                                if (uiState.isLoading) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .background(Color.Black.copy(alpha = 0.4f)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(32.dp),
-                                            color = Color.White,
-                                            strokeWidth = 3.dp
-                                        )
-                                    }
-                                }
-                            }
-                        } else {
-                            val initials =
-                                (if (isEditing) uiState.displayName else user?.displayName)
-                                    ?.split(" ")
-                                    ?.mapNotNull { it.firstOrNull()?.uppercaseChar() }
-                                    ?.take(2)
-                                    ?.joinToString("")
-                                    ?: user?.email?.firstOrNull()?.uppercaseChar()?.toString()
-
-                            if (!initials.isNullOrBlank()) {
-                                Text(
-                                    text = initials,
-                                    color = Color.White,
-                                    fontSize = 40.sp,
-                                    fontWeight = FontWeight.Bold,
-                                )
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(60.dp),
-                                )
-                            }
-                        }
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Profile", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                        )
                     }
-
+                },
+                actions = {
                     if (isEditing) {
+                        IconButton(onClick = { isEditing = false }) {
+                            Icon(Icons.Default.Close, "Cancel")
+                        }
                         IconButton(
                             onClick = {
-                                photoPickerLauncher.launch(
-                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                )
+                                authViewModel.onAction(AuthAction.UpdateProfile)
+                                isEditing = false
                             },
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary)
+                            enabled = uiState.displayName.isNotBlank() && !uiState.isLoading
                         ) {
+                            if (uiState.isLoading) {
+                                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                            } else {
+                                Icon(Icons.Default.Save, "Save")
+                            }
+                        }
+                    } else {
+                        IconButton(onClick = { isEditing = true }) {
+                            Icon(Icons.Default.Edit, "Edit")
+                        }
+                    }
+                },
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 24.dp)
+                .imePadding(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(Modifier.height(32.dp))
+
+            Box(
+                modifier = Modifier.size(120.dp),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                        .background(colorScheme.surfaceContainerHigh)
+                        .border(
+                            width = 2.dp,
+                            color = colorScheme.outlineVariant,
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    val currentPhotoUrl =
+                        if (isEditing) uiState.selectedAvatar else user?.photoUrl
+                    if (currentPhotoUrl != null) {
+                        Box(contentAlignment = Alignment.Center) {
+                            AsyncImage(
+                                model = currentPhotoUrl,
+                                contentDescription = "Profile photo",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                            )
+                            if (uiState.isLoading) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(colorScheme.scrim.copy(alpha = 0.4f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(32.dp),
+                                        color = Color.White,
+                                        strokeWidth = 3.dp
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        val initials =
+                            (if (isEditing) uiState.displayName else user?.displayName)
+                                ?.split(" ")
+                                ?.mapNotNull { it.firstOrNull()?.uppercaseChar() }
+                                ?.take(2)
+                                ?.joinToString("")
+                                ?: user?.email?.firstOrNull()?.uppercaseChar()?.toString()
+
+                        if (!initials.isNullOrBlank()) {
+                            Text(
+                                text = initials,
+                                style = MaterialTheme.typography.displayLarge.copy(fontSize = 40.sp),
+                                color = colorScheme.onSurface,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        } else {
                             Icon(
-                                imageVector = Icons.Default.CameraAlt,
-                                contentDescription = "Pick Image",
-                                tint = Color.White,
-                                modifier = Modifier.size(20.dp)
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                tint = colorScheme.onSurface,
+                                modifier = Modifier.size(60.dp),
                             )
                         }
                     }
                 }
+
+                if (isEditing) {
+                    IconButton(
+                        onClick = {
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(colorScheme.primary)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CameraAlt,
+                            contentDescription = "Pick Image",
+                            tint = colorScheme.onPrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            if (isEditing) {
+                OutlinedTextField(
+                    value = uiState.displayName,
+                    onValueChange = { authViewModel.onAction(AuthAction.DisplayNameChanged(it)) },
+                    label = { Text("Display Name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                )
 
                 Spacer(Modifier.height(24.dp))
 
-                if (isEditing) {
-                    OutlinedTextField(
-                        value = uiState.displayName,
-                        onValueChange = { authViewModel.onAction(AuthAction.DisplayNameChanged(it)) },
-                        label = { Text("Display Name") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.White,
-                            unfocusedBorderColor = Color.White.copy(alpha = 0.4f),
-                            focusedLabelColor = Color.White,
-                            unfocusedLabelColor = Color.White.copy(alpha = 0.6f),
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
+                Text(
+                    text = "Or Choose an Avatar",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colorScheme.onSurface,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    contentPadding = PaddingValues(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.height(160.dp)
+                ) {
+                    items(avatars) { avatarUrl ->
+                        val isSelected = uiState.selectedAvatar == avatarUrl
+                        val scale by animateFloatAsState(
+                            if (isSelected) 1.1f else 1f,
+                            label = "avatar_scale"
                         )
-                    )
 
-                    Spacer(Modifier.height(24.dp))
-
-                    Text(
-                        text = "Or Choose an Avatar",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(Modifier.height(16.dp))
-
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(4),
-                        contentPadding = PaddingValues(4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.height(160.dp)
-                    ) {
-                        items(avatars) { avatarUrl ->
-                            val isSelected = uiState.selectedAvatar == avatarUrl
-                            val scale by animateFloatAsState(
-                                if (isSelected) 1.1f else 1f,
-                                label = "avatar_scale"
-                            )
-
-                            Box(
-                                modifier = Modifier
-                                    .size(60.dp)
-                                    .scale(scale)
-                                    .clip(CircleShape)
-                                    .border(
-                                        width = 3.dp,
-                                        color = if (isSelected) Color.White else Color.White.copy(
-                                            alpha = 0.1f
-                                        ),
-                                        shape = CircleShape
-                                    )
-                                    .clickable {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        authViewModel.onAction(AuthAction.AvatarSelected(avatarUrl))
-                                    }
-                            ) {
-                                AsyncImage(
-                                    model = avatarUrl,
-                                    contentDescription = null,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
+                        Box(
+                            modifier = Modifier
+                                .size(60.dp)
+                                .scale(scale)
+                                .clip(CircleShape)
+                                .border(
+                                    width = 3.dp,
+                                    color = if (isSelected) colorScheme.primary else colorScheme.outlineVariant,
+                                    shape = CircleShape
                                 )
-                            }
+                                .clickable {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    authViewModel.onAction(AuthAction.AvatarSelected(avatarUrl))
+                                }
+                        ) {
+                            AsyncImage(
+                                model = avatarUrl,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
                         }
-                    }
-                } else {
-                    val displayName = user?.displayName?.takeIf { it.isNotBlank() }
-                        ?: user?.email?.substringBefore("@")
-                    if (displayName != null) {
-                        Text(
-                            text = displayName,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            modifier = if (uiState.isLoading) {
-                                Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .shimmer()
-                            } else Modifier
-                        )
-                        Spacer(Modifier.height(4.dp))
-                    }
-
-                    user?.email?.let { email ->
-                        Text(
-                            text = email,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.7f),
-                            modifier = if (uiState.isLoading) {
-                                Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .shimmer()
-                            } else Modifier
-                        )
                     }
                 }
+            } else {
+                val displayName = user?.displayName?.takeIf { it.isNotBlank() }
+                    ?: user?.email?.substringBefore("@")
+                if (displayName != null) {
+                    Text(
+                        text = displayName,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.onSurface,
+                        modifier = if (uiState.isLoading) {
+                            Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .shimmer()
+                        } else Modifier
+                    )
+                    Spacer(Modifier.height(4.dp))
+                }
 
-                Spacer(Modifier.height(40.dp))
+                user?.email?.let { email ->
+                    Text(
+                        text = email,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colorScheme.onSurfaceVariant,
+                        modifier = if (uiState.isLoading) {
+                            Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .shimmer()
+                        } else Modifier
+                    )
+                }
+            }
 
-                HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
+            Spacer(Modifier.height(40.dp))
 
-                Spacer(Modifier.height(40.dp))
+            HorizontalDivider()
 
-                AnimatedVisibility(!isEditing) {
-                    Button(
-                        onClick = { authViewModel.onAction(AuthAction.SignOut) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White.copy(alpha = 0.15f),
-                            contentColor = Color.White,
-                        ),
+            Spacer(Modifier.height(40.dp))
+
+            AnimatedVisibility(!isEditing) {
+                FilledTonalButton(
+                    onClick = { authViewModel.onAction(AuthAction.SignOut) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.Logout,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp),
-                            )
-                            Text("Sign Out", fontWeight = FontWeight.SemiBold)
-                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                        )
+                        Text("Sign Out", fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
         }
     }
 }
-

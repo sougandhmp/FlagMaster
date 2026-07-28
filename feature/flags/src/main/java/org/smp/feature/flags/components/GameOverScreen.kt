@@ -57,8 +57,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.smp.core.ui.PurpleVibrantTheme
-import org.smp.core.ui.VibrantThemeConfig
+import org.smp.core.ui.ConfettiShower
 import org.smp.feature.flags.R
 import org.smp.feature.flags.theme.FlagMasterTheme
 
@@ -66,13 +65,13 @@ import org.smp.feature.flags.theme.FlagMasterTheme
 fun GameOverScreen(
     score: Int = 2,
     totalQuestions: Int = 10,
-    config: VibrantThemeConfig = PurpleVibrantTheme,
     onPlayAgain: () -> Unit = {},
     onViewStats: () -> Unit = {},
     onShare: () -> Unit = {},
     onHome: () -> Unit = {},
     onBackPressed: () -> Unit = {}
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val percentage = (score.toFloat() / totalQuestions * 100).toInt()
     val nearMiss = percentage in 85..89 || percentage in 75..79 || percentage in 55..59
 
@@ -84,11 +83,17 @@ fun GameOverScreen(
         else -> "F"
     }
     val gradeColor = when {
-        percentage >= 80 -> Color(0xFF69F0AE)
-        percentage >= 40 -> Color(0xFFFFD54F)
-        else -> Color(0xFFFF7043)
+        percentage >= 80 -> colorScheme.tertiary
+        percentage >= 40 -> colorScheme.secondary
+        else -> colorScheme.error
     }
+    val isTopGrade = percentage >= 80
 
+    if (isTopGrade) {
+        ConfettiShower(
+            colors = listOf(colorScheme.tertiary, colorScheme.primary, colorScheme.secondary)
+        )
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -104,14 +109,14 @@ fun GameOverScreen(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.White
+                    tint = colorScheme.onBackground
                 )
             }
             Text(
                 text = "Flags Challenge",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = colorScheme.onBackground
                 )
             )
         }
@@ -128,9 +133,8 @@ fun GameOverScreen(
                 text = stringResource(R.string.game_over).uppercase(),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
-                    color = Color.White,
+                    color = colorScheme.onBackground,
                     letterSpacing = 1.sp,
-                    fontSize = 32.sp
                 )
             )
 
@@ -138,7 +142,7 @@ fun GameOverScreen(
                 text = "You scored $score out of $totalQuestions",
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    color = Color.White.copy(alpha = 0.7f)
+                    color = colorScheme.onSurfaceVariant
                 ),
                 modifier = Modifier.padding(top = 8.dp)
             )
@@ -148,7 +152,7 @@ fun GameOverScreen(
                     text = "So close! Just one more for the next grade! 🎯",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFFFFD54F)
+                        color = colorScheme.secondary
                     ),
                     modifier = Modifier.padding(top = 4.dp)
                 )
@@ -161,8 +165,8 @@ fun GameOverScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(32.dp))
-                    .background(config.cardBackground)
-                    .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(32.dp))
+                    .background(colorScheme.surfaceContainerHigh)
+                    .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(32.dp))
                     .padding(vertical = 40.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -174,15 +178,15 @@ fun GameOverScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = grade,
-                            fontSize = 64.sp,
+                            style = MaterialTheme.typography.displayLarge.copy(fontSize = 64.sp),
                             fontWeight = FontWeight.Black,
                             color = gradeColor
                         )
                         Text(
                             text = "$percentage%",
-                            fontSize = 18.sp,
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
                             fontWeight = FontWeight.Bold,
-                            color = Color.White.copy(alpha = 0.8f)
+                            color = colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -195,8 +199,8 @@ fun GameOverScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(24.dp))
-                    .background(Color.White.copy(alpha = 0.1f))
-                    .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(24.dp))
+                    .background(colorScheme.surfaceContainerHigh)
+                    .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(24.dp))
                     .padding(20.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -204,13 +208,13 @@ fun GameOverScreen(
                         modifier = Modifier
                             .size(48.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color.White.copy(alpha = 0.15f)),
+                            .background(colorScheme.secondaryContainer),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Lightbulb,
                             contentDescription = null,
-                            tint = Color(0xFFFFD54F),
+                            tint = colorScheme.onSecondaryContainer,
                             modifier = Modifier.size(28.dp)
                         )
                     }
@@ -219,7 +223,7 @@ fun GameOverScreen(
                         text = "Don't give up — every expert\nwas once a beginner!",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = colorScheme.onSurface,
                             lineHeight = 20.sp
                         )
                     )
@@ -241,7 +245,6 @@ fun GameOverScreen(
 
             VibrantCtaButton(
                 text = stringResource(R.string.play_again),
-                config = config,
                 onClick = onPlayAgain,
                 modifier = Modifier.graphicsLayer(scaleX = pulseScale, scaleY = pulseScale)
             )
@@ -262,7 +265,7 @@ fun GameOverScreen(
                     modifier = Modifier
                         .height(40.dp)
                         .width(1.dp),
-                    color = Color.White.copy(alpha = 0.2f)
+                    color = colorScheme.outlineVariant
                 )
                 BottomActionItem(
                     icon = Icons.Default.Share,
@@ -273,7 +276,7 @@ fun GameOverScreen(
                     modifier = Modifier
                         .height(40.dp)
                         .width(1.dp),
-                    color = Color.White.copy(alpha = 0.2f)
+                    color = colorScheme.outlineVariant
                 )
                 BottomActionItem(
                     icon = Icons.Default.Home,
@@ -289,6 +292,7 @@ fun GameOverScreen(
 
 @Composable
 fun BottomActionItem(icon: ImageVector, label: String, onClick: () -> Unit) {
+    val colorScheme = MaterialTheme.colorScheme
     Column(
         modifier = Modifier
             .clickable { onClick() }
@@ -299,14 +303,14 @@ fun BottomActionItem(icon: ImageVector, label: String, onClick: () -> Unit) {
         Icon(
             imageVector = icon,
             contentDescription = label,
-            tint = Color.White,
+            tint = colorScheme.onBackground,
             modifier = Modifier.size(24.dp)
         )
         Text(
             text = label,
             style = MaterialTheme.typography.labelLarge.copy(
                 fontWeight = FontWeight.Bold,
-                color = Color.White.copy(alpha = 0.8f)
+                color = colorScheme.onSurfaceVariant
             )
         )
     }
@@ -314,6 +318,7 @@ fun BottomActionItem(icon: ImageVector, label: String, onClick: () -> Unit) {
 
 @Composable
 fun GradeCircularProgress(percentage: Float, color: Color) {
+    val trackColor = MaterialTheme.colorScheme.surfaceVariant
     var animPlayed by remember { mutableStateOf(false) }
     val curPercentage by animateFloatAsState(
         targetValue = if (animPlayed) percentage else 0f,
@@ -324,7 +329,7 @@ fun GradeCircularProgress(percentage: Float, color: Color) {
 
     Canvas(modifier = Modifier.size(180.dp)) {
         drawCircle(
-            color = Color.White.copy(alpha = 0.1f),
+            color = trackColor,
             style = Stroke(width = 24.dp.toPx(), cap = StrokeCap.Round)
         )
         drawArc(
@@ -346,11 +351,10 @@ fun GradeCircularProgress(percentage: Float, color: Color) {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF001F26)
+@Preview(showBackground = true)
 @Composable
 private fun GameOverScreenPreview() {
     FlagMasterTheme {
         GameOverScreen(score = 2, totalQuestions = 10)
     }
 }
-

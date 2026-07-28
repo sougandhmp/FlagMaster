@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -18,11 +19,10 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -37,15 +37,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import org.smp.core.ui.BlueVibrantTheme
-import org.smp.core.ui.VibrantBackground
 import org.smp.feature.auth.AuthAction
 import org.smp.feature.auth.AuthViewModel
 
@@ -65,6 +62,7 @@ fun ProfileSetupScreen(authViewModel: AuthViewModel) {
     val uiState by authViewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val haptic = LocalHapticFeedback.current
+    val colorScheme = MaterialTheme.colorScheme
 
     LaunchedEffect(uiState.error) {
         uiState.error?.let {
@@ -73,32 +71,31 @@ fun ProfileSetupScreen(authViewModel: AuthViewModel) {
         }
     }
 
-    VibrantBackground(config = BlueVibrantTheme) {
-        androidx.compose.material3.Scaffold(
-            containerColor = Color.Transparent,
-            snackbarHost = { SnackbarHost(snackbarHostState) }
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 28.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 28.dp)
+                .imePadding(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Spacer(Modifier.height(48.dp))
 
             Text(
                 text = "Complete Your Profile",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
+                color = colorScheme.onBackground,
                 textAlign = TextAlign.Center,
             )
 
             Text(
                 text = "Pick a name and an avatar to represent you",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.7f),
+                color = colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
             )
 
@@ -111,14 +108,6 @@ fun ProfileSetupScreen(authViewModel: AuthViewModel) {
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = Color.White.copy(alpha = 0.4f),
-                    focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.White.copy(alpha = 0.6f),
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                )
             )
 
             Spacer(Modifier.height(32.dp))
@@ -126,7 +115,7 @@ fun ProfileSetupScreen(authViewModel: AuthViewModel) {
             Text(
                 text = "Choose an Avatar",
                 style = MaterialTheme.typography.titleMedium,
-                color = Color.White,
+                color = colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -150,7 +139,7 @@ fun ProfileSetupScreen(authViewModel: AuthViewModel) {
                             .clip(CircleShape)
                             .border(
                                 width = 3.dp,
-                                color = if (isSelected) Color.White else Color.White.copy(alpha = 0.1f),
+                                color = if (isSelected) colorScheme.primary else colorScheme.outlineVariant,
                                 shape = CircleShape
                             )
                             .clickable {
@@ -177,21 +166,15 @@ fun ProfileSetupScreen(authViewModel: AuthViewModel) {
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color(0xFF001F26),
-                    disabledContainerColor = Color.White.copy(alpha = 0.3f),
-                )
             ) {
                 if (uiState.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color(0xFF001F26))
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = colorScheme.onPrimary)
                 } else {
                     Text("Get Started", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                 }
             }
-            
+
             Spacer(Modifier.height(24.dp))
         }
     }
-}
 }

@@ -33,6 +33,7 @@ captures/
 # Keystore files (never commit these)
 *.jks
 *.keystore
+keystore.properties
 
 # Generated files
 /*/src/*/res/raw/

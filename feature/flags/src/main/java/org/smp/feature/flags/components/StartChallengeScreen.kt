@@ -54,25 +54,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.smp.domain.model.DifficultyMode
 import org.smp.feature.flags.R
 import org.smp.feature.flags.FlagsScreenAction
 import org.smp.feature.flags.ScheduleTimeUiState
-import org.smp.core.ui.RoseVibrantTheme
-import org.smp.core.ui.VibrantThemeConfig
 import org.smp.feature.flags.theme.FlagMasterTheme
+
+private val TrophyGold = Color(0xFFFFD700)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StartChallengeScreen(
     uiState: ScheduleTimeUiState,
     onAction: (FlagsScreenAction) -> Unit,
-    config: VibrantThemeConfig = RoseVibrantTheme,
     userPhotoUrl: String? = null,
     onProfileClick: () -> Unit = {},
     onLeaderboardClick: () -> Unit = {},
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -94,7 +93,7 @@ fun StartChallengeScreen(
                 text = stringResource(R.string.flags_challenge),
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
+                color = colorScheme.onBackground,
                 textAlign = TextAlign.Center,
             )
 
@@ -103,7 +102,7 @@ fun StartChallengeScreen(
             Text(
                 text = stringResource(R.string.start_challenge_description),
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White.copy(alpha = 0.7f),
+                color = colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
             )
 
@@ -112,7 +111,7 @@ fun StartChallengeScreen(
             Text(
                 text = "Difficulty",
                 style = MaterialTheme.typography.labelLarge,
-                color = Color.White.copy(alpha = 0.7f),
+                color = colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
@@ -127,12 +126,12 @@ fun StartChallengeScreen(
                             DifficultyMode.entries.size
                         ),
                         colors = SegmentedButtonDefaults.colors(
-                            activeContainerColor = config.optionSelectedBackground,
-                            activeContentColor = Color.White,
-                            activeBorderColor = Color.White.copy(alpha = 0.6f),
-                            inactiveContainerColor = Color.White.copy(alpha = 0.08f),
-                            inactiveContentColor = Color.White.copy(alpha = 0.7f),
-                            inactiveBorderColor = Color.White.copy(alpha = 0.2f),
+                            activeContainerColor = colorScheme.primaryContainer,
+                            activeContentColor = colorScheme.onPrimaryContainer,
+                            activeBorderColor = colorScheme.primary,
+                            inactiveContainerColor = colorScheme.surfaceContainerHigh,
+                            inactiveContentColor = colorScheme.onSurfaceVariant,
+                            inactiveBorderColor = colorScheme.outlineVariant,
                         ),
                         label = {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -140,7 +139,7 @@ fun StartChallengeScreen(
                                 Text(
                                     "${mode.timerMs / 1000}s / question",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = Color.White.copy(alpha = 0.6f)
+                                    color = colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -153,7 +152,7 @@ fun StartChallengeScreen(
             Text(
                 text = stringResource(R.string.questions),
                 style = MaterialTheme.typography.labelLarge,
-                color = Color.White.copy(alpha = 0.7f),
+                color = colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
@@ -166,12 +165,12 @@ fun StartChallengeScreen(
                         onClick = { onAction(FlagsScreenAction.OnQuestionCountSelected(count)) },
                         shape = SegmentedButtonDefaults.itemShape(index, questionCounts.size),
                         colors = SegmentedButtonDefaults.colors(
-                            activeContainerColor = config.optionSelectedBackground,
-                            activeContentColor = Color.White,
-                            activeBorderColor = Color.White.copy(alpha = 0.6f),
-                            inactiveContainerColor = Color.White.copy(alpha = 0.08f),
-                            inactiveContentColor = Color.White.copy(alpha = 0.7f),
-                            inactiveBorderColor = Color.White.copy(alpha = 0.2f),
+                            activeContainerColor = colorScheme.primaryContainer,
+                            activeContentColor = colorScheme.onPrimaryContainer,
+                            activeBorderColor = colorScheme.primary,
+                            inactiveContainerColor = colorScheme.surfaceContainerHigh,
+                            inactiveContentColor = colorScheme.onSurfaceVariant,
+                            inactiveBorderColor = colorScheme.outlineVariant,
                         ),
                         label = { Text("$count", fontWeight = FontWeight.SemiBold) }
                     )
@@ -182,7 +181,6 @@ fun StartChallengeScreen(
 
             VibrantCtaButton(
                 text = stringResource(R.string.start_now),
-                config = config,
                 onClick = { onAction(FlagsScreenAction.StartQuiz) },
             )
 
@@ -194,8 +192,8 @@ fun StartChallengeScreen(
                     .fillMaxWidth()
                     .height(52.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.5f))
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = colorScheme.onBackground),
+                border = BorderStroke(1.dp, colorScheme.outline)
             ) {
                 Icon(
                     imageVector = Icons.Default.CalendarMonth,
@@ -205,7 +203,6 @@ fun StartChallengeScreen(
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = stringResource(R.string.schedule_challenge),
-                    fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -220,8 +217,8 @@ fun StartChallengeScreen(
                         .fillMaxWidth()
                         .padding(top = 16.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Color.White.copy(alpha = 0.1f))
-                        .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
+                        .background(colorScheme.surfaceContainerHigh)
+                        .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(16.dp))
                 ) {
                     Column(
                         modifier = Modifier.padding(20.dp),
@@ -236,7 +233,7 @@ fun StartChallengeScreen(
                             Icon(
                                 imageVector = Icons.Default.CalendarMonth,
                                 contentDescription = null,
-                                tint = config.accentColor,
+                                tint = colorScheme.primary,
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(Modifier.width(8.dp))
@@ -244,12 +241,12 @@ fun StartChallengeScreen(
                                 text = "Set a time",
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White
+                                color = colorScheme.onSurface
                             )
                         }
                         HorizontalDivider(
                             modifier = Modifier.padding(bottom = 16.dp),
-                            color = Color.White.copy(alpha = 0.2f)
+                            color = colorScheme.outlineVariant
                         )
                         TimerScheduleView(uiState = uiState, onAction = onAction)
                     }
@@ -263,8 +260,8 @@ fun StartChallengeScreen(
                 .align(Alignment.TopEnd)
                 .padding(top = 12.dp, end = 12.dp),
             colors = IconButtonDefaults.iconButtonColors(
-                contentColor = Color.White,
-                containerColor = Color.White.copy(alpha = 0.15f),
+                contentColor = colorScheme.onSurface,
+                containerColor = colorScheme.surfaceContainerHigh,
             ),
         ) {
             if (userPhotoUrl != null) {
@@ -291,22 +288,22 @@ fun StartChallengeScreen(
                 .align(Alignment.TopStart)
                 .padding(top = 12.dp, start = 12.dp),
             colors = IconButtonDefaults.iconButtonColors(
-                contentColor = Color.White,
-                containerColor = Color.White.copy(alpha = 0.15f),
+                contentColor = colorScheme.onSurface,
+                containerColor = colorScheme.surfaceContainerHigh,
             ),
         ) {
             Icon(
                 imageVector = Icons.Default.EmojiEvents,
                 contentDescription = "Leaderboard",
                 modifier = Modifier.size(22.dp),
-                tint = Color(0xFFFFD700)
+                tint = TrophyGold
             )
         }
     }
 }
 
 @Composable
-@Preview(showBackground = true, backgroundColor = 0xFF001F26)
+@Preview(showBackground = true)
 private fun StartChallengeScreenPreview() {
     FlagMasterTheme {
         StartChallengeScreen(
@@ -315,4 +312,3 @@ private fun StartChallengeScreenPreview() {
         )
     }
 }
-

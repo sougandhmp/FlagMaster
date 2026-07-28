@@ -1,34 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Flag pole + waving tricolor flag, white on transparent, safe zone 22–86 dp -->
+<!-- Two-band wave flag + pole, centered with safe-zone margin for adaptive icon masks -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:viewportWidth="288"
+    android:viewportHeight="288">
 
-    <!-- Pole knob (circle at top) -->
+    <!-- Top wave band -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M32,23 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+        android:fillColor="#FFC94D"
+        android:pathData="M88,82h112v46c-19,0 -37,14 -56,14s-37,-14 -56,-14z" />
+
+    <!-- Bottom wave band -->
+    <path
+        android:fillColor="#FF5722"
+        android:pathData="M88,142c19,0 37,14 56,14s37,-14 56,-14v46c-19,0 -37,14 -56,14s-37,-14 -56,-14z" />
 
     <!-- Pole -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M30,24 L30,87 Q30,89 32,89 Q34,89 34,87 L34,24 Z" />
-
-    <!-- Flag top stripe -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M34,22 C56,20 74,24 86,22 L86,36 C74,38 56,34 34,36 Z" />
-
-    <!-- Flag middle stripe (dimmed to show division) -->
-    <path
-        android:fillColor="#AAFFFFFF"
-        android:pathData="M34,36 C56,34 74,38 86,36 L86,50 C74,52 56,48 34,50 Z" />
-
-    <!-- Flag bottom stripe -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M34,50 C56,48 74,52 86,50 L86,64 C74,66 56,62 34,64 Z" />
+        android:fillColor="#06231F"
+        android:pathData="M78,79.5 A5.5,5.5 0 0 1 89,79.5 L89,208.5 A5.5,5.5 0 0 1 78,208.5 Z" />
 
 </vector>

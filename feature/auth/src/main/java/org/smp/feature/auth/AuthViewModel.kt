@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.smp.domain.usecase.auth.CreateAccountUseCase
 import org.smp.domain.usecase.auth.ObserveAuthStateUseCase
+import org.smp.domain.usecase.auth.SendPasswordResetEmailUseCase
 import org.smp.domain.usecase.auth.SignInWithEmailUseCase
 import org.smp.domain.usecase.auth.SignOutUseCase
 import org.smp.domain.usecase.auth.UpdateProfileUseCase
@@ -24,6 +25,7 @@ class AuthViewModel @Inject constructor(
     private val createAccountUseCase: CreateAccountUseCase,
     private val handleGoogleSignInUseCase: HandleGoogleSignInUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
+    private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase,
     private val signOutUseCase: SignOutUseCase,
     private val scheduleSyncUseCase: ScheduleSyncUseCase,
 ) : ViewModel() {
@@ -54,6 +56,8 @@ class AuthViewModel @Inject constructor(
             }
             is AuthAction.SignOut -> launchAuthAction { signOutUseCase() }
             is AuthAction.ClearError -> _uiState.update { it.copy(error = null) }
+            is AuthAction.ForgotPassword -> forgotPassword()
+            is AuthAction.ClearInfoMessage -> _uiState.update { it.copy(infoMessage = null) }
             is AuthAction.DisplayNameChanged -> _uiState.update { it.copy(displayName = action.name) }
             is AuthAction.AvatarSelected -> _uiState.update { it.copy(selectedAvatar = action.url) }
             is AuthAction.CompleteProfile -> launchAuthAction {
@@ -79,6 +83,26 @@ class AuthViewModel @Inject constructor(
             if (state.selectedTab == 0) signInWithEmailUseCase(state.email, state.password)
             else createAccountUseCase(state.email, state.password)
             scheduleSyncUseCase()
+        }
+    }
+
+    private fun forgotPassword() {
+        val email = _uiState.value.email
+        if (email.isBlank()) {
+            _uiState.update { it.copy(error = "Enter your email to reset your password") }
+            return
+        }
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            runCatching { sendPasswordResetEmailUseCase(email) }
+                .onSuccess {
+                    _uiState.update { it.copy(infoMessage = "Password reset email sent to $email") }
+                }
+                .onFailure { e ->
+                    _uiState.update { it.copy(error = e.message) }
+                    Timber.e(e, "Password reset failed")
+                }
+            _uiState.update { it.copy(isLoading = false) }
         }
     }
 

@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,15 +28,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.smp.core.ui.BlueVibrantTheme
-import org.smp.core.ui.VibrantThemeConfig
 import org.smp.feature.flags.R
+import org.smp.feature.flags.theme.FlagMasterTheme
 
 @Composable
 fun CountDownView(
     remainingTime: String,
     modifier: Modifier = Modifier,
-    config: VibrantThemeConfig = BlueVibrantTheme
 ) {
     val progressFraction = remember(remainingTime) {
         val totalSecs = remainingTime.toIntOrNull() ?: 0
@@ -48,6 +45,7 @@ fun CountDownView(
         animationSpec = tween(durationMillis = 800),
         label = "countdownProgress"
     )
+    val colorScheme = MaterialTheme.colorScheme
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -61,8 +59,8 @@ fun CountDownView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(32.dp))
-                    .background(config.cardBackground)
-                    .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(32.dp))
+                    .background(colorScheme.surfaceContainerHigh)
+                    .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(32.dp))
                     .padding(vertical = 48.dp, horizontal = 24.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -74,7 +72,7 @@ fun CountDownView(
                         text = stringResource(R.string.will_start_in).uppercase(),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Black,
-                        color = Color.White,
+                        color = colorScheme.onSurface,
                         textAlign = TextAlign.Center,
                         letterSpacing = 2.sp
                     )
@@ -84,14 +82,14 @@ fun CountDownView(
                             progress = { 1f },
                             modifier = Modifier.size(200.dp),
                             strokeWidth = 12.dp,
-                            color = config.progressTrack,
+                            color = colorScheme.surfaceVariant,
                             strokeCap = StrokeCap.Round
                         )
                         CircularProgressIndicator(
                             progress = { animatedProgress },
                             modifier = Modifier.size(200.dp),
                             strokeWidth = 12.dp,
-                            color = config.progressIndicator,
+                            color = colorScheme.primary,
                             strokeCap = StrokeCap.Round
                         )
 
@@ -100,7 +98,7 @@ fun CountDownView(
                             style = MaterialTheme.typography.displayLarge.copy(
                                 fontSize = 80.sp,
                                 fontWeight = FontWeight.Black,
-                                color = Color.White
+                                color = colorScheme.onSurface
                             )
                         )
                     }
@@ -108,7 +106,7 @@ fun CountDownView(
                     Text(
                         text = stringResource(R.string.get_ready),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White.copy(alpha = 0.7f),
+                        color = colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -120,7 +118,7 @@ fun CountDownView(
 @Preview
 @Composable
 fun CountDownViewPreview() {
-    MaterialTheme {
+    FlagMasterTheme {
         CountDownView(remainingTime = "18")
     }
 }

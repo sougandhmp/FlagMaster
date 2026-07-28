@@ -1,34 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Splash screen icon: 288×288 dp, visual content within ~160 dp circle centred at (144,144) -->
+<!-- Splash screen icon: two-band wave flag + pole, matching the app icon -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="288dp"
     android:height="288dp"
     android:viewportWidth="288"
     android:viewportHeight="288">
 
-    <!-- Pole knob -->
+    <!-- Top wave band -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M86,68 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+        android:fillColor="#FFC94D"
+        android:pathData="M88,82h112v46c-19,0 -37,14 -56,14s-37,-14 -56,-14z" />
+
+    <!-- Bottom wave band -->
+    <path
+        android:fillColor="#FF5722"
+        android:pathData="M88,142c19,0 37,14 56,14s37,-14 56,-14v46c-19,0 -37,14 -56,14s-37,-14 -56,-14z" />
 
     <!-- Pole -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M82,72 L82,222 Q82,226 86,226 Q90,226 90,222 L90,72 Z" />
-
-    <!-- Flag top stripe -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M90,64 C128,60 176,66 208,62 L208,98 C176,102 128,96 90,100 Z" />
-
-    <!-- Flag middle stripe -->
-    <path
-        android:fillColor="#AAFFFFFF"
-        android:pathData="M90,100 C128,96 176,102 208,98 L208,134 C176,138 128,132 90,136 Z" />
-
-    <!-- Flag bottom stripe -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M90,136 C128,132 176,138 208,134 L208,170 C176,174 128,168 90,172 Z" />
+        android:pathData="M78,79.5 A5.5,5.5 0 0 1 89,79.5 L89,208.5 A5.5,5.5 0 0 1 78,208.5 Z" />
 
 </vector>

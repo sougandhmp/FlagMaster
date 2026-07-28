@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,14 +27,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import org.smp.core.ui.BlueVibrantTheme
-import org.smp.core.ui.VibrantThemeConfig
+import org.smp.feature.flags.theme.FlagMasterTheme
 
 @Composable
 fun VibrantAnswerOption(
@@ -41,10 +39,10 @@ fun VibrantAnswerOption(
     isSelected: Boolean,
     isCorrect: Boolean,
     showResult: Boolean,
-    config: VibrantThemeConfig,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val isWrongSelection = isSelected && !isCorrect
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -54,16 +52,23 @@ fun VibrantAnswerOption(
     )
 
     val background = when {
-        showResult && isCorrect -> Color(0xFF4DD0E1).copy(alpha = 0.9f)
-        showResult && isWrongSelection -> Color(0xFFE57373).copy(alpha = 0.9f)
-        isSelected -> config.optionSelectedBackground
-        else -> Color.White.copy(alpha = 0.1f)
+        showResult && isCorrect -> colorScheme.tertiaryContainer
+        showResult && isWrongSelection -> colorScheme.errorContainer
+        isSelected -> colorScheme.primaryContainer
+        else -> colorScheme.surfaceContainerHigh
+    }
+
+    val contentColor = when {
+        showResult && isCorrect -> colorScheme.onTertiaryContainer
+        showResult && isWrongSelection -> colorScheme.onErrorContainer
+        isSelected -> colorScheme.onPrimaryContainer
+        else -> colorScheme.onSurface
     }
 
     val borderColor = when {
-        showResult && (isCorrect || isWrongSelection) -> Color.White.copy(alpha = 0.9f)
-        isSelected -> Color.White.copy(alpha = 0.8f)
-        else -> Color.White.copy(alpha = 0.2f)
+        showResult && (isCorrect || isWrongSelection) -> contentColor.copy(alpha = 0.4f)
+        isSelected -> colorScheme.primary
+        else -> colorScheme.outlineVariant
     }
 
     Row(
@@ -86,8 +91,8 @@ fun VibrantAnswerOption(
     ) {
         Text(
             text = text,
-            color = Color.White,
-            fontSize = 16.sp,
+            style = MaterialTheme.typography.bodyLarge,
+            color = contentColor,
             fontWeight = FontWeight.Medium
         )
 
@@ -96,14 +101,14 @@ fun VibrantAnswerOption(
                 modifier = Modifier
                     .size(24.dp)
                     .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.2f))
-                    .border(1.dp, Color.White, CircleShape),
+                    .background(contentColor.copy(alpha = 0.15f))
+                    .border(1.dp, contentColor, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = if (isCorrect) Icons.Default.Check else Icons.Default.Close,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = contentColor,
                     modifier = Modifier.size(14.dp)
                 )
             }
@@ -114,38 +119,41 @@ fun VibrantAnswerOption(
 @Preview
 @Composable
 fun VibrantAnswerOptionDefaultPreview() {
-    VibrantAnswerOption(
-        text = "United Arab Emirates",
-        isSelected = false,
-        isCorrect = false,
-        showResult = false,
-        config = BlueVibrantTheme,
-        onClick = {},
-    )
+    FlagMasterTheme {
+        VibrantAnswerOption(
+            text = "United Arab Emirates",
+            isSelected = false,
+            isCorrect = false,
+            showResult = false,
+            onClick = {},
+        )
+    }
 }
 
 @Preview
 @Composable
 fun VibrantAnswerOptionCorrectPreview() {
-    VibrantAnswerOption(
-        text = "United Arab Emirates",
-        isSelected = true,
-        isCorrect = true,
-        showResult = true,
-        config = BlueVibrantTheme,
-        onClick = {},
-    )
+    FlagMasterTheme {
+        VibrantAnswerOption(
+            text = "United Arab Emirates",
+            isSelected = true,
+            isCorrect = true,
+            showResult = true,
+            onClick = {},
+        )
+    }
 }
 
 @Preview
 @Composable
 fun VibrantAnswerOptionWrongPreview() {
-    VibrantAnswerOption(
-        text = "Macedonia",
-        isSelected = true,
-        isCorrect = false,
-        showResult = true,
-        config = BlueVibrantTheme,
-        onClick = {},
-    )
+    FlagMasterTheme {
+        VibrantAnswerOption(
+            text = "Macedonia",
+            isSelected = true,
+            isCorrect = false,
+            showResult = true,
+            onClick = {},
+        )
+    }
 }
