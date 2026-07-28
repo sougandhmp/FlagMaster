@@ -9,6 +9,8 @@ sealed interface AuthAction {
     data object Submit : AuthAction
     data object SignOut : AuthAction
     data object ClearError : AuthAction
+    data object ForgotPassword : AuthAction
+    data object ClearInfoMessage : AuthAction
 
     // New actions for profile setup
     data class DisplayNameChanged(val name: String) : AuthAction

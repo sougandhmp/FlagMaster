@@ -36,6 +36,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -67,6 +68,12 @@ fun LoginScreen(authViewModel: AuthViewModel) {
         uiState.error?.let {
             snackbarHostState.showSnackbar(it)
             authViewModel.onAction(AuthAction.ClearError)
+        }
+    }
+    LaunchedEffect(uiState.infoMessage) {
+        uiState.infoMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            authViewModel.onAction(AuthAction.ClearInfoMessage)
         }
     }
 
@@ -217,7 +224,25 @@ private fun AuthForm(
         colors = fieldColors,
     )
 
-    Spacer(Modifier.height(24.dp))
+    if (uiState.selectedTab == 0) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(
+                onClick = {
+                    focusManager.clearFocus()
+                    onAction(AuthAction.ForgotPassword)
+                },
+                enabled = !uiState.isLoading,
+            ) {
+                Text(
+                    text = "Forgot password?",
+                    color = Color.White.copy(alpha = 0.8f),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
+    }
+
+    Spacer(Modifier.height(if (uiState.selectedTab == 0) 8.dp else 24.dp))
 
     Button(
         onClick = { submit() },
