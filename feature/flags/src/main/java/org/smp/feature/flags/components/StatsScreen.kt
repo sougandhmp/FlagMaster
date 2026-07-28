@@ -3,8 +3,10 @@ package org.smp.feature.flags.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,8 +34,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -59,7 +61,6 @@ fun StatsScreen(
                     Text(
                         text = "Results",
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
                     )
                 },
                 navigationIcon = {
@@ -67,21 +68,23 @@ fun StatsScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.White
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
         }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp),
+                .consumeWindowInsets(innerPadding),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = 16.dp,
+                top = innerPadding.calculateTopPadding(),
+                bottom = innerPadding.calculateBottomPadding(),
+            ),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
@@ -201,8 +204,8 @@ private fun QuestionResultCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Q$index  ·  $correctName",
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp,
                     color = if (isCorrect) MaterialTheme.colorScheme.onSecondaryContainer
                     else if (selectedName == null) MaterialTheme.colorScheme.onSurface
                     else MaterialTheme.colorScheme.onErrorContainer,
@@ -217,7 +220,7 @@ private fun QuestionResultCard(
                 }
                 Text(
                     text = answerLabel,
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = indicatorColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -244,8 +247,8 @@ private fun QuestionResultCard(
 
                 else -> Text(
                     text = "—",
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
                     color = MaterialTheme.colorScheme.outline,
-                    fontSize = 18.sp
                 )
             }
         }

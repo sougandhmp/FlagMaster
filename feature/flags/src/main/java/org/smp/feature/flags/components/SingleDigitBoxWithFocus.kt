@@ -20,13 +20,11 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun SingleDigitBoxWithFocus(
@@ -47,8 +45,7 @@ fun SingleDigitBoxWithFocus(
             lastValue = filtered
             onValueChange(filtered)
         },
-        textStyle = TextStyle(
-            fontSize = 24.sp,
+        textStyle = MaterialTheme.typography.headlineSmall.copy(
             textAlign = TextAlign.Center
         ),
         singleLine = true,

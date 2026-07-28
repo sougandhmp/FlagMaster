@@ -53,22 +53,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.smp.core.ui.BlueVibrantTheme
 import org.smp.core.ui.ConfettiShower
-import org.smp.core.ui.OrangeVibrantTheme
-import org.smp.core.ui.VibrantThemeConfig
 import org.smp.domain.model.Country
 import org.smp.feature.flags.R
-
-private val CorrectGreen = Color(0xFF4CAF50)
+import org.smp.feature.flags.theme.FlagMasterTheme
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun VibrantChallengeView(
     modifier: Modifier = Modifier,
-    config: VibrantThemeConfig = BlueVibrantTheme,
     questionNumber: Int = 15,
     totalQuestions: Int = 15,
     score: Int = 2,
@@ -85,6 +80,7 @@ fun VibrantChallengeView(
     factCountdown: Int = 10,
 ) {
     val haptic = LocalHapticFeedback.current
+    val colorScheme = MaterialTheme.colorScheme
 
     val isCorrect = selectedCountry?.code == correctAnswer
     val showScorePopup = showResult && isCorrect
@@ -100,7 +96,7 @@ fun VibrantChallengeView(
                     flashAlpha.animateTo(0.4f, tween(100))
                     flashAlpha.animateTo(0f, tween(400))
                 }
-                delay(800)
+                delay(800.milliseconds)
                 onSeeResults()
             } else {
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -127,16 +123,16 @@ fun VibrantChallengeView(
     val animatedBorderColor by animateColorAsState(
         targetValue = when {
             !showResult || selectedCountry == null -> Color.Transparent
-            isCorrect -> CorrectGreen
-            else -> Color(0xFFF44336)
+            isCorrect -> colorScheme.tertiary
+            else -> colorScheme.error
         },
         label = "borderColor"
     )
 
     val infiniteTransition = rememberInfiniteTransition(label = "StreakGlow")
     val glowColor by infiniteTransition.animateColor(
-        initialValue = Color(0xFFFFD700),
-        targetValue = Color(0xFFFF6F00),
+        initialValue = colorScheme.tertiary,
+        targetValue = colorScheme.secondary,
         animationSpec = infiniteRepeatable(
             animation = tween(1000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
@@ -146,7 +142,9 @@ fun VibrantChallengeView(
 
     Box(modifier = modifier.fillMaxSize()) {
         if (showResult && isCorrect) {
-            ConfettiShower()
+            ConfettiShower(
+                colors = listOf(colorScheme.tertiary, colorScheme.primary, colorScheme.secondary)
+            )
         }
 
         if (streak >= 15) {
@@ -172,7 +170,7 @@ fun VibrantChallengeView(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp)
-                .padding(top = 32.dp, bottom = if (showResult) 104.dp else 32.dp),
+                .padding(top = 12.dp, bottom = if (showResult) 104.dp else 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -181,12 +179,10 @@ fun VibrantChallengeView(
                 totalQuestions = totalQuestions,
                 score = score,
                 remainingTime = if (showResult) "" else remainingTime,
-                config = config,
                 showScorePopup = showScorePopup
             )
 
             QuestionCard(
-                config = config,
                 streak = streak,
                 glowColor = glowColor,
                 flagCountryCode = flagCountryCode,
@@ -202,7 +198,7 @@ fun VibrantChallengeView(
             )
 
             if (showResult && fact.isNotEmpty()) {
-                FactPanel(fact = fact, config = config)
+                FactPanel(fact = fact)
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -210,7 +206,6 @@ fun VibrantChallengeView(
         if (showResult) {
             VibrantCtaButton(
                 text = stringResource(R.string.next_question),
-                config = config,
                 onClick = onSeeResults,
                 countdownFraction = factCountdown.toFloat() / 10f,
                 showCountdownLabel = true,
@@ -222,14 +217,13 @@ fun VibrantChallengeView(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White.copy(alpha = flashAlpha.value))
+                .background(colorScheme.tertiary.copy(alpha = flashAlpha.value))
         )
     }
 }
 
 @Composable
 private fun QuestionCard(
-    config: VibrantThemeConfig,
     streak: Int,
     glowColor: Color,
     flagCountryCode: String,
@@ -243,17 +237,18 @@ private fun QuestionCard(
     borderAlpha: Float,
     onOptionSelected: (Country) -> Unit,
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(32.dp))
-            .background(config.cardBackground)
+            .background(colorScheme.surfaceContainerHigh)
             .border(
                 width = 3.dp,
                 color = animatedBorderColor.copy(alpha = borderAlpha),
                 shape = RoundedCornerShape(32.dp)
             )
-            .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(32.dp))
+            .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(32.dp))
             .padding(24.dp)
     ) {
         Column(
@@ -262,12 +257,10 @@ private fun QuestionCard(
         ) {
             Text(
                 text = stringResource(R.string.which_country_flag),
-                style = MaterialTheme.typography.titleLarge.copy(
+                style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = colorScheme.onSurface,
                     textAlign = TextAlign.Center,
-                    fontSize = 24.sp,
-                    lineHeight = 32.sp
                 )
             )
 
@@ -285,8 +278,8 @@ private fun QuestionCard(
                     .fillMaxWidth()
                     .height(200.dp)
                     .clip(RoundedCornerShape(24.dp))
-                    .background(Color.White.copy(alpha = 0.05f))
-                    .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(24.dp)),
+                    .background(colorScheme.surfaceContainerHighest)
+                    .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(24.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 CountryFlag(countryCode = flagCountryCode)
@@ -301,7 +294,6 @@ private fun QuestionCard(
                         isSelected = isSelected,
                         isCorrect = country.code == correctAnswer,
                         showResult = showResult,
-                        config = config,
                         onClick = { onOptionSelected(country) },
                         modifier = if (isWrongSelection) {
                             Modifier.offset { IntOffset(shakeOffsetX.toInt(), 0) }
@@ -317,6 +309,7 @@ private fun QuestionCard(
 
 @Composable
 private fun StreakBadge(streak: Int, glowColor: Color) {
+    val colorScheme = MaterialTheme.colorScheme
     val bounceScale by animateFloatAsState(
         targetValue = if (streak >= 2) 1.1f else 1f,
         animationSpec = spring(
@@ -331,11 +324,11 @@ private fun StreakBadge(streak: Int, glowColor: Color) {
             .clip(RoundedCornerShape(20.dp))
             .background(
                 if (streak >= 5) glowColor.copy(alpha = 0.3f)
-                else Color(0xFFFF6F00).copy(alpha = 0.25f)
+                else colorScheme.secondary.copy(alpha = 0.25f)
             )
             .border(
                 2.dp,
-                if (streak >= 5) glowColor else Color(0xFFFF6F00).copy(alpha = 0.5f),
+                if (streak >= 5) glowColor else colorScheme.secondary.copy(alpha = 0.5f),
                 RoundedCornerShape(20.dp)
             )
             .padding(horizontal = 14.dp, vertical = 6.dp),
@@ -348,45 +341,47 @@ private fun StreakBadge(streak: Int, glowColor: Color) {
                 streak >= 5 -> "🔥✨"
                 else -> "🔥"
             },
-            fontSize = 14.sp
+            style = MaterialTheme.typography.labelMedium
         )
         Text(
             text = "$streak streak",
-            color = Color.White,
+            style = MaterialTheme.typography.labelMedium,
+            color = colorScheme.onSurface,
             fontWeight = FontWeight.Bold,
-            fontSize = 13.sp,
         )
     }
 }
 
 @Preview
 @Composable
-fun BlueVibrantPreview() {
-    VibrantChallengeView(
-        config = BlueVibrantTheme,
-        options = listOf(
-            Country("United Arab Emirates", "ae"),
-            Country("Macedonia", "mk"),
-            Country("Guernsey", "gg")
-        ),
-        selectedCountry = Country("United Arab Emirates", "ae"),
-        showResult = true,
-        correctAnswer = "mk",
-        fact = "North Macedonia declared independence from Yugoslavia in 1991 and is one of the youngest countries in Europe.",
-        factCountdown = 7
-    )
+fun VibrantChallengeViewPreview() {
+    FlagMasterTheme {
+        VibrantChallengeView(
+            options = listOf(
+                Country("United Arab Emirates", "ae"),
+                Country("Macedonia", "mk"),
+                Country("Guernsey", "gg")
+            ),
+            selectedCountry = Country("United Arab Emirates", "ae"),
+            showResult = true,
+            correctAnswer = "mk",
+            fact = "North Macedonia declared independence from Yugoslavia in 1991 and is one of the youngest countries in Europe.",
+            factCountdown = 7
+        )
+    }
 }
 
 @Preview
 @Composable
-fun OrangeVibrantPreview() {
-    VibrantChallengeView(
-        config = OrangeVibrantTheme,
-        options = listOf(
-            Country("United Arab Emirates", "ae"),
-            Country("Macedonia", "mk"),
-            Country("Guernsey", "gg")
-        ),
-        selectedCountry = Country("United Arab Emirates", "ae")
-    )
+fun VibrantChallengeViewActivePreview() {
+    FlagMasterTheme {
+        VibrantChallengeView(
+            options = listOf(
+                Country("United Arab Emirates", "ae"),
+                Country("Macedonia", "mk"),
+                Country("Guernsey", "gg")
+            ),
+            selectedCountry = Country("United Arab Emirates", "ae")
+        )
+    }
 }
